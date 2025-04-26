@@ -1,14 +1,36 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
+import { useWidgetStore } from '../../store/useWidgetStore';
 import { DiceD2, DiceD4, DiceD6, DiceD8, DiceD10, DiceD12, DiceD20, DiceD100 } from './DiceIcons';
 
-export default function DiceRoller() {
-  const [diceType, setDiceType] = useState(20);
-  const [numDice, setNumDice] = useState(1);
-  const [modifier, setModifier] = useState(0);
-  const [advantage, setAdvantage] = useState<'none' | 'adv' | 'dis'>('none');
-  const [formula, setFormula] = useState('');
-  const [results, setResults] = useState<number[]>([]);
-  const [finalResult, setFinalResult] = useState<number | null>(null);
+interface DiceRollerProps {
+  id: string;
+  updateWidget: (id: string, updates: any) => void;
+}
+
+export default function DiceRoller({ id, updateWidget }: DiceRollerProps) {
+  const widget = useWidgetStore(state => state.widgets.find(w => w.id === id));
+
+  useEffect(() => {
+    if (!widget?.diceType) {
+      updateWidget(id, { diceType: 20, numDice: 1, modifier: 0, advantage: 'none', formula: '', results: [], finalResult: null });
+    }
+  }, [widget, id, updateWidget]);
+
+  const diceType = widget?.diceType || 20;
+  const numDice = widget?.numDice || 1;
+  const modifier = widget?.modifier || 0;
+  const advantage = widget?.advantage || 'none';
+  const formula = widget?.formula || '';
+  const results = widget?.results || [];
+  const finalResult = widget?.finalResult || null;
+
+  const setDiceType = (v: number) => updateWidget(id, { diceType: v });
+  const setNumDice = (v: number) => updateWidget(id, { numDice: v });
+  const setModifier = (v: number) => updateWidget(id, { modifier: v });
+  const setAdvantage = (v: 'none' | 'adv' | 'dis') => updateWidget(id, { advantage: v });
+  const setFormula = (v: string) => updateWidget(id, { formula: v });
+  const setResults = (v: number[]) => updateWidget(id, { results: v });
+  const setFinalResult = (v: number | null) => updateWidget(id, { finalResult: v });
 
   const diceOptions = [
     {sides: 2, icon: <DiceD2 />},
