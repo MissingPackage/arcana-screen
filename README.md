@@ -29,10 +29,12 @@ ArcanaScreen aims to be the ultimate GM companion: flexible, beautiful, and powe
 
 ## 🚀 How to Get Started
 
-git clone https://github.com/YOUR-USERNAME/arcana-screen.git
+```
+git clone https://github.com/MissingPackage/arcana-screen.git
 cd arcana-screen
 npm install
 npm run dev
+```
 
 ## 🌟 Future Plans
 
