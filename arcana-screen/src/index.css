@@ -2,39 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+/* BASE SETUP */
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
+  
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
+/* MINIMAL RESET */
 
+html {
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  transition: background-color 0.4s ease, color 0.4s ease; /* Smooth theme transition */
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* GLOBAL ELEMENTS */
+a {
+  font-weight: 500;
+  text-decoration: inherit;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 button {
@@ -44,27 +43,50 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: border-color 0.25s, background-color 0.25s;
 }
-button:hover {
-  border-color: #646cff;
-}
+
+/* Optional: improve button focus */
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+/* THEME STYLES */
+/* Pergamena chiara per Light Mode */
+.bg-parchment {
+  background-color: #f9f6ef; /* molto più chiaro */
+  background-image: linear-gradient(135deg, #f9f6ef 0%, #e0d2b3 100%), url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" fill="%23f5f0e1"/><path d="M0 39 Q20 41 40 39" stroke="%23e0d2b3" stroke-width="2" fill="none"/></svg>');
+  background-blend-mode: multiply;
+  background-repeat: repeat;
+  background-size: auto;
+}
+
+/* Pergamena scura per Dark Mode */
+.bg-dark-parchment {
+  background-color: #3b2f23;
+  background-image: linear-gradient(135deg, #5a4936 0%, #3b2f23 100%), url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" fill="%235a4936"/><path d="M0 39 Q20 41 40 39" stroke="%233b2f23" stroke-width="2" fill="none"/></svg>');
+  background-blend-mode: multiply;
+  background-repeat: repeat;
+  background-size: auto;
+}
+
+.dark-mode-text {
+  color: #f5ecd6 !important;
+}
+
+/* Bottoni e input in dark mode */
+.bg-dark-parchment button,
+.bg-dark-parchment input,
+.bg-dark-parchment .card,
+.bg-dark-parchment .widget {
+  background-color: #2a2119 !important;
+  color: #f5ecd6 !important;
+  border: 1px solid #7c6a55 !important;
+  box-shadow: 0 1px 4px 0 #0005;
+}
+
+.bg-dark-parchment input {
+  background-color: #231b14 !important;
 }
