@@ -54,20 +54,39 @@ button:focus-visible {
 }
 
 /* THEME STYLES */
-/* Light mode */
+/* Pergamena chiara per Light Mode */
 .bg-parchment {
-  background-color: #e6d3b3;
-  background-image: linear-gradient(135deg, #e6d3b3 0%, #bfa873 100%), url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" fill="%23e9d8b7"/><path d="M0 39 Q20 41 40 39" stroke="%23bfa873" stroke-width="2" fill="none"/></svg>');
+  background-color: #f9f6ef; /* molto più chiaro */
+  background-image: linear-gradient(135deg, #f9f6ef 0%, #e0d2b3 100%), url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" fill="%23f5f0e1"/><path d="M0 39 Q20 41 40 39" stroke="%23e0d2b3" stroke-width="2" fill="none"/></svg>');
   background-blend-mode: multiply;
   background-repeat: repeat;
   background-size: auto;
 }
 
-/* Dark mode */
+/* Pergamena scura per Dark Mode */
 .bg-dark-parchment {
-  background-color: #3a2f23;
-  background-image: linear-gradient(135deg, #3a2f23 0%, #2d241b 100%), url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" fill="%23382d23"/><path d="M0 39 Q20 41 40 39" stroke="%232d241b" stroke-width="2" fill="none"/></svg>');
+  background-color: #3b2f23;
+  background-image: linear-gradient(135deg, #5a4936 0%, #3b2f23 100%), url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" fill="%235a4936"/><path d="M0 39 Q20 41 40 39" stroke="%233b2f23" stroke-width="2" fill="none"/></svg>');
   background-blend-mode: multiply;
   background-repeat: repeat;
   background-size: auto;
+}
+
+.dark-mode-text {
+  color: #f5ecd6 !important;
+}
+
+/* Bottoni e input in dark mode */
+.bg-dark-parchment button,
+.bg-dark-parchment input,
+.bg-dark-parchment .card,
+.bg-dark-parchment .widget {
+  background-color: #2a2119 !important;
+  color: #f5ecd6 !important;
+  border: 1px solid #7c6a55 !important;
+  box-shadow: 0 1px 4px 0 #0005;
+}
+
+.bg-dark-parchment input {
+  background-color: #231b14 !important;
 }

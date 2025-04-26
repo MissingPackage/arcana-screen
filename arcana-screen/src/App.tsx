@@ -6,9 +6,9 @@ function App() {
   const { theme, toggleTheme } = useThemeStore();
 
   return (
-    <div className={`h-screen w-screen flex flex-col ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-parchment text-gray-900'}`}>
+    <div className={`h-screen w-screen flex flex-col ${theme === 'dark' ? 'bg-dark-parchment text-white' : 'bg-parchment text-gray-900'}`}>
       
-      <header className="p-4 text-center border-b border-gray-700">
+      <header className={`p-4 text-center border-b border-gray-700 ${theme === 'dark' ? 'dark-mode-text' : ''}`}>
         <h1 className="text-3xl font-bold">ArcanaScreen</h1>
         <p className="text-gray-400 text-sm mt-2">The customizable virtual DM screen</p>
         <div className="mt-2">
