@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useWidgetStore } from '../../store/useWidgetStore';
 
 interface Combatant {
   id: number;
@@ -6,12 +7,32 @@ interface Combatant {
   initiative: number;
 }
 
-export default function InitiativeTracker() {
-  const [combatants, setCombatants] = useState<Combatant[]>([]);
-  const [name, setName] = useState('');
-  const [initiative, setInitiative] = useState(0);
-  const [currentIndex, setCurrentIndex] = useState<number | null>(null);
-  const [turnChangeAnimation, setTurnChangeAnimation] = useState(false);
+interface InitiativeTrackerProps {
+  id: string;
+  updateWidget: (id: string, updates: any) => void;
+}
+
+
+export default function InitiativeTracker({ id, updateWidget }: InitiativeTrackerProps) {
+  const widget = useWidgetStore(state => state.widgets.find(w => w.id === id));
+
+  useEffect(() => {
+    if (!widget?.combatants) {
+      updateWidget(id, { combatants: [], name: '', initiative: 0, currentIndex: null, turnChangeAnimation: false });
+    }
+  }, [widget, id, updateWidget]);
+
+  const combatants = widget?.combatants || [];
+  const name = widget?.name || '';
+  const initiative = widget?.initiative || 0;
+  const currentIndex = widget?.currentIndex ?? null;
+  const turnChangeAnimation = widget?.turnChangeAnimation || false;
+
+  const setCombatants = (v: any[]) => updateWidget(id, { combatants: v });
+  const setName = (v: string) => updateWidget(id, { name: v });
+  const setInitiative = (v: number) => updateWidget(id, { initiative: v });
+  const setCurrentIndex = (v: number | null) => updateWidget(id, { currentIndex: v });
+  const setTurnChangeAnimation = (v: boolean) => updateWidget(id, { turnChangeAnimation: v });
 
   const addCombatant = () => {
     if (!name) return;
@@ -29,16 +50,14 @@ export default function InitiativeTracker() {
 
   const nextTurn = () => {
     if (combatants.length === 0) return;
-    setCurrentIndex((prev) => {
-      const nextIndex = prev === null ? 0 : (prev + 1) % combatants.length;
-      return nextIndex;
-    });
+    const nextIndex = currentIndex === null ? 0 : (currentIndex + 1) % combatants.length;
+    setCurrentIndex(nextIndex);
     // Trigger animation
     setTurnChangeAnimation(true);
   };
 
   const removeCombatant = (id: number) => {
-    setCombatants((prev) => prev.filter((c) => c.id !== id));
+    setCombatants(combatants.filter((c) => c.id !== id));
   };
 
   useEffect(() => {
@@ -58,6 +77,8 @@ export default function InitiativeTracker() {
           Turn: {currentIndex + 1} / {combatants.length}
         </div>
       )}
+      {/* Defensive: show nothing if combatants empty or currentIndex null */}
+      {combatants.length === 0 || currentIndex === null ? null : null}
 
       <div className="flex flex-col gap-2 mb-4">
         <input

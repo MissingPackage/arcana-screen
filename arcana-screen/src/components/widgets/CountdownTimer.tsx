@@ -1,22 +1,40 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { useWidgetStore } from '../../store/useWidgetStore';
 
-export default function CountdownTimer() {
-  const [seconds, setSeconds] = useState(60);
-  const [isRunning, setIsRunning] = useState(false);
+interface CountdownTimerProps {
+  id: string;
+  updateWidget: (id: string, updates: any) => void;
+}
+
+export default function CountdownTimer({ id, updateWidget }: CountdownTimerProps) {
+  const widget = useWidgetStore(state => state.widgets.find(w => w.id === id));
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (!widget?.seconds || widget.isRunning === undefined) {
+      updateWidget(id, { seconds: 60, isRunning: false });
+    }
+  }, [widget, id, updateWidget]);
+
+  const seconds = widget?.seconds || 60;
+  const isRunning = widget?.isRunning || false;
+
+  const setSeconds = (s: number) => updateWidget(id, { seconds: s });
+  const setIsRunning = (r: boolean) => updateWidget(id, { isRunning: r });
 
   const startTimer = () => {
     if (isRunning) return;
     setIsRunning(true);
     timerRef.current = setInterval(() => {
-      setSeconds((prev) => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current!);
-          setIsRunning(false);
-          return 0;
-        }
-        return prev - 1;
-      });
+      // compute next seconds value
+      const current = useWidgetStore.getState().widgets.find(w => w.id === id)?.seconds || 60;
+      if (current <= 1) {
+        clearInterval(timerRef.current!);
+        setIsRunning(false);
+        setSeconds(0);
+      } else {
+        setSeconds(current - 1);
+      }
     }, 1000);
   };
 
@@ -28,6 +46,7 @@ export default function CountdownTimer() {
   const resetTimer = () => {
     stopTimer();
     setSeconds(60);
+    setIsRunning(false);
   };
 
   useEffect(() => {
@@ -36,6 +55,7 @@ export default function CountdownTimer() {
     };
   }, []);
 
+  if (widget == null) return <div>Loading timer...</div>;
   return (
     <div className="bg-green-100 text-gray-900 p-4 rounded-lg shadow-md w-full h-full flex flex-col justify-between">
       <h2 className="text-lg font-bold mb-2">Countdown Timer</h2>
