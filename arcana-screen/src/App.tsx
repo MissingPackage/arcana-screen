@@ -1,28 +1,25 @@
-import { useAppStore } from './store/appStore';
+import Grid from './components/Grid'; // importa il Grid che abbiamo creato
+import './index.css'; // importa i tuoi stili Tailwind
 
 function App() {
-  const count = useAppStore((state) => state.count);
-  const increment = useAppStore((state) => state.increment);
-  const decrement = useAppStore((state) => state.decrement);
-
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-900 text-white">
-      <h1 className="text-4xl font-bold mb-6">Zustand Counter</h1>
-      <div className="flex items-center gap-4">
-        <button
-          onClick={decrement}
-          className="px-4 py-2 bg-red-500 rounded hover:bg-red-600"
-        >
-          -
-        </button>
-        <span className="text-2xl">{count}</span>
-        <button
-          onClick={increment}
-          className="px-4 py-2 bg-green-500 rounded hover:bg-green-600"
-        >
-          +
-        </button>
-      </div>
+    <div className="h-screen w-screen flex flex-col" style={{
+      backgroundColor: '#e6d3b3',
+      backgroundImage: `linear-gradient(135deg, #e6d3b3 0%, #bfa873 100%), url('data:image/svg+xml;utf8,<svg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'><rect width=\'40\' height=\'40\' fill=\'%23e9d8b7\'/><path d=\'M0 39 Q20 41 40 39\' stroke=\'%23bfa873\' stroke-width=\'2\' fill=\'none\'/></svg>')`,
+      backgroundBlendMode: 'multiply',
+      backgroundRepeat: 'repeat',
+      backgroundSize: 'auto',
+      color: '#4b2e05',
+    }}>
+
+      <header className="p-4 text-center border-b border-gray-700">
+        <h1 className="text-3xl font-bold">ArcanaScreen</h1>
+        <p className="text-gray-400 text-sm mt-2">The customizable virtual DM screen</p>
+      </header>
+
+      <main className="flex-1 overflow-auto p-4">
+        <Grid />
+      </main>
     </div>
   );
 }
