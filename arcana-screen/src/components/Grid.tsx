@@ -2,6 +2,7 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useState } from 'react';
 import QuickNotes from './widgets/QuickNotes';
+import DiceRoller from './widgets/DiceRoller';
 
 const ItemType = 'WIDGET';
 
@@ -9,7 +10,7 @@ const ItemType = 'WIDGET';
 const components: { [key: number]: typeof QuickNotes } = {
   1: QuickNotes,
   2: QuickNotes,
-  3: QuickNotes,
+  3: DiceRoller,
 };
 
 function DraggableBox({ id, index, moveItem, children }: any) {
