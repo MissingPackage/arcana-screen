@@ -1,0 +1,92 @@
+name: Update Project Board on Issue or PR events
+
+on:
+  pull_request:
+    types: [closed]
+  push:
+    branches:
+      - "**"
+
+jobs:
+  update-project:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Update Project Status
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.TOKEN }}
+        script: |
+          const projectId = process.env.PROJECT_ID;
+          const statusFieldId = process.env.STATUS_FIELD_ID;
+          const inProgressOptionId = process.env.IN_PROGRESS_OPTION_ID;
+          const completedOptionId = process.env.COMPLETED_OPTION_ID;
+
+          async function updateStatus(issueNumber, newStatusId) {
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+
+            if (!issue.node_id) return;
+            
+            const { data: projectItems } = await github.graphql(`
+              query($projectId: ID!, $contentId: ID!) {
+                node(id: $projectId) {
+                  ... on ProjectV2 {
+                    items(first: 100, contentId: $contentId) {
+                      nodes {
+                        id
+                      }
+                    }
+                  }
+                }
+              }
+            `, {
+              projectId: projectId,
+              contentId: issue.node_id
+            });
+
+            if (projectItems.node.items.nodes.length === 0) return;
+            const itemId = projectItems.node.items.nodes[0].id;
+
+            await github.graphql(`
+              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+                updateProjectV2ItemFieldValue(input: {
+                  projectId: $projectId,
+                  itemId: $itemId,
+                  fieldId: $fieldId,
+                  value: {
+                    singleSelectOptionId: $optionId
+                  }
+                }) {
+                  projectV2Item {
+                    id
+                  }
+                }
+              }
+            `, {
+              projectId: projectId,
+              itemId: itemId,
+              fieldId: statusFieldId,
+              optionId: newStatusId
+            });
+          }
+
+          const body = context.payload.head_commit?.message || context.payload.pull_request?.body || "";
+          const match = body.match(/#(\d+)/);
+
+          if (match) {
+            const issueNumber = parseInt(match[1], 10);
+
+            if (context.eventName === "push") {
+              await updateStatus(issueNumber, inProgressOptionId);
+            }
+
+            if (context.eventName === "pull_request" && context.payload.pull_request.merged) {
+              await updateStatus(issueNumber, completedOptionId);
+            }
+          }

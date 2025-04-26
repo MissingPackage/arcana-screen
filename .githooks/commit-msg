@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Ottieni il messaggio di commit
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# Definisci la regex per la convenzione dei messaggi di commit
+COMMIT_REGEX="^(feat|fix|chore|refactor|docs|style|test|perf|ci|build)(\([a-z0-9-]+\))?: .+ #[0-9]+$"
+
+# Verifica se il messaggio di commit corrisponde alla convenzione
+if [[ ! $COMMIT_MSG =~ $COMMIT_REGEX ]]; then
+  echo "❌ Messaggio di commit non valido:"
+  echo "$COMMIT_MSG"
+  echo ""
+  echo "Il messaggio di commit deve seguire la convenzione dei Conventional Commits e includere il numero dell'issue."
+  echo "Esempio valido: feat: add initiative tracker widget #23"
+  exit 1
+fi
