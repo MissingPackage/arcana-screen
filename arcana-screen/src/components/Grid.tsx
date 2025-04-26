@@ -5,6 +5,7 @@ import QuickNotes from './widgets/QuickNotes';
 import DiceRoller from './widgets/DiceRoller';
 import CountdownTimer from './widgets/CountdownTimer';
 import SimpleTable from './widgets/SimpleTable';
+import InitiativeTracker from './widgets/InitiativeTracker';
 
 const ItemType = 'WIDGET';
 
@@ -13,6 +14,7 @@ const components: { [key: number]: typeof QuickNotes } = {
   1: SimpleTable,
   2: CountdownTimer,
   3: DiceRoller,
+  4: InitiativeTracker
 };
 
 function DraggableBox({ id, index, moveItem, children }: any) {
@@ -44,7 +46,7 @@ function DraggableBox({ id, index, moveItem, children }: any) {
 }
 
 export default function Grid() {
-  const [items, setItems] = useState([1, 2, 3]);
+  const [items, setItems] = useState([1, 2, 3, 4]);
 
   const moveItem = (from: number, to: number) => {
     const updated = [...items];
