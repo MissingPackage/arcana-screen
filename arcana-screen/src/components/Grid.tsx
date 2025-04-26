@@ -3,13 +3,14 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useState } from 'react';
 import QuickNotes from './widgets/QuickNotes';
 import DiceRoller from './widgets/DiceRoller';
+import CountdownTimer from './widgets/CountdownTimer';
 
 const ItemType = 'WIDGET';
 
 
 const components: { [key: number]: typeof QuickNotes } = {
   1: QuickNotes,
-  2: QuickNotes,
+  2: CountdownTimer,
   3: DiceRoller,
 };
 
