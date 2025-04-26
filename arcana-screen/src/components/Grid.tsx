@@ -4,12 +4,13 @@ import { useState } from 'react';
 import QuickNotes from './widgets/QuickNotes';
 import DiceRoller from './widgets/DiceRoller';
 import CountdownTimer from './widgets/CountdownTimer';
+import SimpleTable from './widgets/SimpleTable';
 
 const ItemType = 'WIDGET';
 
 
 const components: { [key: number]: typeof QuickNotes } = {
-  1: QuickNotes,
+  1: SimpleTable,
   2: CountdownTimer,
   3: DiceRoller,
 };
