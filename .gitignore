@@ -134,3 +134,11 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Extras
+create-issues.js
+get-fields.js
+get-projects.js
+roadmap.json
+/package.json
+/package-lock.json

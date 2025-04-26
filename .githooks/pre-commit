@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Ottieni il nome del branch corrente
+BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+
+# Definisci la regex per la convenzione del nome del branch
+BRANCH_REGEX="^(feature|fix|chore|refactor)/[0-9]+-[a-z0-9-]+$"
+
+# Verifica se il nome del branch corrisponde alla convenzione
+if [[ ! $BRANCH_NAME =~ $BRANCH_REGEX ]]; then
+  echo "❌ Nome del branch non valido: '$BRANCH_NAME'"
+  echo "Il nome del branch deve seguire la convenzione: tipo/numero-descrizione"
+  echo "Esempio valido: feature/23-initiative-tracker"
+  exit 1
+fi
