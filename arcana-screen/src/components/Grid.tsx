@@ -1,10 +1,18 @@
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useState } from 'react';
+import QuickNotes from './widgets/QuickNotes';
 
 const ItemType = 'WIDGET';
 
-function DraggableBox({ id, index, moveItem }: any) {
+
+const components: { [key: number]: typeof QuickNotes } = {
+  1: QuickNotes,
+  2: QuickNotes,
+  3: QuickNotes,
+};
+
+function DraggableBox({ id, index, moveItem, children }: any) {
   const [, drag] = useDrag({
     type: ItemType,
     item: { id, index },
@@ -23,11 +31,11 @@ function DraggableBox({ id, index, moveItem }: any) {
   return (
     <div
       ref={node => {
-    drag(drop(node));
-    }}
-      className="bg-[#f7ecd0] text-[#4b2e05] p-6 rounded-xl shadow-lg cursor-move text-center border-2 border-[#bfa873] hover:border-[#a97c50] transition-all duration-300 min-h-[120px] flex items-center justify-center font-serif tracking-wide"
+        drag(drop(node));
+      }}
+      className="w-full h-full"
     >
-      Widget #{id}
+      {children}
     </div>
   );
 }
@@ -44,10 +52,17 @@ export default function Grid() {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="grid grid-cols-3 gap-8 w-full h-full justify-items-center items-center p-8">
-        {items.map((id, index) => (
-          <DraggableBox key={id} id={id} index={index} moveItem={moveItem} />
-        ))}
+      <div className="grid grid-cols-3 gap-4 p-8">
+        {items.map((id, index) => {
+          const WidgetComponent = components[id];
+          return (
+            <div key={id} className="h-64">
+              <DraggableBox id={id} index={index} moveItem={moveItem}>
+                <WidgetComponent />
+              </DraggableBox>
+            </div>
+          );
+        })}
       </div>
     </DndProvider>
   );
