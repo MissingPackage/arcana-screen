@@ -1,12 +1,14 @@
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import QuickNotes from './widgets/QuickNotes';
 import DiceRoller from './widgets/DiceRoller';
 import CountdownTimer from './widgets/CountdownTimer';
 import SimpleTable from './widgets/SimpleTable';
 import InitiativeTracker from './widgets/InitiativeTracker';
 import { useWidgetStore } from '../store/useWidgetStore';
+import ProfileManagerPanel from './ProfileManagerPanel';
+
 
 const ItemType = 'WIDGET';
 
@@ -46,7 +48,6 @@ function DraggableBox({ id, index, moveItem, children }: any) {
   );
 }
 
-import { useEffect } from 'react';
 
 export default function Grid() {
   const widgets = useWidgetStore((state) => state.widgets);
@@ -118,6 +119,7 @@ export default function Grid() {
 
   return (
     <DndProvider backend={HTML5Backend}>
+      <ProfileManagerPanel />
       <div className="grid grid-cols-3 gap-4 p-8">
         {widgets.map((widget, index) => {
           const WidgetComponent = components[widget.type] || (() => null);
