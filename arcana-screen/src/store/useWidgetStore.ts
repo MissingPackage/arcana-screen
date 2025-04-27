@@ -19,7 +19,7 @@ export interface Combatant {
   initiative: number;
 }
 
-interface Widget {
+export interface Widget {
   id: string;
   type: string;
   position: { x: number; y: number };

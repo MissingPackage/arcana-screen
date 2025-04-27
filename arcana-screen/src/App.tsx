@@ -2,11 +2,14 @@ import Grid from './components/Grid';
 import { useThemeStore } from './store/themeStore';
 import './index.css';
 
+import { Toaster } from 'react-hot-toast';
+
 function App() {
   const { theme, toggleTheme } = useThemeStore();
 
   return (
     <div className={`h-screen w-screen flex flex-col ${theme === 'dark' ? 'bg-dark-parchment text-white' : 'bg-parchment text-gray-900'}`}>
+      <Toaster />
       
       <header className={`p-4 text-center border-b border-gray-700 ${theme === 'dark' ? 'dark-mode-text' : ''}`}>
         <h1 className="text-3xl font-bold">ArcanaScreen</h1>
