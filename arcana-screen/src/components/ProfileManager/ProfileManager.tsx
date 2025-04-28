@@ -1,7 +1,8 @@
 import { useState, ChangeEvent } from 'react';
-import { useProfileStore } from '../store/useProfileStore';
+import { useProfileStore } from '../../store/useProfileStore';
 import toast from 'react-hot-toast';
-import { Profile } from '../store/useProfileStore';
+import { Profile } from '../../store/useProfileStore';
+import { useAppStore } from '../../store/appStore';
 
 interface ProfileManagerProps {
   onLoadProfile: (layoutConfig: any) => void;
@@ -10,6 +11,8 @@ interface ProfileManagerProps {
 
 const ProfileManager: React.FC<ProfileManagerProps> = ({ onLoadProfile, currentLayoutConfig }) => {
   const { profiles, createProfile, deleteProfile, loadProfile } = useProfileStore();
+  // Import statico: nessun ciclo di dipendenza reale
+
   const [profileName, setProfileName] = useState<string>('');
 
   const handleCreate = () => {
@@ -17,7 +20,10 @@ const ProfileManager: React.FC<ProfileManagerProps> = ({ onLoadProfile, currentL
       toast.error('Profile name required');
       return;
     }
-    createProfile({ name: profileName, layoutConfig: currentLayoutConfig });
+    // Ottieni i preferiti attuali dalla sidebar (zustand)
+    const favoriteWidgetIds = useAppStore.getState().favoriteWidgetIds;
+    console.log('DEBUG - favoriteWidgetIds al salvataggio profilo:', favoriteWidgetIds);
+    createProfile({ name: profileName, layoutConfig: currentLayoutConfig, favoriteWidgetIds });
     toast.success('Profile created!');
     setProfileName('');
   };
@@ -26,9 +32,12 @@ const ProfileManager: React.FC<ProfileManagerProps> = ({ onLoadProfile, currentL
     const profile = loadProfile(id);
     if (profile) {
       onLoadProfile(profile.layoutConfig);
+      // Aggiorna i preferiti nello store globale
+      useAppStore.getState().setFavorites(profile.favoriteWidgetIds || []);
       toast.success('Profile loaded');
     }
   };
+
 
   const handleDelete = (id: string) => {
     deleteProfile(id);
