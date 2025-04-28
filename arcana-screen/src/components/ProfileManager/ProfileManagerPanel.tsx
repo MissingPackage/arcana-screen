@@ -1,7 +1,7 @@
 import ProfileManager from './ProfileManager';
-import { useWidgetStore } from '../store/useWidgetStore';
+import { useWidgetStore } from '../../store/useWidgetStore';
 
-import type { Widget } from '../store/useWidgetStore';
+import type { Widget } from '../../store/useWidgetStore';
 
 export default function ProfileManagerPanel() {
   const widgets = useWidgetStore((state) => state.widgets);

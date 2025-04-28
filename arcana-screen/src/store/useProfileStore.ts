@@ -4,6 +4,7 @@ export interface Profile {
   id: string;
   name: string;
   layoutConfig: any;
+  favoriteWidgetIds: string[];
 }
 
 interface ProfileStoreState {
@@ -29,6 +30,7 @@ export const useProfileStore = create<ProfileStoreState>((set, get) => ({
 
   createProfile: (profile) => {
     const id = Date.now().toString();
+    // Usa SEMPRE i favoriteWidgetIds passati come parametro!
     const newProfile = { ...profile, id };
     set((state) => {
       const updated = [...state.profiles, newProfile];
@@ -46,6 +48,14 @@ export const useProfileStore = create<ProfileStoreState>((set, get) => ({
   },
 
   loadProfile: (id) => {
-    return get().profiles.find((p) => p.id === id);
+    const profile = get().profiles.find((p) => p.id === id);
+    // Se carico un profilo, aggiorno anche i preferiti nello store globale
+    if (profile) {
+      try {
+        const { useAppStore } = require('./appStore');
+        useAppStore.getState().setFavorites(profile.favoriteWidgetIds || []);
+      } catch {}
+    }
+    return profile;
   },
 }));
