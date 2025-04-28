@@ -68,14 +68,12 @@ export default function InitiativeTracker({ id, updateWidget }: InitiativeTracke
   }, [turnChangeAnimation]);
 
   return (
-    <div className="bg-yellow-100 text-gray-900 p-4 rounded-lg shadow-md w-full h-full flex flex-col relative overflow-hidden">
+    <div className="transition p-4 rounded-lg shadow-md w-full h-full flex flex-col relative overflow-hidden">
       <h2 className="text-lg font-bold mb-2">Initiative Tracker</h2>
 
       {/* Turn counter */}
       {combatants.length > 0 && currentIndex !== null && (
-        <div className="text-sm mb-4 text-center font-semibold text-yellow-700">
-          Turn: {currentIndex + 1} / {combatants.length}
-        </div>
+        <div className="rounded px-3 py-1 text-xs font-semibold transition">Turn: {currentIndex + 1} / {combatants.length}</div>
       )}
       {/* Defensive: show nothing if combatants empty or currentIndex null */}
       {combatants.length === 0 || currentIndex === null ? null : null}
@@ -97,7 +95,7 @@ export default function InitiativeTracker({ id, updateWidget }: InitiativeTracke
         />
         <button
           onClick={addCombatant}
-          className="bg-yellow-500 text-white p-2 rounded hover:bg-yellow-600"
+          className="rounded px-2 py-1 text-xs transition"
         >
           Add Combatant
         </button>
@@ -129,7 +127,7 @@ export default function InitiativeTracker({ id, updateWidget }: InitiativeTracke
       {combatants.length > 0 && (
         <button
           onClick={nextTurn}
-          className="mt-4 bg-green-500 text-white p-2 rounded hover:bg-green-600"
+          className="mt-4 p-2 rounded transition"
         >
           Next Turn
         </button>
@@ -137,7 +135,7 @@ export default function InitiativeTracker({ id, updateWidget }: InitiativeTracke
 
       {/* Turn Change Animation */}
       {turnChangeAnimation && (
-        <div className="absolute inset-0 bg-green-400 bg-opacity-30 animate-pulse pointer-events-none" />
+        <div className="absolute inset-0 bg-opacity-30 animate-pulse pointer-events-none" />
       )}
     </div>
   );

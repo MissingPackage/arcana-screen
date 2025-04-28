@@ -8,16 +8,16 @@ function App() {
   const { theme, toggleTheme } = useThemeStore();
 
   return (
-    <div className={`h-screen w-screen flex flex-col ${theme === 'dark' ? 'bg-dark-parchment text-white' : 'bg-parchment text-gray-900'}`}>
+    <div className="h-screen w-screen flex flex-col">
       <Toaster />
       
-      <header className={`p-4 text-center border-b border-gray-700 ${theme === 'dark' ? 'dark-mode-text' : ''}`}>
+      <header className="p-4 text-center border-b">
         <h1 className="text-3xl font-bold">ArcanaScreen</h1>
-        <p className="text-gray-400 text-sm mt-2">The customizable virtual DM screen</p>
+        <p className="text-sm mt-2">The customizable virtual DM screen</p>
         <div className="mt-2">
           <button
             onClick={toggleTheme}
-            className="bg-indigo-500 text-white px-3 py-2 rounded hover:bg-indigo-600 transition"
+            className="px-3 py-2 rounded transition"
           >
             Toggle {theme === 'dark' ? 'Light' : 'Dark'}
           </button>

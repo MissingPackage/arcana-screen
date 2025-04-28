@@ -71,13 +71,13 @@ export default function CountdownTimer({ id, updateWidget }: CountdownTimerProps
         </button>
         <button
           onClick={stopTimer}
-          className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600"
+          className="px-3 py-2 rounded transition"
         >
           Stop
         </button>
         <button
           onClick={resetTimer}
-          className="bg-gray-500 text-white px-3 py-2 rounded hover:bg-gray-600"
+          className="px-3 py-2 rounded transition"
         >
           Reset
         </button>

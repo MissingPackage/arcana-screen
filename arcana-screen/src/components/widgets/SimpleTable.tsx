@@ -66,7 +66,7 @@ function TableColumnHeader({ col, index, columns, setColumns, updateColumnLabel,
           </button>
         ) : (
           <button
-            className="ml-1 text-gray-400 rounded-full p-1 cursor-not-allowed"
+            className="ml-1 rounded-full p-1 cursor-not-allowed"
             disabled
             title="Cannot remove last column"
             tabIndex={-1}
@@ -121,10 +121,10 @@ function TableRowItem({ row, index, columns, rows, setRows, updateRow, removeRow
           />
         </td>
       ))}
-      <td className="border border-gray-200 px-3 py-2 rounded text-center align-middle">
+      <td className="border px-3 py-2 rounded text-center align-middle">
         <button
           onClick={() => removeRow(row.id)}
-          className={`bg-red-100 text-red-600 rounded px-3 py-1 text-xs font-semibold transition ${rows.length === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-red-200'}`}
+          className={`rounded px-3 py-1 text-xs font-semibold transition ${rows.length === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
           disabled={rows.length === 1}
           title={rows.length === 1 ? 'Cannot remove last row' : 'Delete row'}
         >
@@ -267,13 +267,13 @@ export default function SimpleTable({ id, updateWidget }: SimpleTableProps) {
         <div className="flex gap-3 mt-6 justify-end">
           <button
             onClick={addRow}
-            className="bg-blue-600 text-white py-2 px-5 rounded-lg shadow hover:bg-blue-700 font-semibold transition"
+            className="rounded px-2 py-1 text-xs transition font-semibold"
           >
             + Row
           </button>
           <button
             onClick={addColumn}
-            className="bg-green-600 text-white py-2 px-5 rounded-lg shadow hover:bg-green-700 font-semibold transition"
+            className="py-2 px-5 rounded transition font-semibold"
           >
             + Column
           </button>
@@ -282,7 +282,7 @@ export default function SimpleTable({ id, updateWidget }: SimpleTableProps) {
     );
   } catch (e) {
     return (
-      <div className="flex items-center justify-center h-full w-full bg-gray-100 text-red-600">
+      <div className="flex items-center justify-center h-full w-full transition">
         <p>There was an error rendering the table. Please reload the page or check the console for details.</p>
       </div>
     );
