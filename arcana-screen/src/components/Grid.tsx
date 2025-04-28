@@ -1,6 +1,6 @@
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import QuickNotes from './widgets/QuickNotes';
 import DiceRoller from './widgets/DiceRoller';
 import CountdownTimer from './widgets/CountdownTimer';
@@ -56,8 +56,11 @@ export default function Grid() {
   const addWidget = useWidgetStore((state) => state.addWidget);
   const clearWidgets = useWidgetStore((state) => state.clearWidgets);
 
+  // Usa una flag locale per evitare duplicazione dei widget di default
+  const hasInitialized = useRef(false);
   useEffect(() => {
-    if (widgets.length === 0) {
+    if (!hasInitialized.current && widgets.length === 0) {
+      hasInitialized.current = true;
       addWidget({
         id: 'table-1',
         type: 'SimpleTable',

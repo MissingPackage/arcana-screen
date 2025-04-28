@@ -1,92 +1,215 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* ==============================
+   ArcanaScreen - CSS Pulito Definitivo 2025
+   Tema Chiaro (Pergamena Viva) / Tema Scuro (Blu Arcano)
+   ============================== */
 
-/* BASE SETUP */
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* MINIMAL RESET */
-
-html {
-  transition: background-color 0.4s ease, color 0.4s ease;
-}
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  transition: background-color 0.4s ease, color 0.4s ease; /* Smooth theme transition */
-}
-
-/* GLOBAL ELEMENTS */
-a {
-  font-weight: 500;
-  text-decoration: inherit;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  transition: border-color 0.25s, background-color 0.25s;
-}
-
-/* Optional: improve button focus */
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-/* THEME STYLES */
-/* Pergamena chiara per Light Mode */
-.bg-parchment {
-  background-color: #f9f6ef; /* molto più chiaro */
-  background-image: linear-gradient(135deg, #f9f6ef 0%, #e0d2b3 100%), url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" fill="%23f5f0e1"/><path d="M0 39 Q20 41 40 39" stroke="%23e0d2b3" stroke-width="2" fill="none"/></svg>');
-  background-blend-mode: multiply;
-  background-repeat: repeat;
-  background-size: auto;
-}
-
-/* Pergamena scura per Dark Mode */
-.bg-dark-parchment {
-  background-color: #3b2f23;
-  background-image: linear-gradient(135deg, #5a4936 0%, #3b2f23 100%), url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" fill="%235a4936"/><path d="M0 39 Q20 41 40 39" stroke="%233b2f23" stroke-width="2" fill="none"/></svg>');
-  background-blend-mode: multiply;
-  background-repeat: repeat;
-  background-size: auto;
-}
-
-.dark-mode-text {
-  color: #f5ecd6 !important;
-}
-
-/* Bottoni e input in dark mode */
-.bg-dark-parchment button,
-.bg-dark-parchment input,
-.bg-dark-parchment .card,
-.bg-dark-parchment .widget {
-  background-color: #2a2119 !important;
-  color: #f5ecd6 !important;
-  border: 1px solid #7c6a55 !important;
-  box-shadow: 0 1px 4px 0 #0005;
-}
-
-.bg-dark-parchment input {
-  background-color: #231b14 !important;
-}
+   @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;600&display=swap');
+   @tailwind base;
+   @tailwind components;
+   @tailwind utilities;
+   
+   :root {
+     /* Palette ArcanaScreen */
+     --deep-blue: #1C2541;
+     --arcane-blue: #3A506B;
+     --muted-gold: #D9B310;
+     --stone-grey: #B0B0B0;
+     --parchment-white: #F5F3EF;
+     --background-light: #F5F3EF;
+     --background-dark: #1C2541;
+     --text-main-light: var(--deep-blue);
+     --text-main-dark: var(--parchment-white);
+     --font-title-light: var(--deep-blue);
+     --font-title-dark: var(--muted-gold);
+     --font-secondary: var(--stone-grey);
+     --font-accent-light: var(--muted-gold);
+     --font-accent-dark: var(--arcane-blue);
+     --accent: var(--arcane-blue);
+     --accent-hover: #5C80A0;
+     --highlight: var(--muted-gold);
+     --input-bg-light: #ffffff;
+     --input-bg-dark: var(--deep-blue);
+     --border-light: #d3c5a5;
+     --border-dark: var(--arcane-blue);
+   }
+   
+   /* Utility font classes */
+   .font-title {
+     color: var(--font-title-light);
+     font-family: 'Cinzel', serif;
+   }
+   body.dark-theme .font-title {
+     color: var(--font-title-dark);
+  }
+   .font-main {
+     color: var(--text-main-light);
+     font-family: 'Inter', 'Roboto', sans-serif;
+   }
+   body.dark-theme .font-main {
+     color: var(--text-main-dark);
+   }
+   .font-secondary {
+     color: var(--font-secondary);
+   }
+   .font-accent {
+     color: var(--font-accent-light);
+   }
+   body.dark-theme .font-accent {
+     color: var(--font-accent-dark);
+   }
+   
+   /* === RESET BASE === */
+   
+   html, body {
+     margin: 0;
+     padding: 0;
+     min-height: 100vh;
+     font-family: 'Inter', sans-serif;
+     line-height: 1.5;
+     transition: background-color 0.5s ease, color 0.5s ease;
+   }
+   
+   /* === TEMA LIGHT (Pergamena Viva) === */
+   
+   body.light-theme {
+     background-color: var(--background-light);
+     color: var(--text-main-light);
+     background-image: url('/texture_pergament_finale.png');
+     background-repeat: repeat;
+     background-size: cover;
+     background-attachment: fixed;
+   }
+   
+   /* === TEMA DARK (Blu Arcano) === */
+   
+   body.dark-theme {
+     background-color: var(--background-dark);
+     color: var(--text-main-dark);
+     background-image: url('/texture_arcane_finale.png');
+     background-repeat: repeat;
+     background-size: cover;
+     background-attachment: fixed;
+   }
+   
+   /* === TIPOGRAFIA === */
+   
+   h1, h2 {
+     font-family: 'Cinzel', serif;
+     color: var(--font-title-light);
+   }
+   body.dark-theme h1, body.dark-theme h2 {
+     color: var(--font-title-dark);
+   }
+   
+   h3, h4, h5, h6, p, span, label, div, button, input, textarea, select {
+     font-family: 'Inter', sans-serif;
+   }
+   
+   /* === BOTTONI === */
+   
+   button, .btn {
+     background-color: var(--accent);
+     color: var(--text-main-dark);
+     border: none;
+     border-radius: 8px;
+     padding: 0.8rem 1.5rem;
+     font-size: 1rem;
+     font-weight: 600;
+     cursor: pointer;
+     transition: background-color 0.3s ease, color 0.3s ease;
+   }
+   
+   button:hover, .btn:hover {
+     background-color: var(--accent-hover);
+   }
+   
+   /* === INPUTS & FORM === */
+   
+   input, textarea, select {
+     background-color: var(--input-bg-light);
+     color: var(--text-main-light);
+     border: 1px solid var(--border-light);
+     padding: 0.5rem;
+     border-radius: 6px;
+     font-size: 1em;
+     transition: background-color 0.3s ease, color 0.3s ease;
+   }
+   
+   body.dark-theme input, 
+   body.dark-theme textarea, 
+   body.dark-theme select {
+     background-color: var(--input-bg-dark);
+     color: var(--text-main-dark);
+     border: 1px solid var(--border-dark);
+   }
+   
+   input::placeholder, textarea::placeholder {
+     color: var(--border-light);
+     opacity: 1;
+   }
+   
+   body.dark-theme input::placeholder, 
+   body.dark-theme textarea::placeholder {
+     color: var(--border-dark);
+   }
+   
+   /* === DIVIDER & BORDI === */
+   
+   hr, .divider {
+     border: none;
+     border-top: 1px solid var(--border-light);
+     opacity: 0.5;
+     margin: 1rem 0;
+   }
+   
+   body.dark-theme hr, 
+   body.dark-theme .divider {
+     border-top: 1px solid var(--border-dark);
+     opacity: 0.7;
+   }
+   
+   /* === LINK === */
+   
+   a {
+     color: var(--accent);
+     font-weight: 500;
+     text-decoration: none;
+   }
+   
+   a:hover {
+     text-decoration: underline;
+   }
+   
+   /* === CARDS E WIDGETS === */
+   
+   .card, .widget {
+     background-color: var(--input-bg-light);
+     border: 1px solid var(--border-light);
+     border-radius: 8px;
+     padding: 1rem;
+     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+   }
+   
+   body.dark-theme .card, 
+   body.dark-theme .widget {
+     background-color: #13203a;
+     border: 1px solid var(--border-dark);
+     box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+   }
+   
+   /* === TRANSIZIONI GENERALI === */
+   
+   *, *::before, *::after {
+     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+   }
+   
+   /* === RESPONSIVE BACKGROUND ATTACHMENT === */
+   
+   @media (max-width: 700px) {
+     body.light-theme,
+     body.dark-theme {
+       background-attachment: scroll;
+     }
+   }
+   
+   /* === FINE === */
