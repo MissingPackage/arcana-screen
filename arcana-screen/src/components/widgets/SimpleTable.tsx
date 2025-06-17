@@ -201,7 +201,6 @@ export default function SimpleTable({ id, updateWidget }: SimpleTableProps) {
     const newLabel = `Column ${columns.length + 1}`;
     setColumns((prev) => [...prev, { id: newId, key: newKey, label: newLabel }]);
     setRows((prev) => prev.map((row) => ({ ...row, [newKey]: '' })));
-    setRows(rows.map((row) => ({ ...row, [newKey]: '' })));
   };
 
   const updateColumnLabel = (id: number, newLabel: string) => {
