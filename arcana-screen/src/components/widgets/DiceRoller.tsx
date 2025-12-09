@@ -118,7 +118,7 @@ export default function DiceRoller({ id, updateWidget }: DiceRollerProps) {
   {/* Tipo */}
   <div className="flex items-center gap-2">
     <span className="font-semibold">Tipo:</span>
-    <span className="mx-1">d{diceType}</span>
+    <span className="mx-1">{`d${diceType}`}</span>
   </div>
   {/* Modificatore */}
   <div className="flex items-center gap-2">
