@@ -1,0 +1,39 @@
+{
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true
+  },
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Read(./**)",
+      "Write(./**)",
+      "Edit(./**)",
+      "Glob(./**)",
+      "Grep(./**)",
+      "Read(C:\\Users\\crist\\OneDrive\\Documenti\\arcana-screen\\.auto-claude\\worktrees\\tasks\\001-technical-debt-cleanup/**)",
+      "Write(C:\\Users\\crist\\OneDrive\\Documenti\\arcana-screen\\.auto-claude\\worktrees\\tasks\\001-technical-debt-cleanup/**)",
+      "Edit(C:\\Users\\crist\\OneDrive\\Documenti\\arcana-screen\\.auto-claude\\worktrees\\tasks\\001-technical-debt-cleanup/**)",
+      "Glob(C:\\Users\\crist\\OneDrive\\Documenti\\arcana-screen\\.auto-claude\\worktrees\\tasks\\001-technical-debt-cleanup/**)",
+      "Grep(C:\\Users\\crist\\OneDrive\\Documenti\\arcana-screen\\.auto-claude\\worktrees\\tasks\\001-technical-debt-cleanup/**)",
+      "Read(C:\\Users\\crist\\OneDrive\\Documenti\\arcana-screen\\.auto-claude\\worktrees\\tasks\\001-technical-debt-cleanup\\.auto-claude\\specs\\001-technical-debt-cleanup/**)",
+      "Write(C:\\Users\\crist\\OneDrive\\Documenti\\arcana-screen\\.auto-claude\\worktrees\\tasks\\001-technical-debt-cleanup\\.auto-claude\\specs\\001-technical-debt-cleanup/**)",
+      "Edit(C:\\Users\\crist\\OneDrive\\Documenti\\arcana-screen\\.auto-claude\\worktrees\\tasks\\001-technical-debt-cleanup\\.auto-claude\\specs\\001-technical-debt-cleanup/**)",
+      "Read(C:\\Users\\crist\\OneDrive\\Documenti\\arcana-screen\\.auto-claude/**)",
+      "Write(C:\\Users\\crist\\OneDrive\\Documenti\\arcana-screen\\.auto-claude/**)",
+      "Edit(C:\\Users\\crist\\OneDrive\\Documenti\\arcana-screen\\.auto-claude/**)",
+      "Glob(C:\\Users\\crist\\OneDrive\\Documenti\\arcana-screen\\.auto-claude/**)",
+      "Grep(C:\\Users\\crist\\OneDrive\\Documenti\\arcana-screen\\.auto-claude/**)",
+      "Bash(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "mcp__context7__resolve-library-id(*)",
+      "mcp__context7__get-library-docs(*)",
+      "mcp__graphiti-memory__search_nodes(*)",
+      "mcp__graphiti-memory__search_facts(*)",
+      "mcp__graphiti-memory__add_episode(*)",
+      "mcp__graphiti-memory__get_episodes(*)",
+      "mcp__graphiti-memory__get_entity_edge(*)"
+    ]
+  }
+}
