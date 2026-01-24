@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useAppStore } from './appStore';
 
 export interface Profile {
   id: string;
@@ -51,10 +52,7 @@ export const useProfileStore = create<ProfileStoreState>((set, get) => ({
     const profile = get().profiles.find((p) => p.id === id);
     // If loading a profile, also update favorites in the global store
     if (profile) {
-      try {
-        const { useAppStore } = require('./appStore');
-        useAppStore.getState().setFavorites(profile.favoriteWidgetIds || []);
-      } catch {}
+      useAppStore.getState().setFavorites(profile.favoriteWidgetIds || []);
     }
     return profile;
   },
