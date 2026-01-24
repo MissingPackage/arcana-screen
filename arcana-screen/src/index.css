@@ -1,72 +1,215 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* ==============================
+   ArcanaScreen - CSS Pulito Definitivo 2025
+   Tema Chiaro (Pergamena Viva) / Tema Scuro (Blu Arcano)
+   ============================== */
 
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+   @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;600&display=swap');
+   @tailwind base;
+   @tailwind components;
+   @tailwind utilities;
+   
+   :root {
+     /* Palette ArcanaScreen */
+     --deep-blue: #1C2541;
+     --arcane-blue: #3A506B;
+     --muted-gold: #D9B310;
+     --stone-grey: #B0B0B0;
+     --parchment-white: #F5F3EF;
+     --background-light: #F5F3EF;
+     --background-dark: #1C2541;
+     --text-main-light: var(--deep-blue);
+     --text-main-dark: var(--parchment-white);
+     --font-title-light: var(--deep-blue);
+     --font-title-dark: var(--muted-gold);
+     --font-secondary: var(--stone-grey);
+     --font-accent-light: var(--muted-gold);
+     --font-accent-dark: var(--arcane-blue);
+     --accent: var(--arcane-blue);
+     --accent-hover: #5C80A0;
+     --highlight: var(--muted-gold);
+     --input-bg-light: #ffffff;
+     --input-bg-dark: var(--deep-blue);
+     --border-light: #d3c5a5;
+     --border-dark: var(--arcane-blue);
+   }
+   
+   /* Utility font classes */
+   .font-title {
+     color: var(--font-title-light);
+     font-family: 'Cinzel', serif;
+   }
+   body.dark-theme .font-title {
+     color: var(--font-title-dark);
   }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}
+   .font-main {
+     color: var(--text-main-light);
+     font-family: 'Inter', 'Roboto', sans-serif;
+   }
+   body.dark-theme .font-main {
+     color: var(--text-main-dark);
+   }
+   .font-secondary {
+     color: var(--font-secondary);
+   }
+   .font-accent {
+     color: var(--font-accent-light);
+   }
+   body.dark-theme .font-accent {
+     color: var(--font-accent-dark);
+   }
+   
+   /* === RESET BASE === */
+   
+   html, body {
+     margin: 0;
+     padding: 0;
+     min-height: 100vh;
+     font-family: 'Inter', sans-serif;
+     line-height: 1.5;
+     transition: background-color 0.5s ease, color 0.5s ease;
+   }
+   
+   /* === TEMA LIGHT (Pergamena Viva) === */
+   
+   body.light-theme {
+     background-color: var(--background-light);
+     color: var(--text-main-light);
+     background-image: url('/texture_pergament_finale.png');
+     background-repeat: repeat;
+     background-size: cover;
+     background-attachment: fixed;
+   }
+   
+   /* === TEMA DARK (Blu Arcano) === */
+   
+   body.dark-theme {
+     background-color: var(--background-dark);
+     color: var(--text-main-dark);
+     background-image: url('/texture_arcane_finale.png');
+     background-repeat: repeat;
+     background-size: cover;
+     background-attachment: fixed;
+   }
+   
+   /* === TIPOGRAFIA === */
+   
+   h1, h2 {
+     font-family: 'Cinzel', serif;
+     color: var(--font-title-light);
+   }
+   body.dark-theme h1, body.dark-theme h2 {
+     color: var(--font-title-dark);
+   }
+   
+   h3, h4, h5, h6, p, span, label, div, button, input, textarea, select {
+     font-family: 'Inter', sans-serif;
+   }
+   
+   /* === BOTTONI === */
+   
+   button, .btn {
+     background-color: var(--accent);
+     color: var(--text-main-dark);
+     border: none;
+     border-radius: 8px;
+     padding: 0.8rem 1.5rem;
+     font-size: 1rem;
+     font-weight: 600;
+     cursor: pointer;
+     transition: background-color 0.3s ease, color 0.3s ease;
+   }
+   
+   button:hover, .btn:hover {
+     background-color: var(--accent-hover);
+   }
+   
+   /* === INPUTS & FORM === */
+   
+   input, textarea, select {
+     background-color: var(--input-bg-light);
+     color: var(--text-main-light);
+     border: 1px solid var(--border-light);
+     padding: 0.5rem;
+     border-radius: 6px;
+     font-size: 1em;
+     transition: background-color 0.3s ease, color 0.3s ease;
+   }
+   
+   body.dark-theme input, 
+   body.dark-theme textarea, 
+   body.dark-theme select {
+     background-color: var(--input-bg-dark);
+     color: var(--text-main-dark);
+     border: 1px solid var(--border-dark);
+   }
+   
+   input::placeholder, textarea::placeholder {
+     color: var(--border-light);
+     opacity: 1;
+   }
+   
+   body.dark-theme input::placeholder, 
+   body.dark-theme textarea::placeholder {
+     color: var(--border-dark);
+   }
+   
+   /* === DIVIDER & BORDI === */
+   
+   hr, .divider {
+     border: none;
+     border-top: 1px solid var(--border-light);
+     opacity: 0.5;
+     margin: 1rem 0;
+   }
+   
+   body.dark-theme hr, 
+   body.dark-theme .divider {
+     border-top: 1px solid var(--border-dark);
+     opacity: 0.7;
+   }
+   
+   /* === LINK === */
+   
+   a {
+     color: var(--accent);
+     font-weight: 500;
+     text-decoration: none;
+   }
+   
+   a:hover {
+     text-decoration: underline;
+   }
+   
+   /* === CARDS E WIDGETS === */
+   
+   .card, .widget {
+     background-color: var(--input-bg-light);
+     border: 1px solid var(--border-light);
+     border-radius: 8px;
+     padding: 1rem;
+     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+   }
+   
+   body.dark-theme .card, 
+   body.dark-theme .widget {
+     background-color: #13203a;
+     border: 1px solid var(--border-dark);
+     box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+   }
+   
+   /* === TRANSIZIONI GENERALI === */
+   
+   *, *::before, *::after {
+     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+   }
+   
+   /* === RESPONSIVE BACKGROUND ATTACHMENT === */
+   
+   @media (max-width: 700px) {
+     body.light-theme,
+     body.dark-theme {
+       background-attachment: scroll;
+     }
+   }
+   
+   /* === FINE === */

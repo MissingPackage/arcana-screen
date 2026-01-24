@@ -1,35 +1,43 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import Grid from './components/Grid';
+import { useThemeStore } from './store/themeStore';
+import { Toaster } from 'react-hot-toast';
+import WidgetSidebar from './components/WidgetSidebar/WidgetSidebar';
+import { widgetMeta } from './components/widgets/WidgetConfig';
+import './index.css';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { theme, toggleTheme } = useThemeStore();
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <DndProvider backend={HTML5Backend}>
+      <div className="h-screen w-screen flex flex-row">
+        {/* Sidebar a sinistra */}
+        <WidgetSidebar widgets={widgetMeta} />
+
+        {/* Main area a destra */}
+        <div className="flex-1 flex flex-col">
+          <Toaster />
+          <header className="p-4 text-center border-b">
+            <h1 className="text-3xl font-bold">ArcanaScreen</h1>
+            <p className="text-sm mt-2">The customizable virtual DM screen</p>
+            <div className="mt-2">
+              <button
+                onClick={toggleTheme}
+                className="px-3 py-2 rounded transition"
+              >
+                Toggle {theme === 'dark' ? 'Light' : 'Dark'}
+              </button>
+            </div>
+          </header>
+          <main className="flex-1 overflow-auto p-4">
+            <Grid />
+          </main>
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </DndProvider>
+  );
 }
 
-export default App
+export default App;
