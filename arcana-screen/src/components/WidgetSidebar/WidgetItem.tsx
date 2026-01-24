@@ -4,11 +4,10 @@ import { WidgetMeta } from './types';
 type WidgetItemProps = {
   widget: WidgetMeta;
   isOpen: boolean;
-  onClick: (widget: WidgetMeta) => void;
   toggleFavorite: (id: string) => void;
 };
 
-export default function WidgetItem({ widget, isOpen, onClick, toggleFavorite }: WidgetItemProps) {
+export default function WidgetItem({ widget, isOpen, toggleFavorite }: WidgetItemProps) {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'WIDGET',
     item: { id: widget.id, name: widget.name, widgetType: widget.id }, // widget.id rappresenta il tipo (es: 'simple-table')

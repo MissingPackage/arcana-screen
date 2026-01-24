@@ -4,8 +4,6 @@ import WidgetList from './WidgetList';
 import { widgetMeta } from '../widgets/WidgetConfig';
 import { useAppStore } from '../../store/appStore';
 
-type WidgetSidebarProps = {};
-
 export default function WidgetSidebar() {
   const [searchQuery, setSearchQuery] = useState('');
   const isOpen = useAppStore(state => state.isSidebarOpen);

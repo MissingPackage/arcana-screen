@@ -25,7 +25,7 @@ interface TableColumnHeaderProps {
   removeColumn: (id: number) => void;
 }
 function TableColumnHeader({ col, index, columns, setColumns, updateColumnLabel, removeColumn }: TableColumnHeaderProps) {
-  const [, drag, preview] = useDrag({
+  const [, drag] = useDrag({
     type: ItemTypeColumn,
     item: { index },
   });
@@ -90,7 +90,7 @@ interface TableRowItemProps {
   removeRow: (id: number) => void;
 }
 function TableRowItem({ row, index, columns, rows, setRows, updateRow, removeRow }: TableRowItemProps) {
-  const [, drag, preview] = useDrag({
+  const [, drag] = useDrag({
     type: ItemTypeRow,
     item: { index },
   });
@@ -145,7 +145,7 @@ export default function SimpleTable({ id, updateWidget }: SimpleTableProps) {
 
   // Default columns/rows if not present
   useEffect(() => {
-    if (!widget?.columns || !widget?.rows) {
+    if (!widget || widget.type !== 'SimpleTable') {
       updateWidget(id, {
         columns: [
           { id: 1, key: 'name', label: 'Name' },
@@ -156,11 +156,16 @@ export default function SimpleTable({ id, updateWidget }: SimpleTableProps) {
           { id: 2, name: '', value: '' }
         ]
       });
+      return;
     }
   }, [widget, id, updateWidget]);
 
-  const columns = widget?.columns || [];
-  const rows = widget?.rows || [];
+  if (!widget || widget.type !== 'SimpleTable') {
+    return <div>Loading table...</div>;
+  }
+
+  const columns = widget.columns;
+  const rows = widget.rows;
 
   const setColumns: React.Dispatch<React.SetStateAction<TableColumn[]>> = (value) => {
   if (typeof value === 'function') {
@@ -199,9 +204,8 @@ export default function SimpleTable({ id, updateWidget }: SimpleTableProps) {
     const newId = Date.now();
     const newKey = `col${newId}`;
     const newLabel = `Column ${columns.length + 1}`;
-    setColumns((prev) => [...prev, { id: newId, key: newKey, label: newLabel }]);
-    setRows((prev) => prev.map((row) => ({ ...row, [newKey]: '' })));
-    setRows(rows.map((row) => ({ ...row, [newKey]: '' })));
+    setColumns((prev: TableColumn[]) => [...prev, { id: newId, key: newKey, label: newLabel }]);
+    setRows((prev: TableRow[]) => prev.map((row: TableRow) => ({ ...row, [newKey]: '' })));
   };
 
   const updateColumnLabel = (id: number, newLabel: string) => {
@@ -209,10 +213,10 @@ export default function SimpleTable({ id, updateWidget }: SimpleTableProps) {
   };
 
   const removeColumn = (id: number) => {
-    const col = columns.find((c) => c.id === id);
+    const col = columns.find((c: TableColumn) => c.id === id);
     if (!col) return;
-    setColumns((prev) => prev.filter((c) => c.id !== id));
-    setRows(rows.map((row) => {
+    setColumns((prev: TableColumn[]) => prev.filter((c: TableColumn) => c.id !== id));
+    setRows(rows.map((row: TableRow) => {
       const newRow = { ...row };
       delete newRow[col.key];
       return newRow;
@@ -220,8 +224,6 @@ export default function SimpleTable({ id, updateWidget }: SimpleTableProps) {
   };
 
   try {
-    // Defensive: if columns/rows are missing, do not render table
-    if (!columns.length || !rows.length) return <div>Loading table...</div>;
     return (
       <div className="bg-white text-gray-800 p-2 rounded-xl shadow-lg w-full h-full flex flex-col font-sans max-w-full">
         <h2 className="text-xl font-bold mb-4 tracking-tight">Simple Table</h2>

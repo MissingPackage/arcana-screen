@@ -11,18 +11,23 @@ export default function DiceRoller({ id, updateWidget }: DiceRollerProps) {
   const widget = useWidgetStore(state => state.widgets.find(w => w.id === id));
 
   useEffect(() => {
-    if (!widget?.diceType) {
+    if (!widget || widget.type !== 'DiceRoller') {
       updateWidget(id, { diceType: 20, numDice: 1, modifier: 0, advantage: 'none', formula: '', results: [], finalResult: null });
+      return;
     }
   }, [widget, id, updateWidget]);
 
-  const diceType = widget?.diceType || 20;
-  const numDice = widget?.numDice || 1;
-  const modifier = widget?.modifier || 0;
-  const advantage = widget?.advantage || 'none';
-  const formula = widget?.formula || '';
-  const results = widget?.results || [];
-  const finalResult = widget?.finalResult || null;
+  if (!widget || widget.type !== 'DiceRoller') {
+    return <div>Loading dice roller...</div>;
+  }
+
+  const diceType = widget.diceType;
+  const numDice = widget.numDice;
+  const modifier = widget.modifier;
+  const advantage = widget.advantage;
+  const formula = widget.formula;
+  const results = widget.results;
+  const finalResult = widget.finalResult;
 
   const setDiceType = (v: number) => updateWidget(id, { diceType: v });
   const setNumDice = (v: number) => updateWidget(id, { numDice: v });

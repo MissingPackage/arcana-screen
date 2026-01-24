@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useWidgetStore } from '../../store/useWidgetStore';
 
 interface Combatant {
@@ -17,16 +17,21 @@ export default function InitiativeTracker({ id, updateWidget }: InitiativeTracke
   const widget = useWidgetStore(state => state.widgets.find(w => w.id === id));
 
   useEffect(() => {
-    if (!widget?.combatants) {
+    if (!widget || widget.type !== 'InitiativeTracker') {
       updateWidget(id, { combatants: [], name: '', initiative: 0, currentIndex: null, turnChangeAnimation: false });
+      return;
     }
   }, [widget, id, updateWidget]);
 
-  const combatants = widget?.combatants || [];
-  const name = widget?.name || '';
-  const initiative = widget?.initiative || 0;
-  const currentIndex = widget?.currentIndex ?? null;
-  const turnChangeAnimation = widget?.turnChangeAnimation || false;
+  if (!widget || widget.type !== 'InitiativeTracker') {
+    return <div>Loading initiative tracker...</div>;
+  }
+
+  const combatants = widget.combatants;
+  const name = widget.name;
+  const initiative = widget.initiative;
+  const currentIndex = widget.currentIndex;
+  const turnChangeAnimation = widget.turnChangeAnimation;
 
   const setCombatants = (v: any[]) => updateWidget(id, { combatants: v });
   const setName = (v: string) => updateWidget(id, { name: v });

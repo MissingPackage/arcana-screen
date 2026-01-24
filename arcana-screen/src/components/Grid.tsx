@@ -60,7 +60,7 @@ export default function Grid() {
       hasInitialized.current = true;
       addWidget({
         id: 'table-1',
-        type: 'SimpleTable',
+        type: 'SimpleTable' as const,
         position: { x: 0, y: 0 },
         size: { w: 4, h: 4 },
         columns: [
@@ -74,7 +74,7 @@ export default function Grid() {
       });
       addWidget({
         id: 'timer-1',
-        type: 'CountdownTimer',
+        type: 'CountdownTimer' as const,
         position: { x: 4, y: 0 },
         size: { w: 2, h: 2 },
         seconds: 60,
@@ -82,7 +82,7 @@ export default function Grid() {
       });
       addWidget({
         id: 'dice-1',
-        type: 'DiceRoller',
+        type: 'DiceRoller' as const,
         position: { x: 0, y: 4 },
         size: { w: 2, h: 2 },
         diceType: 20,
@@ -95,7 +95,7 @@ export default function Grid() {
       });
       addWidget({
         id: 'init-1',
-        type: 'InitiativeTracker',
+        type: 'InitiativeTracker' as const,
         position: { x: 2, y: 4 },
         size: { w: 4, h: 3 },
         combatants: [],
@@ -120,83 +120,86 @@ export default function Grid() {
   // Global drop target for the grid
   const [, drop] = useDrop({
     accept: 'WIDGET',
-    drop: (item: any, monitor) => {
+    drop: (item: any) => {
       // If it is a new widget from sidebar (has widgetType but is not already present)
       if (item.widgetType && !widgets.some(w => w.id === item.widgetType + '-' + (widgets.length + 1))) {
         // Generate a new unique id for the widget
         const newId = item.widgetType + '-' + (widgets.length + 1);
-        // Map the type to what the grid requires
-        let type = '';
+
+        // Create properly typed widgets based on the widget type
         switch (item.widgetType) {
           case 'simple-table':
-            type = 'SimpleTable';
+            addWidget({
+              id: newId,
+              type: 'SimpleTable' as const,
+              position: { x: 0, y: 0 },
+              size: { w: 2, h: 2 },
+              columns: [
+                { id: 1, key: 'name', label: 'Name' },
+                { id: 2, key: 'value', label: 'Value' }
+              ],
+              rows: [
+                { id: 1, name: '', value: '' },
+                { id: 2, name: '', value: '' }
+              ]
+            });
             break;
           case 'countdown-timer':
-            type = 'CountdownTimer';
+            addWidget({
+              id: newId,
+              type: 'CountdownTimer' as const,
+              position: { x: 0, y: 0 },
+              size: { w: 2, h: 2 },
+              seconds: 60,
+              isRunning: false
+            });
             break;
           case 'dice-roller':
-            type = 'DiceRoller';
+            addWidget({
+              id: newId,
+              type: 'DiceRoller' as const,
+              position: { x: 0, y: 0 },
+              size: { w: 2, h: 2 },
+              diceType: 20,
+              numDice: 1,
+              modifier: 0,
+              advantage: 'none',
+              formula: '',
+              results: [],
+              finalResult: null
+            });
             break;
           case 'initiative-tracker':
-            type = 'InitiativeTracker';
+            addWidget({
+              id: newId,
+              type: 'InitiativeTracker' as const,
+              position: { x: 0, y: 0 },
+              size: { w: 2, h: 2 },
+              combatants: [],
+              name: '',
+              initiative: 0,
+              currentIndex: null,
+              turnChangeAnimation: false
+            });
             break;
           case 'quick-notes':
-            type = 'QuickNotes';
+            addWidget({
+              id: newId,
+              type: 'QuickNotes' as const,
+              position: { x: 0, y: 0 },
+              size: { w: 2, h: 2 }
+            });
             break;
-          default:
-            type = item.widgetType;
         }
-        // Create the new widget with minimal data
-        const newWidget: any = {
-          id: newId,
-          type,
-          position: { x: 0, y: 0 },
-          size: { w: 2, h: 2 }
-        };
-        // Optionally add type-specific data
-        if (type === 'SimpleTable') {
-          newWidget.columns = [
-            { id: 1, key: 'name', label: 'Name' },
-            { id: 2, key: 'value', label: 'Value' }
-          ];
-          newWidget.rows = [
-            { id: 1, name: '', value: '' },
-            { id: 2, name: '', value: '' }
-          ];
-        }
-        if (type === 'CountdownTimer') {
-          newWidget.seconds = 60;
-          newWidget.isRunning = false;
-        }
-        if (type === 'DiceRoller') {
-          newWidget.diceType = 20;
-          newWidget.numDice = 1;
-          newWidget.modifier = 0;
-          newWidget.advantage = 'none';
-          newWidget.formula = '';
-          newWidget.results = [];
-          newWidget.finalResult = null;
-        }
-        if (type === 'InitiativeTracker') {
-          newWidget.combatants = [];
-          newWidget.name = '';
-          newWidget.initiative = 0;
-          newWidget.currentIndex = null;
-          newWidget.turnChangeAnimation = false;
-        }
-        if (type === 'QuickNotes') {
-          // any initial data
-        }
-        addWidget(newWidget);
       }
     },
-    canDrop: (item: any, monitor) => !!item.widgetType,
+    canDrop: (item: any) => !!item.widgetType,
   });
 
   return (
     <>
       <ProfileManagerPanel />
-      <div ref={drop} className="grid grid-cols-3 gap-4 p-8 min-h-[400px]">
+      <div ref={drop as any} className="grid grid-cols-3 gap-4 p-8 min-h-[400px]">
         {widgets.map((widget, index) => {
           const WidgetComponent = components[widget.type] || (() => null);
           return (

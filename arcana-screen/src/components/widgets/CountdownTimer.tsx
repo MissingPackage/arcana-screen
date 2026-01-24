@@ -11,13 +11,18 @@ export default function CountdownTimer({ id, updateWidget }: CountdownTimerProps
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (!widget?.seconds || widget.isRunning === undefined) {
+    if (!widget || widget.type !== 'CountdownTimer') {
       updateWidget(id, { seconds: 60, isRunning: false });
+      return;
     }
   }, [widget, id, updateWidget]);
 
-  const seconds = widget?.seconds || 60;
-  const isRunning = widget?.isRunning || false;
+  if (!widget || widget.type !== 'CountdownTimer') {
+    return <div>Loading timer...</div>;
+  }
+
+  const seconds = widget.seconds;
+  const isRunning = widget.isRunning;
 
   const setSeconds = (s: number) => updateWidget(id, { seconds: s });
   const setIsRunning = (r: boolean) => updateWidget(id, { isRunning: r });
@@ -27,7 +32,8 @@ export default function CountdownTimer({ id, updateWidget }: CountdownTimerProps
     setIsRunning(true);
     timerRef.current = setInterval(() => {
       // compute next seconds value
-      const current = useWidgetStore.getState().widgets.find(w => w.id === id)?.seconds || 60;
+      const currentWidget = useWidgetStore.getState().widgets.find(w => w.id === id);
+      const current = currentWidget && currentWidget.type === 'CountdownTimer' ? currentWidget.seconds : 60;
       if (current <= 1) {
         clearInterval(timerRef.current!);
         setIsRunning(false);
@@ -55,7 +61,6 @@ export default function CountdownTimer({ id, updateWidget }: CountdownTimerProps
     };
   }, []);
 
-  if (widget == null) return <div>Loading timer...</div>;
   return (
     <div className="bg-green-100 text-gray-900 p-4 rounded-lg shadow-md w-full h-full flex flex-col justify-between">
       <h2 className="text-lg font-bold mb-2">Countdown Timer</h2>
