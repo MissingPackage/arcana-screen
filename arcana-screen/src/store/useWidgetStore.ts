@@ -70,7 +70,7 @@ export const useWidgetStore = create<WidgetStore>()(
       clearWidgets: () => set({ widgets: [] }),
     }),
     {
-      name: 'arcanaScreenLayout', // Nome della chiave in localStorage
+      name: 'arcanaScreenLayout', // Name of the key in localStorage
     }
   )
 );

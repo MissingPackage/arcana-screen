@@ -30,7 +30,7 @@ export const useProfileStore = create<ProfileStoreState>((set, get) => ({
 
   createProfile: (profile) => {
     const id = Date.now().toString();
-    // Usa SEMPRE i favoriteWidgetIds passati come parametro!
+    // ALWAYS use the favoriteWidgetIds passed as a parameter!
     const newProfile = { ...profile, id };
     set((state) => {
       const updated = [...state.profiles, newProfile];
@@ -49,7 +49,7 @@ export const useProfileStore = create<ProfileStoreState>((set, get) => ({
 
   loadProfile: (id) => {
     const profile = get().profiles.find((p) => p.id === id);
-    // Se carico un profilo, aggiorno anche i preferiti nello store globale
+    // If loading a profile, also update favorites in the global store
     if (profile) {
       try {
         const { useAppStore } = require('./appStore');

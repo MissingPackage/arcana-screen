@@ -44,7 +44,7 @@ export default function DiceRoller({ id, updateWidget }: DiceRollerProps) {
   ];
 
   function parseFormula(formula: string) {
-    // Supporta formule tipo 2d20+3 o d6-1
+    // Supports formulas like 2d20+3 or d6-1
     const match = formula.trim().match(/(\d*)d(\d+)([+-]\d+)?/i);
     if (!match) return null;
     const n = match[1] ? parseInt(match[1]) : 1;
@@ -56,7 +56,7 @@ export default function DiceRoller({ id, updateWidget }: DiceRollerProps) {
   function rollDice(n: number, s: number, m: number, adv: 'none' | 'adv' | 'dis') {
     let rolls: number[] = [];
     if (adv !== 'none' && n === 1) {
-      // Vantaggio/svantaggio: tiri due dadi e prendi il maggiore/minore
+      // Advantage/disadvantage: roll two dice and take the higher/lower
       const roll1 = Math.floor(Math.random() * s) + 1;
       const roll2 = Math.floor(Math.random() * s) + 1;
       rolls = [roll1, roll2];

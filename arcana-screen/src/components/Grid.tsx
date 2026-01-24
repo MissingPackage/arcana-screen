@@ -53,7 +53,7 @@ export default function Grid() {
   const addWidget = useWidgetStore((state) => state.addWidget);
   const clearWidgets = useWidgetStore((state) => state.clearWidgets);
 
-  // Usa una flag locale per evitare duplicazione dei widget di default
+  // Use a local flag to avoid duplicating default widgets
   const hasInitialized = useRef(false);
   useEffect(() => {
     if (!hasInitialized.current && widgets.length === 0) {
@@ -117,15 +117,15 @@ export default function Grid() {
     updated.forEach(w => addWidget(w));
   }, [widgets, clearWidgets, addWidget]);
 
-  // Drop target globale per la griglia
+  // Global drop target for the grid
   const [, drop] = useDrop({
     accept: 'WIDGET',
     drop: (item: any, monitor) => {
-      // Se è un nuovo widget dalla sidebar (ha widgetType ma non è già presente)
+      // If it is a new widget from sidebar (has widgetType but is not already present)
       if (item.widgetType && !widgets.some(w => w.id === item.widgetType + '-' + (widgets.length + 1))) {
-        // Genera un nuovo id unico per il widget
+        // Generate a new unique id for the widget
         const newId = item.widgetType + '-' + (widgets.length + 1);
-        // Mappa il tipo a quello richiesto dalla griglia
+        // Map the type to what the grid requires
         let type = '';
         switch (item.widgetType) {
           case 'simple-table':
@@ -146,14 +146,14 @@ export default function Grid() {
           default:
             type = item.widgetType;
         }
-        // Crea il nuovo widget con dati minimi
+        // Create the new widget with minimal data
         const newWidget: any = {
           id: newId,
           type,
           position: { x: 0, y: 0 },
           size: { w: 2, h: 2 }
         };
-        // Opzionalmente aggiungi dati specifici per tipo
+        // Optionally add type-specific data
         if (type === 'SimpleTable') {
           newWidget.columns = [
             { id: 1, key: 'name', label: 'Name' },
@@ -185,7 +185,7 @@ export default function Grid() {
           newWidget.turnChangeAnimation = false;
         }
         if (type === 'QuickNotes') {
-          // eventuali dati iniziali
+          // any initial data
         }
         addWidget(newWidget);
       }
