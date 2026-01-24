@@ -3,10 +3,11 @@ import { useProfileStore } from '../../store/useProfileStore';
 import toast from 'react-hot-toast';
 import { Profile } from '../../store/useProfileStore';
 import { useAppStore } from '../../store/appStore';
+import { Widget } from '../../store/useWidgetStore';
 
 interface ProfileManagerProps {
-  onLoadProfile: (layoutConfig: any) => void;
-  currentLayoutConfig: any;
+  onLoadProfile: (layoutConfig: Widget[]) => void;
+  currentLayoutConfig: Widget[];
 }
 
 const ProfileManager: React.FC<ProfileManagerProps> = ({ onLoadProfile, currentLayoutConfig }) => {

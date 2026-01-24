@@ -4,7 +4,7 @@ import { useWidgetStore } from '../../store/useWidgetStore';
 
 interface TableRow {
   id: number;
-  [key: string]: any;
+  [key: string]: string | number;
 }
 
 interface TableColumn {
@@ -137,7 +137,7 @@ function TableRowItem({ row, index, columns, rows, setRows, updateRow, removeRow
 
 interface SimpleTableProps {
   id: string;
-  updateWidget: (id: string, updates: any) => void;
+  updateWidget: (id: string, updates: Partial<{ columns: TableColumn[]; rows: TableRow[] }>) => void;
 }
 
 export default function SimpleTable({ id, updateWidget }: SimpleTableProps) {
@@ -282,7 +282,7 @@ export default function SimpleTable({ id, updateWidget }: SimpleTableProps) {
         </div>
       </div>
     );
-  } catch (e) {
+  } catch {
     return (
       <div className="flex items-center justify-center h-full w-full transition">
         <p>There was an error rendering the table. Please reload the page or check the console for details.</p>

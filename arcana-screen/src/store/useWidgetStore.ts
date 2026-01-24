@@ -10,7 +10,7 @@ export interface TableColumn {
 
 export interface TableRow {
   id: number;
-  [key: string]: any;
+  [key: string]: string | number;
 }
 
 export interface Combatant {

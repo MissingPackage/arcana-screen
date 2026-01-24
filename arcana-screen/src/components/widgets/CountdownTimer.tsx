@@ -3,7 +3,7 @@ import { useWidgetStore } from '../../store/useWidgetStore';
 
 interface CountdownTimerProps {
   id: string;
-  updateWidget: (id: string, updates: any) => void;
+  updateWidget: (id: string, updates: Partial<Record<string, unknown>>) => void;
 }
 
 export default function CountdownTimer({ id, updateWidget }: CountdownTimerProps) {
@@ -16,6 +16,13 @@ export default function CountdownTimer({ id, updateWidget }: CountdownTimerProps
       return;
     }
   }, [widget, id, updateWidget]);
+
+  // Cleanup effect must be before early return
+  useEffect(() => {
+    return () => {
+      if (timerRef.current !== null) clearInterval(timerRef.current);
+    };
+  }, []);
 
   if (!widget || widget.type !== 'CountdownTimer') {
     return <div>Loading timer...</div>;
@@ -54,12 +61,6 @@ export default function CountdownTimer({ id, updateWidget }: CountdownTimerProps
     setSeconds(60);
     setIsRunning(false);
   };
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current !== null) clearInterval(timerRef.current);
-    };
-  }, []);
 
   return (
     <div className="bg-green-100 text-gray-900 p-4 rounded-lg shadow-md w-full h-full flex flex-col justify-between">

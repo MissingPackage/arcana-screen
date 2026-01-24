@@ -4,7 +4,15 @@ import { DiceD2, DiceD4, DiceD6, DiceD8, DiceD10, DiceD12, DiceD20, DiceD100 } f
 
 interface DiceRollerProps {
   id: string;
-  updateWidget: (id: string, updates: any) => void;
+  updateWidget: (id: string, updates: Partial<{
+    diceType: number;
+    numDice: number;
+    modifier: number;
+    advantage: 'none' | 'adv' | 'dis';
+    formula: string;
+    results: number[];
+    finalResult: number | null;
+  }>) => void;
 }
 
 export default function DiceRoller({ id, updateWidget }: DiceRollerProps) {

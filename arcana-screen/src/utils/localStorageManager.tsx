@@ -1,6 +1,8 @@
+import { Widget } from '../store/useWidgetStore';
+
 const STORAGE_KEY = 'arcanaScreenLayout';
 
-export function saveLayout(layout: any) {
+export function saveLayout(layout: Widget[]) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(layout));
   } catch (error) {
@@ -8,7 +10,7 @@ export function saveLayout(layout: any) {
   }
 }
 
-export function loadLayout(): any[] {
+export function loadLayout(): Widget[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {

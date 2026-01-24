@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useWidgetStore } from '../../store/useWidgetStore';
 
 interface Combatant {
@@ -9,7 +9,7 @@ interface Combatant {
 
 interface InitiativeTrackerProps {
   id: string;
-  updateWidget: (id: string, updates: any) => void;
+  updateWidget: (id: string, updates: Partial<Record<string, unknown>>) => void;
 }
 
 
@@ -23,6 +23,17 @@ export default function InitiativeTracker({ id, updateWidget }: InitiativeTracke
     }
   }, [widget, id, updateWidget]);
 
+  // Must define setTurnChangeAnimation before using it in useEffect
+  const setTurnChangeAnimation = useCallback((v: boolean) => updateWidget(id, { turnChangeAnimation: v }), [id, updateWidget]);
+
+  // Animation effect must be before early return
+  useEffect(() => {
+    if (widget && widget.type === 'InitiativeTracker' && widget.turnChangeAnimation) {
+      const timeout = setTimeout(() => setTurnChangeAnimation(false), 500);
+      return () => clearTimeout(timeout);
+    }
+  }, [widget, setTurnChangeAnimation]);
+
   if (!widget || widget.type !== 'InitiativeTracker') {
     return <div>Loading initiative tracker...</div>;
   }
@@ -33,11 +44,10 @@ export default function InitiativeTracker({ id, updateWidget }: InitiativeTracke
   const currentIndex = widget.currentIndex;
   const turnChangeAnimation = widget.turnChangeAnimation;
 
-  const setCombatants = (v: any[]) => updateWidget(id, { combatants: v });
+  const setCombatants = (v: Combatant[]) => updateWidget(id, { combatants: v });
   const setName = (v: string) => updateWidget(id, { name: v });
   const setInitiative = (v: number) => updateWidget(id, { initiative: v });
   const setCurrentIndex = (v: number | null) => updateWidget(id, { currentIndex: v });
-  const setTurnChangeAnimation = (v: boolean) => updateWidget(id, { turnChangeAnimation: v });
 
   const addCombatant = () => {
     if (!name) return;
@@ -64,13 +74,6 @@ export default function InitiativeTracker({ id, updateWidget }: InitiativeTracke
   const removeCombatant = (id: number) => {
     setCombatants(combatants.filter((c) => c.id !== id));
   };
-
-  useEffect(() => {
-    if (turnChangeAnimation) {
-      const timeout = setTimeout(() => setTurnChangeAnimation(false), 500);
-      return () => clearTimeout(timeout);
-    }
-  }, [turnChangeAnimation]);
 
   return (
     <div className="transition p-4 rounded-lg shadow-md w-full h-full flex flex-col relative overflow-hidden">
