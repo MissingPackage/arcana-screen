@@ -143,3 +143,6 @@ roadmap.json
 /package.json
 /package-lock.json
 
+
+# Auto Claude data directory
+.auto-claude/
