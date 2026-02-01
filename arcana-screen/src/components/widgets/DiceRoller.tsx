@@ -1,13 +1,13 @@
-import { useEffect } from 'react';
-import { useWidgetStore } from '../../store/useWidgetStore';
+import { useEffect, memo } from 'react';
+import { useWidgetStore, Widget } from '../../store/useWidgetStore';
 import { DiceD2, DiceD4, DiceD6, DiceD8, DiceD10, DiceD12, DiceD20, DiceD100 } from './DiceIcons';
 
 interface DiceRollerProps {
   id: string;
-  updateWidget: (id: string, updates: any) => void;
+  updateWidget: (id: string, updates: Partial<Widget>) => void;
 }
 
-export default function DiceRoller({ id, updateWidget }: DiceRollerProps) {
+function DiceRoller({ id, updateWidget }: DiceRollerProps) {
   const widget = useWidgetStore(state => state.widgets.find(w => w.id === id));
 
   useEffect(() => {
@@ -169,3 +169,5 @@ export default function DiceRoller({ id, updateWidget }: DiceRollerProps) {
     </div>
   );
 }
+
+export default memo(DiceRoller);

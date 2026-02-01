@@ -1,17 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, memo } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
-import { useWidgetStore } from '../../store/useWidgetStore';
-
-interface TableRow {
-  id: number;
-  [key: string]: any;
-}
-
-interface TableColumn {
-  id: number;
-  key: string;
-  label: string;
-}
+import { useWidgetStore, Widget, TableRow, TableColumn } from '../../store/useWidgetStore';
 
 const ItemTypeRow = 'ROW';
 const ItemTypeColumn = 'COLUMN';
@@ -25,7 +14,7 @@ interface TableColumnHeaderProps {
   removeColumn: (id: number) => void;
 }
 function TableColumnHeader({ col, index, columns, setColumns, updateColumnLabel, removeColumn }: TableColumnHeaderProps) {
-  const [, drag, preview] = useDrag({
+  const [, drag] = useDrag({
     type: ItemTypeColumn,
     item: { index },
   });
@@ -90,7 +79,7 @@ interface TableRowItemProps {
   removeRow: (id: number) => void;
 }
 function TableRowItem({ row, index, columns, rows, setRows, updateRow, removeRow }: TableRowItemProps) {
-  const [, drag, preview] = useDrag({
+  const [, drag] = useDrag({
     type: ItemTypeRow,
     item: { index },
   });
@@ -137,10 +126,10 @@ function TableRowItem({ row, index, columns, rows, setRows, updateRow, removeRow
 
 interface SimpleTableProps {
   id: string;
-  updateWidget: (id: string, updates: any) => void;
+  updateWidget: (id: string, updates: Partial<Widget>) => void;
 }
 
-export default function SimpleTable({ id, updateWidget }: SimpleTableProps) {
+function SimpleTable({ id, updateWidget }: SimpleTableProps) {
   const widget = useWidgetStore(state => state.widgets.find(w => w.id === id));
 
   // Default columns/rows if not present
@@ -279,7 +268,8 @@ export default function SimpleTable({ id, updateWidget }: SimpleTableProps) {
         </div>
       </div>
     );
-  } catch (e) {
+  } catch (error) {
+    console.error('Error rendering SimpleTable:', error);
     return (
       <div className="flex items-center justify-center h-full w-full transition">
         <p>There was an error rendering the table. Please reload the page or check the console for details.</p>
@@ -287,3 +277,5 @@ export default function SimpleTable({ id, updateWidget }: SimpleTableProps) {
     );
   }
 }
+
+export default memo(SimpleTable);

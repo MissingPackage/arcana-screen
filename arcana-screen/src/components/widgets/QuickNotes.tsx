@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 
-export default function QuickNotes() {
+function QuickNotes() {
   const [text, setText] = useState('');
 
   return (
@@ -16,3 +16,5 @@ export default function QuickNotes() {
     </div>
   );
 }
+
+export default memo(QuickNotes);

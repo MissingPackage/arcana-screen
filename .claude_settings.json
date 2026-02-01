@@ -1,0 +1,39 @@
+{
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true
+  },
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Read(./**)",
+      "Write(./**)",
+      "Edit(./**)",
+      "Glob(./**)",
+      "Grep(./**)",
+      "Read(/home/neuromancer/Projects/arcana-screen/.auto-claude/worktrees/tasks/006-add-react-memo-to-widget-components-to-prevent-unn/**)",
+      "Write(/home/neuromancer/Projects/arcana-screen/.auto-claude/worktrees/tasks/006-add-react-memo-to-widget-components-to-prevent-unn/**)",
+      "Edit(/home/neuromancer/Projects/arcana-screen/.auto-claude/worktrees/tasks/006-add-react-memo-to-widget-components-to-prevent-unn/**)",
+      "Glob(/home/neuromancer/Projects/arcana-screen/.auto-claude/worktrees/tasks/006-add-react-memo-to-widget-components-to-prevent-unn/**)",
+      "Grep(/home/neuromancer/Projects/arcana-screen/.auto-claude/worktrees/tasks/006-add-react-memo-to-widget-components-to-prevent-unn/**)",
+      "Read(/home/neuromancer/Projects/arcana-screen/.auto-claude/worktrees/tasks/006-add-react-memo-to-widget-components-to-prevent-unn/.auto-claude/specs/006-add-react-memo-to-widget-components-to-prevent-unn/**)",
+      "Write(/home/neuromancer/Projects/arcana-screen/.auto-claude/worktrees/tasks/006-add-react-memo-to-widget-components-to-prevent-unn/.auto-claude/specs/006-add-react-memo-to-widget-components-to-prevent-unn/**)",
+      "Edit(/home/neuromancer/Projects/arcana-screen/.auto-claude/worktrees/tasks/006-add-react-memo-to-widget-components-to-prevent-unn/.auto-claude/specs/006-add-react-memo-to-widget-components-to-prevent-unn/**)",
+      "Read(/home/neuromancer/Projects/arcana-screen/.auto-claude/**)",
+      "Write(/home/neuromancer/Projects/arcana-screen/.auto-claude/**)",
+      "Edit(/home/neuromancer/Projects/arcana-screen/.auto-claude/**)",
+      "Glob(/home/neuromancer/Projects/arcana-screen/.auto-claude/**)",
+      "Grep(/home/neuromancer/Projects/arcana-screen/.auto-claude/**)",
+      "Bash(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "mcp__context7__resolve-library-id(*)",
+      "mcp__context7__get-library-docs(*)",
+      "mcp__graphiti-memory__search_nodes(*)",
+      "mcp__graphiti-memory__search_facts(*)",
+      "mcp__graphiti-memory__add_episode(*)",
+      "mcp__graphiti-memory__get_episodes(*)",
+      "mcp__graphiti-memory__get_entity_edge(*)"
+    ]
+  }
+}

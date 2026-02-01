@@ -1,19 +1,13 @@
-import { useState, useEffect } from 'react';
-import { useWidgetStore } from '../../store/useWidgetStore';
-
-interface Combatant {
-  id: number;
-  name: string;
-  initiative: number;
-}
+import { useEffect, memo } from 'react';
+import { useWidgetStore, Widget, Combatant } from '../../store/useWidgetStore';
 
 interface InitiativeTrackerProps {
   id: string;
-  updateWidget: (id: string, updates: any) => void;
+  updateWidget: (id: string, updates: Partial<Widget>) => void;
 }
 
 
-export default function InitiativeTracker({ id, updateWidget }: InitiativeTrackerProps) {
+function InitiativeTracker({ id, updateWidget }: InitiativeTrackerProps) {
   const widget = useWidgetStore(state => state.widgets.find(w => w.id === id));
 
   useEffect(() => {
@@ -28,7 +22,7 @@ export default function InitiativeTracker({ id, updateWidget }: InitiativeTracke
   const currentIndex = widget?.currentIndex ?? null;
   const turnChangeAnimation = widget?.turnChangeAnimation || false;
 
-  const setCombatants = (v: any[]) => updateWidget(id, { combatants: v });
+  const setCombatants = (v: Combatant[]) => updateWidget(id, { combatants: v });
   const setName = (v: string) => updateWidget(id, { name: v });
   const setInitiative = (v: number) => updateWidget(id, { initiative: v });
   const setCurrentIndex = (v: number | null) => updateWidget(id, { currentIndex: v });
@@ -65,6 +59,8 @@ export default function InitiativeTracker({ id, updateWidget }: InitiativeTracke
       const timeout = setTimeout(() => setTurnChangeAnimation(false), 500);
       return () => clearTimeout(timeout);
     }
+    // setTurnChangeAnimation is stable and doesn't need to be in dependencies
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [turnChangeAnimation]);
 
   return (
@@ -140,3 +136,5 @@ export default function InitiativeTracker({ id, updateWidget }: InitiativeTracke
     </div>
   );
 }
+
+export default memo(InitiativeTracker);

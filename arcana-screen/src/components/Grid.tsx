@@ -5,12 +5,18 @@ import DiceRoller from './widgets/DiceRoller';
 import CountdownTimer from './widgets/CountdownTimer';
 import SimpleTable from './widgets/SimpleTable';
 import InitiativeTracker from './widgets/InitiativeTracker';
-import { useWidgetStore } from '../store/useWidgetStore';
+import { useWidgetStore, Widget } from '../store/useWidgetStore';
 import ProfileManagerPanel from './ProfileManager/ProfileManagerPanel';
 
 const ItemType = 'WIDGET';
 
-const components: { [key: string]: React.FC<any> } = {
+interface WidgetComponentProps {
+  id: string;
+  updateWidget: (id: string, updates: Partial<Widget>) => void;
+  removeWidget?: (id: string) => void;
+}
+
+const components: { [key: string]: React.FC<WidgetComponentProps> } = {
   SimpleTable,
   CountdownTimer,
   DiceRoller,
@@ -18,7 +24,14 @@ const components: { [key: string]: React.FC<any> } = {
   QuickNotes,
 };
 
-function DraggableBox({ id, index, moveItem, children }: any) {
+interface DraggableBoxProps {
+  id: string;
+  index: number;
+  moveItem: (from: number, to: number) => void;
+  children: React.ReactNode;
+}
+
+function DraggableBox({ id, index, moveItem, children }: DraggableBoxProps) {
   const [, drag] = useDrag({
     type: ItemType,
     item: { id, index },
@@ -26,7 +39,7 @@ function DraggableBox({ id, index, moveItem, children }: any) {
 
   const [, drop] = useDrop({
     accept: ItemType,
-    hover: (dragged: any) => {
+    hover: (dragged: { id: string; index: number }) => {
       if (dragged.index !== index) {
         moveItem(dragged.index, index);
         dragged.index = index;
@@ -120,7 +133,7 @@ export default function Grid() {
   // Drop target globale per la griglia
   const [, drop] = useDrop({
     accept: 'WIDGET',
-    drop: (item: any, monitor) => {
+    drop: (item: { widgetType?: string }) => {
       // Se è un nuovo widget dalla sidebar (ha widgetType ma non è già presente)
       if (item.widgetType && !widgets.some(w => w.id === item.widgetType + '-' + (widgets.length + 1))) {
         // Genera un nuovo id unico per il widget
@@ -147,7 +160,7 @@ export default function Grid() {
             type = item.widgetType;
         }
         // Crea il nuovo widget con dati minimi
-        const newWidget: any = {
+        const newWidget: Widget = {
           id: newId,
           type,
           position: { x: 0, y: 0 },
@@ -190,13 +203,13 @@ export default function Grid() {
         addWidget(newWidget);
       }
     },
-    canDrop: (item: any, monitor) => !!item.widgetType,
+    canDrop: (item: { widgetType?: string }) => !!item.widgetType,
   });
 
   return (
     <>
       <ProfileManagerPanel />
-      <div ref={drop} className="grid grid-cols-3 gap-4 p-8 min-h-[400px]">
+      <div ref={drop as unknown as React.Ref<HTMLDivElement>} className="grid grid-cols-3 gap-4 p-8 min-h-[400px]">
         {widgets.map((widget, index) => {
           const WidgetComponent = components[widget.type] || (() => null);
           return (

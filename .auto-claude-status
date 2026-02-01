@@ -1,0 +1,25 @@
+{
+  "active": true,
+  "spec": "006-add-react-memo-to-widget-components-to-prevent-unn",
+  "state": "building",
+  "subtasks": {
+    "completed": 6,
+    "total": 7,
+    "in_progress": 1,
+    "failed": 0
+  },
+  "phase": {
+    "current": "Final Verification",
+    "id": null,
+    "total": 2
+  },
+  "workers": {
+    "active": 0,
+    "max": 1
+  },
+  "session": {
+    "number": 8,
+    "started_at": "2026-02-01T12:03:00.533812"
+  },
+  "last_update": "2026-02-01T12:31:09.088432"
+}

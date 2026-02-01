@@ -1,9 +1,10 @@
 import { create } from 'zustand';
+import { Widget } from './useWidgetStore';
 
 export interface Profile {
   id: string;
   name: string;
-  layoutConfig: any;
+  layoutConfig: Widget[];
   favoriteWidgetIds: string[];
 }
 
@@ -52,9 +53,15 @@ export const useProfileStore = create<ProfileStoreState>((set, get) => ({
     // Se carico un profilo, aggiorno anche i preferiti nello store globale
     if (profile) {
       try {
-        const { useAppStore } = require('./appStore');
-        useAppStore.getState().setFavorites(profile.favoriteWidgetIds || []);
-      } catch {}
+        // Dynamic import to avoid circular dependency
+        import('./appStore').then(({ useAppStore }) => {
+          useAppStore.getState().setFavorites(profile.favoriteWidgetIds || []);
+        }).catch(() => {
+          // Ignore errors from setting favorites - profile will still load
+        });
+      } catch {
+        // Ignore errors - profile will still load without updating favorites
+      }
     }
     return profile;
   },

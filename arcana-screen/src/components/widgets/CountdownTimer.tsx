@@ -1,12 +1,12 @@
-import { useEffect, useRef } from 'react';
-import { useWidgetStore } from '../../store/useWidgetStore';
+import { useEffect, useRef, memo } from 'react';
+import { useWidgetStore, Widget } from '../../store/useWidgetStore';
 
 interface CountdownTimerProps {
   id: string;
-  updateWidget: (id: string, updates: any) => void;
+  updateWidget: (id: string, updates: Partial<Widget>) => void;
 }
 
-export default function CountdownTimer({ id, updateWidget }: CountdownTimerProps) {
+function CountdownTimer({ id, updateWidget }: CountdownTimerProps) {
   const widget = useWidgetStore(state => state.widgets.find(w => w.id === id));
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -95,3 +95,5 @@ export default function CountdownTimer({ id, updateWidget }: CountdownTimerProps
     </div>
   );
 }
+
+export default memo(CountdownTimer);

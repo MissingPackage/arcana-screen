@@ -2,7 +2,6 @@ import Grid from './components/Grid';
 import { useThemeStore } from './store/themeStore';
 import { Toaster } from 'react-hot-toast';
 import WidgetSidebar from './components/WidgetSidebar/WidgetSidebar';
-import { widgetMeta } from './components/widgets/WidgetConfig';
 import './index.css';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -14,7 +13,7 @@ function App() {
     <DndProvider backend={HTML5Backend}>
       <div className="h-screen w-screen flex flex-row">
         {/* Sidebar a sinistra */}
-        <WidgetSidebar widgets={widgetMeta} />
+        <WidgetSidebar />
 
         {/* Main area a destra */}
         <div className="flex-1 flex flex-col">

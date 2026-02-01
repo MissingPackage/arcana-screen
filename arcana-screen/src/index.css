@@ -190,13 +190,23 @@
      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
    }
    
-   body.dark-theme .card, 
+   body.dark-theme .card,
    body.dark-theme .widget {
      background-color: #13203a;
      border: 1px solid var(--border-dark);
      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
    }
-   
+
+   /* === WIDGET SIDEBAR ITEMS === */
+
+   .widget-item:hover {
+     background-color: rgba(217, 179, 16, 0.1);
+   }
+
+   body.dark-theme .widget-item:hover {
+     background-color: rgba(92, 128, 160, 0.2);
+   }
+
    /* === TRANSIZIONI GENERALI === */
    
    *, *::before, *::after {
