@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "004-memoize-static-data-and-move-constants-outside-com",
-  "state": "complete",
+  "spec": "010-initiative-tracker-hp-management",
+  "state": "building",
   "subtasks": {
-    "completed": 6,
-    "total": 6,
-    "in_progress": 0,
+    "completed": 2,
+    "total": 5,
+    "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Final Verification",
+    "current": "HP Management Implementation",
     "id": null,
-    "total": 2
+    "total": 5
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 7,
-    "started_at": "2026-02-01T12:03:01.958363"
+    "number": 4,
+    "started_at": "2026-02-01T13:32:38.201975"
   },
-  "last_update": "2026-02-01T12:21:55.736566"
+  "last_update": "2026-02-01T13:41:41.735502"
 }

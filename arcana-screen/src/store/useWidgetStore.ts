@@ -10,13 +10,16 @@ export interface TableColumn {
 
 export interface TableRow {
   id: number;
-  [key: string]: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any; // Dynamic columns require any type
 }
 
 export interface Combatant {
   id: number;
   name: string;
   initiative: number;
+  currentHp?: number;
+  maxHp?: number;
 }
 
 export interface Widget {
@@ -42,10 +45,10 @@ export interface Widget {
   combatants?: Combatant[];
   name?: string;
   initiative?: number;
+  currentHp?: number;
+  maxHp?: number;
   currentIndex?: number | null;
   turnChangeAnimation?: boolean;
-  // QuickNotes
-  text?: string;
 }
 
 interface WidgetStore {

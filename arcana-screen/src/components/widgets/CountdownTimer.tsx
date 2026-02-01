@@ -1,5 +1,6 @@
 import { useEffect, useRef, memo } from 'react';
 import { useWidgetStore, Widget } from '../../store/useWidgetStore';
+import WidgetHelpButton from '../WidgetHelpButton/WidgetHelpButton';
 
 interface CountdownTimerProps {
   id: string;
@@ -55,10 +56,21 @@ function CountdownTimer({ id, updateWidget }: CountdownTimerProps) {
     };
   }, []);
 
+  const helpText = `Set a custom time using the number input at the bottom, then use the controls to manage the timer.
+
+Start: Begin counting down from the current time.
+Stop: Pause the timer at its current value.
+Reset: Stop the timer and reset it back to 60 seconds.
+
+The timer will automatically stop when it reaches 0 seconds.`;
+
   if (widget == null) return <div>Loading timer...</div>;
   return (
     <div className="bg-green-100 text-gray-900 p-4 rounded-lg shadow-md w-full h-full flex flex-col justify-between">
-      <h2 className="text-lg font-bold mb-2">Countdown Timer</h2>
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-lg font-bold">Countdown Timer</h2>
+        <WidgetHelpButton helpText={helpText} />
+      </div>
 
       <div className="text-4xl font-bold text-center">{seconds}s</div>
 

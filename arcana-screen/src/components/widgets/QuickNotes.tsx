@@ -1,22 +1,35 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
+import WidgetHelpButton from '../WidgetHelpButton/WidgetHelpButton';
 
-const TEXTAREA_STYLE = {
-  fontSize: '1em'
-};
-
-export default function QuickNotes() {
+function QuickNotes() {
   const [text, setText] = useState('');
+
+  const helpText = `Quick Notes is a simple text area for jotting down important information during your session.
+
+Use it for:
+• Campaign notes and reminders
+• NPC names and details
+• Quest objectives
+• Random ideas and improvisation notes
+• Session planning
+
+Note: Your notes are stored locally in your browser and will persist between sessions.`;
 
   return (
     <div className="p-4 rounded-lg shadow-md w-full h-full flex flex-col">
-      <h2 className="text-lg font-bold mb-2">Quick Notes</h2>
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-lg font-bold">Quick Notes</h2>
+        <WidgetHelpButton helpText={helpText} />
+      </div>
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Write your notes here..."
         className="flex-1 border rounded p-2 resize-none focus:outline-none focus:ring-2"
-        style={TEXTAREA_STYLE}
+        style={{ fontSize: '1em' }}
       />
     </div>
   );
 }
+
+export default memo(QuickNotes);

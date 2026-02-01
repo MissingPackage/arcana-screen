@@ -12,19 +12,23 @@ function InitiativeTracker({ id, updateWidget }: InitiativeTrackerProps) {
 
   useEffect(() => {
     if (!widget?.combatants) {
-      updateWidget(id, { combatants: [], name: '', initiative: 0, currentIndex: null, turnChangeAnimation: false });
+      updateWidget(id, { combatants: [], name: '', initiative: 0, currentHp: undefined, maxHp: undefined, currentIndex: null, turnChangeAnimation: false });
     }
   }, [widget, id, updateWidget]);
 
   const combatants = widget?.combatants || [];
   const name = widget?.name || '';
   const initiative = widget?.initiative || 0;
+  const currentHp = widget?.currentHp;
+  const maxHp = widget?.maxHp;
   const currentIndex = widget?.currentIndex ?? null;
   const turnChangeAnimation = widget?.turnChangeAnimation || false;
 
   const setCombatants = (v: Combatant[]) => updateWidget(id, { combatants: v });
   const setName = (v: string) => updateWidget(id, { name: v });
   const setInitiative = (v: number) => updateWidget(id, { initiative: v });
+  const setCurrentHp = (v: number | undefined) => updateWidget(id, { currentHp: v });
+  const setMaxHp = (v: number | undefined) => updateWidget(id, { maxHp: v });
   const setCurrentIndex = (v: number | null) => updateWidget(id, { currentIndex: v });
   const setTurnChangeAnimation = (v: boolean) => updateWidget(id, { turnChangeAnimation: v });
 
@@ -34,11 +38,15 @@ function InitiativeTracker({ id, updateWidget }: InitiativeTrackerProps) {
       id: Date.now(),
       name,
       initiative,
+      currentHp,
+      maxHp,
     };
     const updated = [...combatants, newCombatant].sort((a, b) => b.initiative - a.initiative);
     setCombatants(updated);
     setName('');
     setInitiative(0);
+    setCurrentHp(undefined);
+    setMaxHp(undefined);
     if (currentIndex === null) setCurrentIndex(0);
   };
 
@@ -52,6 +60,28 @@ function InitiativeTracker({ id, updateWidget }: InitiativeTrackerProps) {
 
   const removeCombatant = (id: number) => {
     setCombatants(combatants.filter((c) => c.id !== id));
+  };
+
+  const updateCombatantHp = (combatantId: number, hpChange: number) => {
+    const updated = combatants.map((c) => {
+      if (c.id === combatantId && c.currentHp !== undefined && c.maxHp !== undefined) {
+        const newHp = Math.max(0, Math.min(c.maxHp, c.currentHp + hpChange));
+        return { ...c, currentHp: newHp };
+      }
+      return c;
+    });
+    setCombatants(updated);
+  };
+
+  const getHpBarColor = (currentHp: number, maxHp: number): string => {
+    const percentage = (currentHp / maxHp) * 100;
+    if (percentage > 50) return 'bg-green-500';
+    if (percentage >= 25) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
+
+  const isDownedCombatant = (c: Combatant): boolean => {
+    return c.currentHp !== undefined && c.currentHp === 0;
   };
 
   useEffect(() => {
@@ -89,6 +119,20 @@ function InitiativeTracker({ id, updateWidget }: InitiativeTrackerProps) {
           placeholder="Initiative"
           className="border p-2 rounded w-full"
         />
+        <input
+          type="number"
+          value={currentHp ?? ''}
+          onChange={(e) => setCurrentHp(e.target.value ? Number(e.target.value) : undefined)}
+          placeholder="Current HP (optional)"
+          className="border p-2 rounded w-full"
+        />
+        <input
+          type="number"
+          value={maxHp ?? ''}
+          onChange={(e) => setMaxHp(e.target.value ? Number(e.target.value) : undefined)}
+          placeholder="Max HP (optional)"
+          className="border p-2 rounded w-full"
+        />
         <button
           onClick={addCombatant}
           className="rounded px-2 py-1 text-xs transition"
@@ -99,24 +143,94 @@ function InitiativeTracker({ id, updateWidget }: InitiativeTrackerProps) {
 
       {/* List of combatants */}
       <div className="flex-1 overflow-auto">
-        {combatants.map((c, index) => (
+        {combatants.map((c, index) => {
+          const isDowned = isDownedCombatant(c);
+          return (
           <div
             key={c.id}
-            className={`flex justify-between items-center p-2 rounded mb-2 transition-all duration-300 ${
+            className={`p-2 rounded mb-2 transition-all duration-300 ${
+              isDowned ? 'opacity-60 border-2 border-red-600' : ''
+            } ${
               index === currentIndex
                 ? 'bg-yellow-300 font-bold'
                 : 'bg-yellow-200'
             }`}
           >
-            <div>{c.name} (Initiative: {c.initiative})</div>
-            <button
-              onClick={() => removeCombatant(c.id)}
-              className="text-red-600 text-sm hover:underline"
-            >
-              Remove
-            </button>
+            <div className="flex justify-between items-center mb-2">
+              <div>
+                <span className={isDowned ? 'line-through' : ''}>
+                  {c.name}
+                </span> (Initiative: {c.initiative})
+                {c.currentHp !== undefined && c.maxHp !== undefined && (
+                  <span className="ml-2 font-semibold">HP: {c.currentHp}/{c.maxHp}</span>
+                )}
+                {isDowned && (
+                  <span className="ml-2 text-red-600 font-bold text-xs">DOWNED</span>
+                )}
+              </div>
+              <button
+                onClick={() => removeCombatant(c.id)}
+                className="text-red-600 text-sm hover:underline"
+              >
+                Remove
+              </button>
+            </div>
+            {c.currentHp !== undefined && c.maxHp !== undefined && (
+              <>
+                {/* HP Bar */}
+                <div className="w-full bg-gray-300 rounded-full h-4 mb-2 overflow-hidden">
+                  <div
+                    className={`h-full transition-all duration-300 ${getHpBarColor(c.currentHp, c.maxHp)}`}
+                    style={{ width: `${(c.currentHp / c.maxHp) * 100}%` }}
+                  />
+                </div>
+                <div className="flex gap-1 mt-2">
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => updateCombatantHp(c.id, -10)}
+                    className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition"
+                  >
+                    -10
+                  </button>
+                  <button
+                    onClick={() => updateCombatantHp(c.id, -5)}
+                    className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition"
+                  >
+                    -5
+                  </button>
+                  <button
+                    onClick={() => updateCombatantHp(c.id, -1)}
+                    className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition"
+                  >
+                    -1
+                  </button>
+                </div>
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => updateCombatantHp(c.id, 1)}
+                    className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition"
+                  >
+                    +1
+                  </button>
+                  <button
+                    onClick={() => updateCombatantHp(c.id, 5)}
+                    className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition"
+                  >
+                    +5
+                  </button>
+                  <button
+                    onClick={() => updateCombatantHp(c.id, 10)}
+                    className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition"
+                  >
+                    +10
+                  </button>
+                </div>
+              </div>
+              </>
+            )}
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Next Turn button */}
