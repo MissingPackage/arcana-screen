@@ -7,6 +7,17 @@ interface DiceRollerProps {
   updateWidget: (id: string, updates: any) => void;
 }
 
+const diceOptions = [
+  {sides: 2, icon: <DiceD2 />},
+  {sides: 4, icon: <DiceD4 />},
+  {sides: 6, icon: <DiceD6 />},
+  {sides: 8, icon: <DiceD8 />},
+  {sides: 10, icon: <DiceD10 />},
+  {sides: 12, icon: <DiceD12 />},
+  {sides: 20, icon: <DiceD20 />},
+  {sides: 100, icon: <DiceD100 />},
+];
+
 export default function DiceRoller({ id, updateWidget }: DiceRollerProps) {
   const widget = useWidgetStore(state => state.widgets.find(w => w.id === id));
 
@@ -31,17 +42,6 @@ export default function DiceRoller({ id, updateWidget }: DiceRollerProps) {
   const setFormula = (v: string) => updateWidget(id, { formula: v });
   const setResults = (v: number[]) => updateWidget(id, { results: v });
   const setFinalResult = (v: number | null) => updateWidget(id, { finalResult: v });
-
-  const diceOptions = [
-    {sides: 2, icon: <DiceD2 />},
-    {sides: 4, icon: <DiceD4 />},
-    {sides: 6, icon: <DiceD6 />},
-    {sides: 8, icon: <DiceD8 />},
-    {sides: 10, icon: <DiceD10 />},
-    {sides: 12, icon: <DiceD12 />},
-    {sides: 20, icon: <DiceD20 />},
-    {sides: 100, icon: <DiceD100 />},
-  ];
 
   function parseFormula(formula: string) {
     // Supporta formule tipo 2d20+3 o d6-1
