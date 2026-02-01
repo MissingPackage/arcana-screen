@@ -1,9 +1,24 @@
-import { useEffect, memo } from 'react';
+import { useEffect } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
-import { useWidgetStore, Widget, TableRow, TableColumn } from '../../store/useWidgetStore';
+import { useWidgetStore } from '../../store/useWidgetStore';
+
+interface TableRow {
+  id: number;
+  [key: string]: any;
+}
+
+interface TableColumn {
+  id: number;
+  key: string;
+  label: string;
+}
 
 const ItemTypeRow = 'ROW';
 const ItemTypeColumn = 'COLUMN';
+
+// Style constants
+const INPUT_FONT_WEIGHT_STYLE = { fontWeight: 500 };
+const BUTTON_LINE_HEIGHT_STYLE = { lineHeight: 1 };
 
 interface TableColumnHeaderProps {
   col: TableColumn;
@@ -14,7 +29,7 @@ interface TableColumnHeaderProps {
   removeColumn: (id: number) => void;
 }
 function TableColumnHeader({ col, index, columns, setColumns, updateColumnLabel, removeColumn }: TableColumnHeaderProps) {
-  const [, drag] = useDrag({
+  const [, drag, preview] = useDrag({
     type: ItemTypeColumn,
     item: { index },
   });
@@ -41,7 +56,7 @@ function TableColumnHeader({ col, index, columns, setColumns, updateColumnLabel,
           value={col.label}
           onChange={e => updateColumnLabel(col.id, e.target.value)}
           className="text-center px-2 py-1 w-24 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm bg-white"
-          style={{ fontWeight: 500 }}
+          style={INPUT_FONT_WEIGHT_STYLE}
         />
         {columns.length > 1 ? (
           <button
@@ -49,7 +64,7 @@ function TableColumnHeader({ col, index, columns, setColumns, updateColumnLabel,
             onClick={() => removeColumn(col.id)}
             title="Remove column"
             tabIndex={-1}
-            style={{ lineHeight: 1 }}
+            style={BUTTON_LINE_HEIGHT_STYLE}
           >
             ×
           </button>
@@ -59,7 +74,7 @@ function TableColumnHeader({ col, index, columns, setColumns, updateColumnLabel,
             disabled
             title="Cannot remove last column"
             tabIndex={-1}
-            style={{ lineHeight: 1 }}
+            style={BUTTON_LINE_HEIGHT_STYLE}
           >
             ×
           </button>
@@ -79,7 +94,7 @@ interface TableRowItemProps {
   removeRow: (id: number) => void;
 }
 function TableRowItem({ row, index, columns, rows, setRows, updateRow, removeRow }: TableRowItemProps) {
-  const [, drag] = useDrag({
+  const [, drag, preview] = useDrag({
     type: ItemTypeRow,
     item: { index },
   });
@@ -126,10 +141,10 @@ function TableRowItem({ row, index, columns, rows, setRows, updateRow, removeRow
 
 interface SimpleTableProps {
   id: string;
-  updateWidget: (id: string, updates: Partial<Widget>) => void;
+  updateWidget: (id: string, updates: any) => void;
 }
 
-function SimpleTable({ id, updateWidget }: SimpleTableProps) {
+export default function SimpleTable({ id, updateWidget }: SimpleTableProps) {
   const widget = useWidgetStore(state => state.widgets.find(w => w.id === id));
 
   // Default columns/rows if not present
@@ -268,8 +283,7 @@ function SimpleTable({ id, updateWidget }: SimpleTableProps) {
         </div>
       </div>
     );
-  } catch (error) {
-    console.error('Error rendering SimpleTable:', error);
+  } catch (e) {
     return (
       <div className="flex items-center justify-center h-full w-full transition">
         <p>There was an error rendering the table. Please reload the page or check the console for details.</p>
@@ -277,5 +291,3 @@ function SimpleTable({ id, updateWidget }: SimpleTableProps) {
     );
   }
 }
-
-export default memo(SimpleTable);

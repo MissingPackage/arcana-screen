@@ -1,13 +1,42 @@
-import { useEffect, memo } from 'react';
-import { useWidgetStore, Widget } from '../../store/useWidgetStore';
+import { useEffect } from 'react';
+import { useWidgetStore } from '../../store/useWidgetStore';
 import { DiceD2, DiceD4, DiceD6, DiceD8, DiceD10, DiceD12, DiceD20, DiceD100 } from './DiceIcons';
 
 interface DiceRollerProps {
   id: string;
-  updateWidget: (id: string, updates: Partial<Widget>) => void;
+  updateWidget: (id: string, updates: any) => void;
 }
 
-function DiceRoller({ id, updateWidget }: DiceRollerProps) {
+const diceOptions = [
+  {sides: 2, icon: <DiceD2 />},
+  {sides: 4, icon: <DiceD4 />},
+  {sides: 6, icon: <DiceD6 />},
+  {sides: 8, icon: <DiceD8 />},
+  {sides: 10, icon: <DiceD10 />},
+  {sides: 12, icon: <DiceD12 />},
+  {sides: 20, icon: <DiceD20 />},
+  {sides: 100, icon: <DiceD100 />},
+];
+
+const WIDGET_CONTAINER_STYLE = {
+  background: 'transparent',
+  color: 'inherit'
+};
+
+const DICE_BUTTON_STYLE = {
+  width: 38,
+  height: 38,
+  display: 'flex' as const,
+  alignItems: 'center' as const,
+  justifyContent: 'center' as const,
+  background: 'inherit'
+};
+
+const INPUT_STYLE = {
+  maxWidth: '2.5em'
+};
+
+export default function DiceRoller({ id, updateWidget }: DiceRollerProps) {
   const widget = useWidgetStore(state => state.widgets.find(w => w.id === id));
 
   useEffect(() => {
@@ -31,17 +60,6 @@ function DiceRoller({ id, updateWidget }: DiceRollerProps) {
   const setFormula = (v: string) => updateWidget(id, { formula: v });
   const setResults = (v: number[]) => updateWidget(id, { results: v });
   const setFinalResult = (v: number | null) => updateWidget(id, { finalResult: v });
-
-  const diceOptions = [
-    {sides: 2, icon: <DiceD2 />},
-    {sides: 4, icon: <DiceD4 />},
-    {sides: 6, icon: <DiceD6 />},
-    {sides: 8, icon: <DiceD8 />},
-    {sides: 10, icon: <DiceD10 />},
-    {sides: 12, icon: <DiceD12 />},
-    {sides: 20, icon: <DiceD20 />},
-    {sides: 100, icon: <DiceD100 />},
-  ];
 
   function parseFormula(formula: string) {
     // Supporta formule tipo 2d20+3 o d6-1
@@ -86,7 +104,7 @@ function DiceRoller({ id, updateWidget }: DiceRollerProps) {
   }
 
   return (
-    <div className="widget-section p-4 rounded-lg shadow w-full h-full flex flex-col justify-between" style={{background:'transparent', color:'inherit'}}>
+    <div className="widget-section p-4 rounded-lg shadow w-full h-full flex flex-col justify-between" style={WIDGET_CONTAINER_STYLE}>
       <h2 className="text-lg font-bold mb-2">Dice Roller</h2>
       <div className="flex flex-col gap-6">
         {/* Barra dadi classici */}
@@ -99,7 +117,7 @@ function DiceRoller({ id, updateWidget }: DiceRollerProps) {
                 className={`btn ${diceType === opt.sides ? 'border-2 border-[var(--accent)]' : 'border border-[var(--border)]'} bg-white text-[var(--accent)]`}
                 onClick={() => setDiceType(opt.sides)}
                 title={`d${opt.sides}`}
-                style={{ width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', background:'inherit' }}
+                style={DICE_BUTTON_STYLE}
               >
                 {opt.icon}
               </button>
@@ -112,7 +130,7 @@ function DiceRoller({ id, updateWidget }: DiceRollerProps) {
   <div className="flex items-center gap-2">
     <span className="font-semibold">Numero dadi:</span>
     <button onClick={() => setNumDice(Math.max(1, numDice-1))} className="btn px-2 py-1">-</button>
-    <input type="number" min={1} value={numDice} onChange={e => setNumDice(Number(e.target.value))} className="input w-12 text-center" style={{maxWidth:'2.5em'}} />
+    <input type="number" min={1} value={numDice} onChange={e => setNumDice(Number(e.target.value))} className="input w-12 text-center" style={INPUT_STYLE} />
     <button onClick={() => setNumDice(numDice+1)} className="btn px-2 py-1">+</button>
   </div>
   {/* Tipo */}
@@ -124,7 +142,7 @@ function DiceRoller({ id, updateWidget }: DiceRollerProps) {
   <div className="flex items-center gap-2">
     <span className="font-semibold">Modificatore:</span>
     <button onClick={() => setModifier(modifier-1)} className="btn px-2 py-1">-</button>
-    <input type="number" value={modifier} onChange={e => setModifier(Number(e.target.value))} className="input w-12 text-center" style={{maxWidth:'2.5em'}} />
+    <input type="number" value={modifier} onChange={e => setModifier(Number(e.target.value))} className="input w-12 text-center" style={INPUT_STYLE} />
     <button onClick={() => setModifier(modifier+1)} className="btn px-2 py-1">+</button>
   </div>
 </div>
@@ -169,5 +187,3 @@ function DiceRoller({ id, updateWidget }: DiceRollerProps) {
     </div>
   );
 }
-
-export default memo(DiceRoller);

@@ -10,8 +10,7 @@ export interface TableColumn {
 
 export interface TableRow {
   id: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any; // Dynamic columns require any type
+  [key: string]: any;
 }
 
 export interface Combatant {
@@ -45,6 +44,8 @@ export interface Widget {
   initiative?: number;
   currentIndex?: number | null;
   turnChangeAnimation?: boolean;
+  // QuickNotes
+  text?: string;
 }
 
 interface WidgetStore {
