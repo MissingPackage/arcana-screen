@@ -16,6 +16,10 @@ interface TableColumn {
 const ItemTypeRow = 'ROW';
 const ItemTypeColumn = 'COLUMN';
 
+// Style constants
+const INPUT_FONT_WEIGHT_STYLE = { fontWeight: 500 };
+const BUTTON_LINE_HEIGHT_STYLE = { lineHeight: 1 };
+
 interface TableColumnHeaderProps {
   col: TableColumn;
   index: number;
@@ -52,7 +56,7 @@ function TableColumnHeader({ col, index, columns, setColumns, updateColumnLabel,
           value={col.label}
           onChange={e => updateColumnLabel(col.id, e.target.value)}
           className="text-center px-2 py-1 w-24 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm bg-white"
-          style={{ fontWeight: 500 }}
+          style={INPUT_FONT_WEIGHT_STYLE}
         />
         {columns.length > 1 ? (
           <button
@@ -60,7 +64,7 @@ function TableColumnHeader({ col, index, columns, setColumns, updateColumnLabel,
             onClick={() => removeColumn(col.id)}
             title="Remove column"
             tabIndex={-1}
-            style={{ lineHeight: 1 }}
+            style={BUTTON_LINE_HEIGHT_STYLE}
           >
             ×
           </button>
@@ -70,7 +74,7 @@ function TableColumnHeader({ col, index, columns, setColumns, updateColumnLabel,
             disabled
             title="Cannot remove last column"
             tabIndex={-1}
-            style={{ lineHeight: 1 }}
+            style={BUTTON_LINE_HEIGHT_STYLE}
           >
             ×
           </button>
