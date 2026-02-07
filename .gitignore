@@ -142,7 +142,7 @@ get-projects.js
 roadmap.json
 /package.json
 /package-lock.json
-
+.omc/
 
 # Auto Claude data directory
 .auto-claude/
