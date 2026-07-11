@@ -4,9 +4,9 @@
    ============================== */
 
    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;600&display=swap');
-   @tailwind base;
-   @tailwind components;
-   @tailwind utilities;
+   @import "tailwindcss";
+
+   @custom-variant dark (&:where(.dark-theme, .dark-theme *));
    
    :root {
      /* Palette ArcanaScreen */
@@ -195,6 +195,18 @@
      background-color: #13203a;
      border: 1px solid var(--border-dark);
      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+   }
+
+   .surface {
+     background-color: var(--input-bg-light);
+     color: var(--text-main-light);
+     border: 1px solid var(--border-light);
+   }
+
+   body.dark-theme .surface {
+     background-color: #13203a;
+     color: var(--text-main-dark);
+     border-color: var(--border-dark);
    }
 
    /* === WIDGET SIDEBAR ITEMS === */

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 interface TourState {
   hasSeenTour: boolean;
@@ -13,48 +14,43 @@ interface TourState {
   restartTour: () => void;
 }
 
-export const useTourStore = create<TourState>((set) => ({
-  hasSeenTour: (() => {
-    try {
-      const stored = localStorage.getItem('arcana_tour');
-      return stored ? JSON.parse(stored) : false;
-    } catch {
-      return false;
+export const useTourStore = create<TourState>()(
+  persist(
+    (set) => ({
+      hasSeenTour: false,
+      currentStep: 0,
+      isTourActive: false,
+      startTour: () => set({
+        isTourActive: true,
+        currentStep: 0,
+      }),
+      skipTour: () => set({
+        hasSeenTour: true,
+        isTourActive: false,
+        currentStep: 0,
+      }),
+      completeTour: () => set({
+        hasSeenTour: true,
+        isTourActive: false,
+        currentStep: 0,
+      }),
+      nextStep: () => set((state) => ({
+        currentStep: state.currentStep + 1,
+      })),
+      prevStep: () => set((state) => ({
+        currentStep: Math.max(0, state.currentStep - 1),
+      })),
+      setCurrentStep: (step: number) => set({
+        currentStep: step,
+      }),
+      restartTour: () => set({
+        isTourActive: true,
+        currentStep: 0,
+      }),
+    }),
+    {
+      name: 'arcana_tour',
+      partialize: (state) => ({ hasSeenTour: state.hasSeenTour }),
     }
-  })(),
-  currentStep: 0,
-  isTourActive: false,
-  startTour: () => set({
-    isTourActive: true,
-    currentStep: 0,
-  }),
-  skipTour: () => {
-    localStorage.setItem('arcana_tour', JSON.stringify(true));
-    set({
-      hasSeenTour: true,
-      isTourActive: false,
-      currentStep: 0,
-    });
-  },
-  completeTour: () => {
-    localStorage.setItem('arcana_tour', JSON.stringify(true));
-    set({
-      hasSeenTour: true,
-      isTourActive: false,
-      currentStep: 0,
-    });
-  },
-  nextStep: () => set((state) => ({
-    currentStep: state.currentStep + 1,
-  })),
-  prevStep: () => set((state) => ({
-    currentStep: Math.max(0, state.currentStep - 1),
-  })),
-  setCurrentStep: (step: number) => set({
-    currentStep: step,
-  }),
-  restartTour: () => set({
-    isTourActive: true,
-    currentStep: 0,
-  }),
-}));
+  )
+);

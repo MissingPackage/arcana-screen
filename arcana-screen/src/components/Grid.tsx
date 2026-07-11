@@ -5,11 +5,13 @@ import DiceRoller from './widgets/DiceRoller';
 import CountdownTimer from './widgets/CountdownTimer';
 import SimpleTable from './widgets/SimpleTable';
 import InitiativeTracker from './widgets/InitiativeTracker';
-import { useWidgetStore } from '../store/useWidgetStore';
+import { useWidgetStore, Widget } from '../store/useWidgetStore';
 import ProfileManagerPanel from './ProfileManager/ProfileManagerPanel';
 
-const ItemType = 'WIDGET';
+const GridItemType = 'GRID_WIDGET';
+const SidebarItemType = 'SIDEBAR_WIDGET';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const components: { [key: string]: React.FC<any> } = {
   SimpleTable,
   CountdownTimer,
@@ -18,15 +20,22 @@ const components: { [key: string]: React.FC<any> } = {
   QuickNotes,
 };
 
-function DraggableBox({ id, index, moveItem, children }: any) {
+interface DraggableBoxProps {
+  id: string;
+  index: number;
+  moveItem: (from: number, to: number) => void;
+  children: React.ReactNode;
+}
+
+function DraggableBox({ id, index, moveItem, children }: DraggableBoxProps) {
   const [, drag] = useDrag({
-    type: ItemType,
+    type: GridItemType,
     item: { id, index },
   });
 
   const [, drop] = useDrop({
-    accept: ItemType,
-    hover: (dragged: any) => {
+    accept: GridItemType,
+    hover: (dragged: { id: string; index: number }) => {
       if (dragged.index !== index) {
         moveItem(dragged.index, index);
         dragged.index = index;
@@ -53,7 +62,7 @@ export default function Grid() {
   const addWidget = useWidgetStore((state) => state.addWidget);
   const clearWidgets = useWidgetStore((state) => state.clearWidgets);
 
-  // Usa una flag locale per evitare duplicazione dei widget di default
+  // Use a local flag to prevent duplication of default widgets
   const hasInitialized = useRef(false);
   useEffect(() => {
     if (!hasInitialized.current && widgets.length === 0) {
@@ -64,12 +73,12 @@ export default function Grid() {
         position: { x: 0, y: 0 },
         size: { w: 4, h: 4 },
         columns: [
-          { id: 1, key: 'name', label: 'Nome' },
-          { id: 2, key: 'value', label: 'Valore' }
+          { id: 1, key: 'name', label: 'Name' },
+          { id: 2, key: 'value', label: 'Value' }
         ],
         rows: [
-          { id: 1, name: 'Esempio', value: '42' },
-          { id: 2, name: 'Altro', value: '17' }
+          { id: 1, name: 'Example', value: '42' },
+          { id: 2, name: 'Other', value: '17' }
         ]
       });
       addWidget({
@@ -117,15 +126,19 @@ export default function Grid() {
     updated.forEach(w => addWidget(w));
   }, [widgets, clearWidgets, addWidget]);
 
-  // Drop target globale per la griglia
+  // Global drop target for the grid
   const [, drop] = useDrop({
-    accept: 'WIDGET',
-    drop: (item: any, monitor) => {
-      // Se è un nuovo widget dalla sidebar (ha widgetType ma non è già presente)
-      if (item.widgetType && !widgets.some(w => w.id === item.widgetType + '-' + (widgets.length + 1))) {
-        // Genera un nuovo id unico per il widget
-        const newId = item.widgetType + '-' + (widgets.length + 1);
-        // Mappa il tipo a quello richiesto dalla griglia
+    accept: SidebarItemType,
+    drop: (item: { widgetType?: string }) => {
+      // If it's a new widget from sidebar (has widgetType and isn't already present)
+      if (item.widgetType) {
+        // Generate a collision-free id even after widgets have been deleted.
+        let suffix = 1;
+        while (widgets.some((widget) => widget.id === `${item.widgetType}-${suffix}`)) {
+          suffix += 1;
+        }
+        const newId = `${item.widgetType}-${suffix}`;
+        // Map the type to the one required by the grid
         let type = '';
         switch (item.widgetType) {
           case 'simple-table':
@@ -146,14 +159,14 @@ export default function Grid() {
           default:
             type = item.widgetType;
         }
-        // Crea il nuovo widget con dati minimi
-        const newWidget: any = {
+        // Create the new widget with minimal data
+        const newWidget: Widget = {
           id: newId,
           type,
           position: { x: 0, y: 0 },
           size: { w: 2, h: 2 }
         };
-        // Opzionalmente aggiungi dati specifici per tipo
+        // Optionally add type-specific data
         if (type === 'SimpleTable') {
           newWidget.columns = [
             { id: 1, key: 'name', label: 'Name' },
@@ -190,17 +203,31 @@ export default function Grid() {
         addWidget(newWidget);
       }
     },
-    canDrop: (item: any, monitor) => !!item.widgetType,
+    canDrop: (item: { widgetType?: string }) => !!item.widgetType,
   });
 
   return (
     <>
       <ProfileManagerPanel />
-      <div ref={drop} className="grid grid-cols-3 gap-4 p-8 min-h-[400px]">
+      <div
+        ref={(node) => {
+          drop(node);
+        }}
+        className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4 p-4 lg:p-8 min-h-[400px]"
+      >
         {widgets.map((widget, index) => {
           const WidgetComponent = components[widget.type] || (() => null);
           return (
-            <div key={widget.id} className="h-64">
+            <div key={widget.id} className="relative min-h-64">
+              <button
+                type="button"
+                onClick={() => removeWidget(widget.id)}
+                className="absolute top-2 right-10 z-10 px-2 py-1 text-sm"
+                aria-label={`Remove ${widget.type} widget ${widget.id}`}
+                title="Remove widget"
+              >
+                ×
+              </button>
               <DraggableBox id={widget.id} index={index} moveItem={moveItem}>
                 <WidgetComponent {...widget} updateWidget={updateWidget} removeWidget={removeWidget} />
               </DraggableBox>

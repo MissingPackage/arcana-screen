@@ -49,20 +49,6 @@ export const useProfileStore = create<ProfileStoreState>((set, get) => ({
   },
 
   loadProfile: (id) => {
-    const profile = get().profiles.find((p) => p.id === id);
-    // Se carico un profilo, aggiorno anche i preferiti nello store globale
-    if (profile) {
-      try {
-        // Dynamic import to avoid circular dependency
-        import('./appStore').then(({ useAppStore }) => {
-          useAppStore.getState().setFavorites(profile.favoriteWidgetIds || []);
-        }).catch(() => {
-          // Ignore errors from setting favorites - profile will still load
-        });
-      } catch {
-        // Ignore errors - profile will still load without updating favorites
-      }
-    }
-    return profile;
+    return get().profiles.find((p) => p.id === id);
   },
 }));

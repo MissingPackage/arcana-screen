@@ -25,7 +25,11 @@ export default function WidgetSidebar() {
   const others = filteredWidgets.filter(w => !favoriteWidgetIds.includes(w.id));
 
   return (
-    <div className={`transition-all duration-300 ${isOpen ? 'w-64' : 'w-16'} bg-gray-100 h-screen p-2 flex flex-col relative`}>
+    <div className={`surface shrink-0 transition-all duration-300 ${
+      isOpen
+        ? 'w-full md:w-64 max-h-[40vh] md:max-h-none'
+        : 'w-full md:w-16'
+    } h-auto md:h-screen p-2 flex flex-col relative`}>
       <SidebarHeader
         isOpen={isOpen}
         searchQuery={searchQuery}
@@ -33,13 +37,13 @@ export default function WidgetSidebar() {
         toggleSidebar={toggleSidebar}
       />
       {favorites.length > 0 && (
-        <div className="mb-4 mt-20">
+        <div className={`${isOpen ? 'block' : 'hidden md:block'} mb-4 mt-2 min-h-0 overflow-y-auto`}>
           <h3 className={`font-semibold mb-2 ${isOpen ? 'block' : 'hidden'}`}>Favorites</h3>
-          <WidgetList widgets={favorites} isOpen={isOpen} toggleFavorite={toggleFavorite} />
+          <WidgetList widgets={favorites} isOpen={isOpen} favoriteWidgetIds={favoriteWidgetIds} toggleFavorite={toggleFavorite} />
         </div>
       )}
-      <div className="flex-1 overflow-y-auto">
-        <WidgetList widgets={others} isOpen={isOpen} toggleFavorite={toggleFavorite} />
+      <div className={`${isOpen ? 'flex' : 'hidden md:flex'} flex-1 flex-col overflow-y-auto`}>
+        <WidgetList widgets={others} isOpen={isOpen} favoriteWidgetIds={favoriteWidgetIds} toggleFavorite={toggleFavorite} />
       </div>
     </div>
   );

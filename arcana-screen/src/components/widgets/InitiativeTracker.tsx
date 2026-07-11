@@ -59,7 +59,17 @@ function InitiativeTracker({ id, updateWidget }: InitiativeTrackerProps) {
   };
 
   const removeCombatant = (id: number) => {
-    setCombatants(combatants.filter((c) => c.id !== id));
+    const activeCombatantId = currentIndex === null ? null : combatants[currentIndex]?.id;
+    const updated = combatants.filter((c) => c.id !== id);
+    setCombatants(updated);
+
+    if (updated.length === 0) {
+      setCurrentIndex(null);
+    } else if (activeCombatantId === id || activeCombatantId === null) {
+      setCurrentIndex(Math.min(currentIndex ?? 0, updated.length - 1));
+    } else {
+      setCurrentIndex(updated.findIndex((combatant) => combatant.id === activeCombatantId));
+    }
   };
 
   const updateCombatantHp = (combatantId: number, hpChange: number) => {
@@ -94,15 +104,13 @@ function InitiativeTracker({ id, updateWidget }: InitiativeTrackerProps) {
   }, [turnChangeAnimation]);
 
   return (
-    <div className="transition p-4 rounded-lg shadow-md w-full h-full flex flex-col relative overflow-hidden">
+    <div className="surface transition p-4 rounded-lg shadow-md w-full h-full flex flex-col relative overflow-hidden">
       <h2 className="text-lg font-bold mb-2">Initiative Tracker</h2>
 
       {/* Turn counter */}
       {combatants.length > 0 && currentIndex !== null && (
         <div className="rounded px-3 py-1 text-xs font-semibold transition">Turn: {currentIndex + 1} / {combatants.length}</div>
       )}
-      {/* Defensive: show nothing if combatants empty or currentIndex null */}
-      {combatants.length === 0 || currentIndex === null ? null : null}
 
       <div className="flex flex-col gap-2 mb-4">
         <input
@@ -148,7 +156,7 @@ function InitiativeTracker({ id, updateWidget }: InitiativeTrackerProps) {
           return (
           <div
             key={c.id}
-            className={`p-2 rounded mb-2 transition-all duration-300 ${
+            className={`p-2 rounded mb-2 text-gray-900 transition-all duration-300 ${
               isDowned ? 'opacity-60 border-2 border-red-600' : ''
             } ${
               index === currentIndex
@@ -181,7 +189,7 @@ function InitiativeTracker({ id, updateWidget }: InitiativeTrackerProps) {
                 <div className="w-full bg-gray-300 rounded-full h-4 mb-2 overflow-hidden">
                   <div
                     className={`h-full transition-all duration-300 ${getHpBarColor(c.currentHp, c.maxHp)}`}
-                    style={{ width: `${(c.currentHp / c.maxHp) * 100}%` }}
+                    style={{ width: `${c.maxHp > 0 ? (c.currentHp / c.maxHp) * 100 : 0}%` }}
                   />
                 </div>
                 <div className="flex gap-1 mt-2">

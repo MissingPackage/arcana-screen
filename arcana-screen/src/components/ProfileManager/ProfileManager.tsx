@@ -12,7 +12,7 @@ interface ProfileManagerProps {
 
 const ProfileManager: React.FC<ProfileManagerProps> = ({ onLoadProfile, currentLayoutConfig }) => {
   const { profiles, createProfile, deleteProfile, loadProfile } = useProfileStore();
-  // Import statico: nessun ciclo di dipendenza reale
+  // Static import: no circular dependency
 
   const [profileName, setProfileName] = useState<string>('');
 
@@ -21,9 +21,8 @@ const ProfileManager: React.FC<ProfileManagerProps> = ({ onLoadProfile, currentL
       toast.error('Profile name required');
       return;
     }
-    // Ottieni i preferiti attuali dalla sidebar (zustand)
+    // Get current favorites from sidebar (zustand)
     const favoriteWidgetIds = useAppStore.getState().favoriteWidgetIds;
-    console.log('DEBUG - favoriteWidgetIds al salvataggio profilo:', favoriteWidgetIds);
     createProfile({ name: profileName, layoutConfig: currentLayoutConfig, favoriteWidgetIds });
     toast.success('Profile created!');
     setProfileName('');
@@ -33,7 +32,7 @@ const ProfileManager: React.FC<ProfileManagerProps> = ({ onLoadProfile, currentL
     const profile = loadProfile(id);
     if (profile) {
       onLoadProfile(profile.layoutConfig);
-      // Aggiorna i preferiti nello store globale
+      // Update favorites in global store
       useAppStore.getState().setFavorites(profile.favoriteWidgetIds || []);
       toast.success('Profile loaded');
     }
@@ -46,9 +45,9 @@ const ProfileManager: React.FC<ProfileManagerProps> = ({ onLoadProfile, currentL
   };
 
   return (
-    <div className="p-4 bg-gray-50 rounded shadow-md w-full max-w-md mx-auto">
+    <div className="surface p-4 rounded shadow-md w-full max-w-md mx-auto">
       <h3 className="font-bold text-lg mb-2">Profile Manager</h3>
-      <div className="flex gap-2 mb-4">
+      <div className="flex flex-col sm:flex-row gap-2 mb-4">
         <input
           type="text"
           className="border rounded px-2 py-1 flex-1"
@@ -58,7 +57,7 @@ const ProfileManager: React.FC<ProfileManagerProps> = ({ onLoadProfile, currentL
         />
         <button
           onClick={handleCreate}
-          className="bg-green-600 text-white rounded px-3 py-1 font-semibold hover:bg-green-700"
+          className="w-full sm:w-auto bg-green-600 text-white rounded px-3 py-1 font-semibold hover:bg-green-700"
         >
           + New Profile
         </button>

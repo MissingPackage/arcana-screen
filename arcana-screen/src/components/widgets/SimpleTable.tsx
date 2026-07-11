@@ -222,7 +222,7 @@ Note: You must keep at least one row and one column in your table.`;
     // Defensive: if columns/rows are missing, do not render table
     if (!columns.length || !rows.length) return <div>Loading table...</div>;
     return (
-      <div className="bg-white text-gray-800 p-2 rounded-xl shadow-lg w-full h-full flex flex-col font-sans max-w-full">
+      <div className="surface p-2 rounded-xl shadow-lg w-full h-full flex flex-col font-sans max-w-full">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold tracking-tight">Simple Table</h2>
           <WidgetHelpButton helpText={helpText} />

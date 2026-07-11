@@ -4,14 +4,14 @@ import { WidgetMeta } from './types';
 type WidgetItemProps = {
   widget: WidgetMeta;
   isOpen: boolean;
-  onClick: (widget: WidgetMeta) => void;
+  isFavorite: boolean;
   toggleFavorite: (id: string) => void;
 };
 
-export default function WidgetItem({ widget, isOpen, toggleFavorite }: WidgetItemProps) {
+export default function WidgetItem({ widget, isOpen, isFavorite, toggleFavorite }: WidgetItemProps) {
   const [{ isDragging }, drag] = useDrag(() => ({
-    type: 'WIDGET',
-    item: { id: widget.id, name: widget.name, widgetType: widget.id }, // widget.id rappresenta il tipo (es: 'simple-table')
+    type: 'SIDEBAR_WIDGET',
+    item: { id: widget.id, name: widget.name, widgetType: widget.id }, // widget.id represents the type (e.g. 'simple-table')
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
@@ -19,16 +19,16 @@ export default function WidgetItem({ widget, isOpen, toggleFavorite }: WidgetIte
 
   return drag(
     <li
-      className={`p-2 hover:bg-gray-200 rounded cursor-pointer flex items-center justify-between ${isDragging ? 'opacity-50' : ''}`}
+      className={`widget-item p-2 rounded cursor-pointer flex items-center justify-between ${isDragging ? 'opacity-50' : ''}`}
     >
       <span>{isOpen ? widget.name : '🔹'}</span>
       <button
-        className="ml-2 text-yellow-500 hover:text-yellow-700 text-lg focus:outline-none"
-        title={widget.isFavorite ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti'}
+        className="ml-2 p-1 bg-transparent hover:bg-transparent text-yellow-500 hover:text-yellow-700 text-lg focus:outline-none"
+        title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+        aria-label={`${isFavorite ? 'Remove' : 'Add'} ${widget.name} ${isFavorite ? 'from' : 'to'} favorites`}
         onClick={e => { e.stopPropagation(); toggleFavorite(widget.id); }}
-        tabIndex={-1}
       >
-        {widget.isFavorite ? '★' : '☆'}
+        {isFavorite ? '★' : '☆'}
       </button>
     </li>
   );

@@ -42,7 +42,7 @@ export default function WidgetHelpButton({ helpText }: WidgetHelpButtonProps) {
         onClick={toggleTooltip}
         onMouseEnter={() => setIsVisible(true)}
         onMouseLeave={() => setIsVisible(false)}
-        className="w-6 h-6 rounded-full bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] transition-colors flex items-center justify-center text-sm font-bold shadow-sm"
+        className="w-6 h-6 p-0 rounded-full bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] transition-colors flex items-center justify-center text-sm font-bold shadow-sm"
         aria-label="Widget help"
         title="Click for help"
         type="button"

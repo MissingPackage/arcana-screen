@@ -23,17 +23,17 @@ function App() {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="h-screen w-screen flex flex-row">
-        {/* Sidebar a sinistra */}
+      <div className="h-screen w-full flex flex-col md:flex-row overflow-hidden">
+        {/* Left sidebar */}
         <WidgetSidebar />
 
-        {/* Main area a destra */}
-        <div className="flex-1 flex flex-col">
+        {/* Main content area */}
+        <div className="flex-1 min-w-0 min-h-0 flex flex-col">
           <Toaster />
           <header className="p-4 text-center border-b">
             <h1 className="text-3xl font-bold">ArcanaScreen</h1>
             <p className="text-sm mt-2">The customizable virtual DM screen</p>
-            <div className="mt-2 flex gap-2 justify-center">
+            <div className="mt-2 flex flex-wrap gap-2 justify-center">
               <button
                 onClick={toggleTheme}
                 className="px-3 py-2 rounded transition"
@@ -48,7 +48,7 @@ function App() {
               </button>
             </div>
           </header>
-          <main className="flex-1 overflow-auto p-4">
+          <main className="flex-1 min-h-0 overflow-auto p-2 sm:p-4">
             <Grid />
           </main>
         </div>
