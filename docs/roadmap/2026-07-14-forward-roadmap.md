@@ -11,7 +11,7 @@
 
 1. **Prepare/Run → DELETE the mode boundary.** Target: one always-live surface with inline editing + a single lock toggle (open-quill ↔ closed-lock). The widget-marketplace grid and the Prepare/Run segmented control are retired. (Enables reactive Focus later.)
 2. **Focuses → KEEP 4** (Narrative / Social / Exploration / Combat) — matches the validated model + mockups.
-3. **Party surface → prototype BOTH** (always-visible bar AND collapsible glance-badge) as visual mockups for a side-by-side decision. *Owner will choose from the sketches — do not pick unilaterally.*
+3. **Party surface → RESOLVED (2026-07-14): no duplication, contextual views of one Entity.** The party is not a second copy of data. In **Combat** the PCs are already in the Initiative Tracker → show **AC (and roster fields) inline on the PC rows**, no separate bar. In the **other three Focuses** (which have no tracker) a **compact collapsible party badge → overlay** surfaces AC / passives / HP. The roster is the single source that auto-populates the tracker; editing HP in either view edits the same Entity.
 4. **Present mode → INCLUDE, LOW priority.** Ship as a local read-only presenter (2nd window); COL-01 relaxed to "present the current moment on this device," not a multiplayer/synced client.
 
 ### Real-state update — WebKit (2026-07-14)
@@ -96,4 +96,12 @@ Bonus (DM r2): make **Focus reactive** — the app infers Focus from actions (ro
 Local-first, no backend · WCAG **AA enforced by the Playwright axe suite** (unit tests do not catch contrast — see the 2026-07-14 regression) · asset budget (currently 560/110 KiB) · identity = a **live operational surface**, not a VTT or campaign database · permanent non-goals (player views, maps/tokens/fog, video/audio hosting, universal VTT sync) hold unless explicitly revised (see decision #4).
 
 ## 5. Loop plan
-Once you steer the four open decisions, I fold the committed scope into `ROADMAP.md` as new horizons and run the goal-loop: per feature → build → **Playwright (+axe) + browser verification** → unit/component tests → product-designer + DM judgment → commit+push to `dev`.
+Decisions are taken (see top). Run the goal-loop per feature → build → **browser verification in the podman Playwright container (all browsers incl. WebKit) + axe** → unit/component tests → product-designer + DM judgment → commit+push to `dev` (no AI attribution). Reminder: `test:ci` runs unit only.
+
+### Horizon A — build steps (loop-sized)
+1. **Entity + party store.** Define the PC `Entity` (`id`, `kind:'pc'`, `name`, `ac`, `hp`/`maxHp`, `initMod`, `passivePerception`, `passiveInsight`, `saveNotes`, `reveal`, `origin:'mine'`) and a persisted party store (portable JSON, not IndexedDB). Unit tests: add/edit/remove PC.
+2. **Backup integration.** Include the party in export/import with a schema-version bump + migration; round-trip test.
+3. **Party/table setup UI.** Inline add/edit PC rows (light, sane defaults, tab-through); non-blocking entry nudge when a Focus needs the party and it's empty.
+4. **Tracker integration (Combat).** AC inline on combatant rows; add-PC becomes a roster chip-picker (auto-fills name/AC/init, no re-keying); HP edits write the shared Entity.
+5. **Non-combat party surface.** Collapsible badge → ephemeral overlay (real button, `aria-expanded`, AA/keyboard) in Narrative/Social/Exploration; Social shows passive Insight/Perception.
+6. **Verify + judge each step** (container Playwright + axe + unit + designer/DM), commit+push.
