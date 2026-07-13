@@ -1,0 +1,209 @@
+# ArcanaScreen — Design Review Loop (ledger)
+
+**Avviato:** 2026-07-13 · **Modalità:** `/loop` autonomo (~10 min/iterazione)
+**Owner umano:** Cristiano · **Esecutore:** Claude Code
+
+> Questo file è la fonte di verità del loop. Ad ogni iterazione: ri-ancorare da qui,
+> non dalla memoria conversazione. Aggiornare la sezione "Iteration log" in fondo.
+
+## Missione (dal /goal)
+
+Codex ha implementato tecnicamente Orizzonti 0–4 ma: design percepito come pessimo,
+fiducia sui test bassa, modello dell'app poco leggibile. Revisione completa; per ogni feature:
+
+1. **Verificare che esista davvero** (non solo dichiarata nella roadmap/verification).
+2. **Verificare che il design rispecchi la vision** (spec `docs/specs/01-shell-and-design.md` + mockup Codex in `.codex/product-design/horizon-0-prototype/reference/`).
+3. **Modernizzare il design** in modo unico e coerente col design system.
+
+Percorrere la roadmap passo-passo. Ad ogni feature terminata: **suite di test completa** +
+giudizio di **un product designer** e **un Dungeon Master** (subagenti-persona).
+
+## Design system target (da spec 01 + mockup)
+
+- Header "command" navy profondo (`#061f36`) + dock utility inferiore navy.
+- Piano contenuto "pergamena" calda con texture sottile.
+- Oro tenue (`#D9B310` / `#f5cf72`) riservato SOLO a: posizione corrente, Focus attivo, azione live primaria.
+- **Cinzel** per brand + heading di sezione; **Inter** per controlli e testo.
+- Icone Phosphor outline (nessuna emoji/glifo improvvisato).
+- Separatori sottili, raggi 8px, ombra minima, niente griglia di card annidate.
+- Stato comunicato da testo/forma/posizione oltre che dal colore.
+- Composizione Run = "cockpit": task live primario + contesto universale above-the-fold.
+
+## Ground truth — iterazione 1 (2026-07-13)
+
+Evidenza raccolta in prima persona (non fidandosi dei doc):
+
+- ✅ **Test verdi**: `npm run test:ci` → build ok, lint ok, **20 file / 59 test passati**, budget JS 480.6/500 KiB, CSS 93.4/100 KiB. → "test mancanti" è percezione; il gap reale è *profondità* (59 unit/component + **1 solo** spec e2e `e2e/critical-flows.spec.ts` per 5 orizzonti).
+- ✅ **Cinzel È caricato** (correzione di una mia ipotesi errata iniziale): `@fontsource/cinzel/latin-500|600` importato in `src/components/session/session.css:4-5`; `node_modules/@fontsource/cinzel` presente; bundle `dist/assets/cinzel-latin-500|600-normal.woff2` presenti. Self-hosted → CSP-safe. MA applicato SOLO dentro `.arcana-session h1,h2` (Run) + brand header. Prepare/`index.css` heading restano **Georgia**.
+- ⚠️ **DUE design system coesistenti** (root cause reale di "design pessimo" + "non si capisce come funziona"):
+  - **Run cockpit** = `src/components/session/session.css` → `.arcana-session` con token corretti (`--as-navy:#061f36`, `--as-gold:#e5ad32`, `--as-paper:#fbf7ee`, `--as-ink:#122b49`), Cinzel+Inter, Phosphor. **~80% fedele allo spec/mockup.** Questa è la parte BUONA di Codex.
+  - **Shell + Prepare** = `src/index.css` (~2765 righe) → palette LEGACY diversa (`--deep-blue:#1C2541`, `--muted-gold:#D9B310`), heading Georgia, pergamena come PNG texture, vecchio `Grid`+`WidgetSidebar`+react-dnd (`App.tsx:139,200`). Solo `.arcana-header` fa da ponte al navy corretto.
+  - Passare Prepare↔Run = whiplash visivo + due modelli mentali. Due oro (`#D9B310` vs `#e5ad32`), due navy, due font-stack.
+- ⚠️ **Focus views mostrano lore hardcoded** (goblin/cripta/warden) invece dei dati dello Screen dell'utente → sembra una demo, non lo strumento del DM. (`RunWorkspace.tsx:96-141,315,402-405`).
+- ⚠️ Spec "no emoji" **violato** in 5+ punti: `SidebarHeader.tsx:18` (⬅️➡️), `ProfileManager.tsx:44` (🗑️), `QuickNotes.tsx:142` (☐☑), `QuickReference.tsx:107` (★), `RunWorkspace.tsx:132` (✓).
+- Icone Phosphor usate estensivamente in Run + header. ✓
+
+### Mappa feature→componente (da agente Explore)
+
+Tutte le feature roadmap ESISTONO (non stub). Componenti chiave:
+- Screen lifecycle: `store/useScreenStore.ts` + `ScreenManager/ScreenManager.tsx`.
+- Prepare/Run: `ScreenManager.tsx:184-195` + `App.tsx:192-206`.
+- 4 Focus: `session/RunWorkspace.tsx` (`NarrativeView:159`, `SocialView:223`, `ExplorationView:272`, `CombatView:332`).
+- Session Notebook / Quick Capture / Quick Reference: RunWorkspace + `session/QuickCaptureBar.tsx` + widget legacy in `widgets/`.
+- Dice/Timer: `widgets/DiceRoller.tsx`, `widgets/CountdownTimer.tsx` → dock `session/UtilityDock.tsx`.
+- Initiative Tracker: `widgets/InitiativeTracker.tsx` (hero Combat).
+- Simple Table / Counter: `widgets/SimpleTable.tsx`, `widgets/Counter.tsx`.
+- Export/import/recovery: `utils/dataPortability.ts`, `DataManager/DataManager.tsx`, `AppErrorBoundary.tsx`.
+- PWA: `main.tsx:15-19` + `sw.js` hand-rolled (no vite-plugin-pwa).
+- i18n EN/IT: ternari ad-hoc, gran parte del Run è **solo EN**.
+- Temi/densità: `themeStore.ts` + `useEvolutionStore.ts`.
+- Workspace search / personal templates / reference packs: `WorkspaceSearch.tsx`, `useEvolutionStore.ts`, `QuickReference.tsx:125`.
+
+**Test blind spots (nessun component test):** WorkspaceSearch, DataManager UI import/export, EvolutionSettings, theme toggle, OnboardingTour, SimpleTable.
+**Test buoni:** `RunWorkspace.test.tsx` (15 test, sostanziali), `M4Tools.test.tsx`, `useScreenStore.focus.test.ts`.
+
+## Piano di lavoro (ordinato per roadmap)
+
+Legenda stato: `[ ]` da fare · `[~]` in corso · `[x]` fatto+testato+giudicato
+
+### VERDETTO VISIVO (baseline iter. 2, screenshot reali)
+- **Run = BUONO, ~85-90% fedele ai mockup.** NON toccare la struttura (spec = fonte di verità; regola "prefer observed-working state"). Solo fix di fedeltà minori (P2):
+  - Combat: icone combattenti tutte uno scudo generico (mockup: icone variate per creatura) → serve mappatura icone.
+  - Pacing narrative ridotta a barrette vs cerchi numerati "1 Setup/2 Develop/3 Peak/4 Resolve" del mockup.
+- **Prepare = PROBLEMA REALE.** Vecchio marketplace widget (sidebar "Widgets" con DRAG/Add/Favorite, card impilate, banner "Prepare layout"). Sembra un'app diversa/più vecchia. **Qui** sta il "design pessimo / non si capisce come funziona".
+- Priorità corretta: **1) rifare Prepare nel linguaggio del Run** (massimo guadagno percepito); 2) dati reali nei Focus; 3) fix fedeltà Run P2; 4) test/i18n/emoji.
+
+### Fondamenta design system (pre-requisito trasversale)
+Direzione: **propagare il design system BUONO (`.arcana-session`/`session.css`) a tutta l'app**, ritirando la palette legacy di `index.css`. Non ridisegnare da zero: unificare.
+- [ ] DS-1: Promuovere i token `--as-*` (navy `#061f36`, gold `#e5ad32`, paper `#fbf7ee`, ink `#122b49`) a token globali; allineare `index.css` (rimuovere/riconciliare `--deep-blue`/`--muted-gold`).
+- [ ] DS-2: Applicare Cinzel + palette corretta a shell chrome + Prepare (heading di sezione, non solo Run/brand).
+- [ ] DS-3: Sostituire le emoji con icone Phosphor (5+ punti) — spec "no emoji".
+- [ ] DS-4: Decidere strategia Prepare: allineare visivamente il `Grid`/`WidgetSidebar` al design system O ripensare Prepare come configurazione della sessione (ridurre il whiplash a due modelli).
+
+### Autenticità dati (PRIORITÀ 2)
+- [ ] DATA-1: Focus views devono renderizzare i dati reali dello Screen dell'utente, non lore hardcoded (goblin/cripta). Rende l'app "strumento" e non "demo".
+
+### Orizzonte 1 — Web foundation
+- [ ] H1: verifica esistenza + fedeltà design di Screen lifecycle, Prepare/Run shell, responsive, tool platform, trust layer.
+
+### Orizzonte 2 — Session-ready core (per-Focus, contro i 4 mockup)
+- [ ] H2-combat: Initiative Tracker hero vs `selected-run-target.png`.
+- [ ] H2-narrative: Session Notebook + beats/pacing vs `focus-narrative.png`.
+- [ ] H2-social: vs `focus-social.png`.
+- [ ] H2-exploration: vs `focus-exploration.png`.
+- [ ] H2-tools: Dice Roller, Timer, Quick Capture, Quick Reference.
+
+### Orizzonte 3 — Hardening
+- [ ] H3: accessibilità, copertura test (approfondire e2e per Focus), privacy/CSP.
+
+### Orizzonte 4 — Workspace evolution
+- [ ] H4: layout avanzato, organizzazione, tool evolution, PWA/i18n/temi.
+
+## Metodo QA per iterazione
+1. Screenshot app reale (dev server :5174) alla viewport di riferimento, per Focus.
+2. Confronto side-by-side col mockup; registrare mismatch P0–P3.
+3. Fix P0/P1/P2.
+4. `npm run test` (+ `test:e2e:critical` quando tocca flussi).
+5. Giudizio product-designer (subagente) + Dungeon Master (subagente).
+6. Aggiornare questo ledger.
+
+## Iteration log
+
+### Iterazione 9 — 2026-07-13 — Chiarezza Prepare: tooltip controlli (DM #2)
+- Aggiunti `title` esplicativi (accurati al comportamento) a 8 controlli opachi: `ToolFrame.tsx` (Focus/Sidecar/Pop out/Configure), `Grid.tsx` (Grid/Canvas/Second monitor/Undo layout). Attacca "non si capisce come funziona" senza steer prodotto.
+- **`test:ci` EXIT=0** (68 test). ⚠️ **JS 498.2/500 KiB** (era 497.7) — margine 1.8 KiB, budget ora vincolo stringente: ulteriori aggiunte JS/stringhe da pesare (o alzare il limite = decisione Cristiano).
+- Nota: tooltip in EN (Prepare è EN-only nel codice legacy; i18n completa di Prepare è task separato più grande).
+- **Next (iter. 10):** test DataManager import/export UI (critico trust-layer, budget-safe perché test). + valutare **commit** del blocco accumulato (9 iterazioni, tutto verde, non committato).
+
+### Iterazione 8 — 2026-07-13 — Profondità test: WorkspaceSearch
+- Aggiunto `src/components/WorkspaceSearch.test.tsx` — **4 test**: gate min-2-char, nessun match, match sui widget dello screen attivo (con excerpt), click risultato → `openScreen(id)` (spy). Seed via `useScreenStore.createScreen` + `useWidgetStore` + `createToolInstance('quick-notes')`.
+- **`test:ci` EXIT=0 → 22 file / 68 test** (era 64). Budget invariato.
+- Progresso copertura: 59 → 64 (SimpleTable) → 68 (WorkspaceSearch). Blind spot rimasti: DataManager import/export UI, EvolutionSettings, OnboardingTour, theme toggle.
+- **Next (iter. 9):** clarity Prepare senza steer prodotto (DM #2): tooltip/spiegazioni sui controlli opachi (Focus/Sidecar/Pop out/Configure, Grid/Canvas/Second monitor) → attacca "non si capisce come funziona". Poi eventualmente altri test (DataManager UI).
+
+### Iterazione 7 — 2026-07-13 — Profondità test: SimpleTable ("mancano i test")
+- Aggiunto `src/components/widgets/SimpleTable.test.tsx` — **5 test** su SimpleTable (450 righe, prima 0 test): add riga; add colonna con backfill chiavi; remove colonna con pulizia dati dalle righe; applicazione template (initiative); filtro righe per query. Pattern: seed `useWidgetStore` + Testing Library con aria-label esistenti + `DndProvider/HTML5Backend` (il componente usa react-dnd).
+- **`test:ci` EXIT=0 → 21 file / 64 test** (era 59), budget invariato (i test non entrano nel bundle).
+- Nota: vitest transpila senza type-check; `test:ci` (che gira `tsc -b`) ha catturato errori di tipo (`columns/rows` opzionali) → corretti con `?? []`. Confermato: girare sempre `test:ci`, non solo `vitest`.
+- **Blind spot ancora scoperti:** DataManager import/export UI (util già testato), WorkspaceSearch, EvolutionSettings, OnboardingTour, theme toggle.
+- **Next (iter. 8):** continuare copertura — WorkspaceSearch (piccolo, coprib. intero) e/o DataManager UI (critico, trust layer). Poi checkpoint su chiarezza Prepare→Run (serve steer prodotto).
+
+### Iterazione 6 — 2026-07-13 — Closeout coerenza + BUG create-screen risolto
+- **Coerenza design (dropdown "Manage/New screen"):** ombra pesante `0 16px 40px` → morbida `0 12px 30px rgba(18,43,73,.16)`; `.screen-template--selected` vecchio-oro `rgba(217,179,16)` → token `color-mix(--muted-gold 14%)`; titolo pannello `.screen-manager__panel-title` → **Cinzel**. (Le 8 occorrenze `#556171` ≈ `--ink-muted`: delta impercettibile, non toccate. Modali data-manager/first-run: ombre forti legittime da overlay.)
+- **BUG REALE scoperto + risolto** (non causato da me — i miei edit non toccano layout): il pannello "Create a screen" era **completamente rotto** (radio come cerchi 135×165px, nomi verticali una-lettera-per-riga, card alta 1702px). 
+  - Diagnosi con misure reali (Playwright computed-style, non a intuito): (1) il radio è grid-item con `align-items:stretch` di default → riempiva la cella; (2) i figli extra `.screen-template__outcome/__tools` senza `grid-column` finivano in col1 (auto) gonfiandola e schiacciando il testo a 12px.
+  - Fix: `.screen-template input { width:1rem; height:1rem; align-self/justify-self:start; flex:none }` + `grid-column:2` su `__name`/`__outcome`/`__tools`. Ora colonne `16px 131px`, card 336px, testo orizzontale leggibile. Beneficia anche FirstRun (stesso `.screen-template`).
+- **`test:ci` EXIT=0** (build, lint, 59 test, CSS 95.2/100, JS 497.7/500).
+- **Next (iter. 7):** profondità test (blind spot: WorkspaceSearch/DataManager UI/SimpleTable) — attacca la lamentela "mancano i test". Poi chiarezza Prepare→Run (serve steer prodotto).
+
+### Iterazione 5 — 2026-07-13 — Widget-card single-piece (designer #1)
+- **Fatto:** unificata la widget-card di Prepare in **un'unica card** (prima: `.tool-chrome` bordata + `.surface` bordata con gap). `.widget-frame` ora è la card (bg `--surface`, bordo, radius 10px, `overflow:hidden`, `gap:0`); `.tool-chrome` = header band a filo con `border-bottom` divisore; `.tool-body > .surface` reso trasparente/senza bordo. **Scoping sicuro:** `.widget-frame/.tool-chrome/.tool-body` esistono solo in Prepare/popout → Run e gli altri `.surface` (FirstRun/DataManager/ProfileManager/workspace-empty) intatti.
+- **Fix sidebar:** "Countdown Timer" non si spezza più mid-word (icona alleggerita 1.6→1.1rem senza cerchio bordato, nome 0.82rem) → wrap tra-parole pulito. Verificato a schermo.
+- **`test:ci` EXIT=0** (build, lint, 59 test, budget CSS 94.9/100, JS 497.7/500 invariato).
+- Prepare ora legge come superficie coerente/calma, non più "marketplace". **Coerenza visiva Prepare↔Run: sostanzialmente completa.**
+- **Checkpoint:** thread "design pessimo" per i pezzi grossi = fatto. Restano: (design) dropdown "Manage screens" ancora white-card + P0-3 colori off-palette + P0-2 icone per-entità (budget!); (test) blind spots WorkspaceSearch/DataManager UI/SimpleTable/EvolutionSettings; (chiarezza/DM) legame Prepare→Run + tooltip controlli.
+- **Next (iter. 6):** closeout coerenza design — restyle dropdown "Manage screens" (`.screen-manager__panel/__template/__list`) + P0-3 colori. Poi iter.7 = profondità test; iter.8 = chiarezza Prepare→Run (serve steer prodotto).
+
+### Iterazione 4 — 2026-07-13 — Fix regressioni re-skin + sintesi giudizi
+- **Giudizio designer sul re-skin:** "due prodotti" *quasi* risolto (chrome/sidebar/tipografia ok). Ma segnala 3 regressioni + il prossimo #1:
+  - REG-1 nomi widget troncati ("Session…") — **fixato**: `.widget-item__name` ora va a capo (`break-word`) + gap ridotto. Verificato a schermo (nomi completi).
+  - REG-2 aria-label bottoni icona — **verificato già presenti** (Add/Favorite hanno label+aria-pressed). Nessun fix necessario.
+  - REG-3 input dark basso contrasto (navy-on-navy) — **fixato**: `--input-bg-dark` `#061f36`→`#123957` (light intatto, usa `#ffffff`). Deterministico.
+  - Designer **#1 successivo**: unificare widget-card in **pezzo unico** (ora chrome-strip + body separati) — ultimo grande tell strutturale; tocca `.surface` (condiviso FirstRun/DataManager) → attenzione.
+- **`npm test` verde (59)** dopo i fix.
+- **Sintesi priorità (designer+DM):**
+  1. (Designer) widget-card single-piece — completa la coerenza visiva.
+  2. (DM) chiarezza **Prepare→Run**: etichettare i widget per tab Focus + tooltip/rinominare Focus/Sidecar/Pop-out con cosa fanno. Risolve il residuo "non si capisce come funziona" (più UX che CSS).
+  3. Cosmetici: P0-2 icone per-entità (budget!), P0-3 colori off-palette.
+- **Next (iter. 5):** widget-card single-piece (designer #1), con QA before/after + attenzione a `.surface` condiviso.
+
+### Iterazione 3 — 2026-07-13 — Inizio re-skin Prepare (P0-1)
+- **P0-1a token unification (fatto, verde):** `index.css :root` → palette session (`--deep-blue #061f36`, `--muted-gold #e5ad32`, `--parchment-white/--background-light #fbf7ee`, `--background-dark #061f36`); heading `h1,h2`/`.font-title` → `'Cinzel', Georgia, serif`. `npm test` = 20 file/59 test verdi. Run confermato **invariato** (screenshot before/after identici — `.arcana-session` è indipendente).
+- **Onesto:** il token-swap da solo è **insufficiente** — le superfici Prepare sono card bianche hardcoded (`--input-bg-light:#ffffff`), non usano il token pergamena; i titoli tipo "Add combatant" non sono h1/h2. Bruttezza di Prepare = **strutturale**. Notato bug: bottoni sidebar spezzano parole ("Ad d", "Fav orite").
+- **P0-1b/c delegato** al designer (agente, background) con auto-QA a screenshot: restyle superfici Prepare (pannelli pergamena, thin lines, Cinzel headers, gold solo per primarie), fix sidebar/bottoni/DRAG→icona Phosphor. Ownership: `index.css` + `WidgetSidebar/*` + `ToolFrame.tsx` + `Grid.tsx`. Vietato toccare `session/*`.
+- **RISULTATO (verificato):** designer ha ristilizzato Prepare → pannelli pergamena piatti, Cinzel maiuscoletto sui titoli, oro solo su attivo, sidebar con drag-handle + icone Phosphor (`Plus`/`Star`/`DotsSixVertical`, no più wrap "Ad d"/"Fav orite"), emoji ⬅️➡️ → Phosphor, rimosso `shadow-lg` in SimpleTable, fix bug dark-mode (bottoni invisibili). File: `index.css`, `WidgetSidebar/SidebarHeader.tsx`, `WidgetSidebar/WidgetItem.tsx`, `ToolFrame.tsx`, `widgets/SimpleTable.tsx`. **`test:ci` EXIT=0** (20/59, build+lint verdi). Prepare↔Run whiplash quasi risolto. Verificato con screenshot light+dark.
+- ⚠️ **Budget JS 497.7/500 KiB** (era 480.6): icone Phosphor l'hanno saturato. P0-2 rischia sforo → riusare icone importate o alzare limite (decisione Cristiano).
+- **Follow-up strutturali** (designer, fuori scope CSS): (a) widget card ancora in 2 pezzi (chrome + body separati) — merge tocca `.surface` condiviso con FirstRun/DataManager; (b) dropdown "Manage screens" (`.screen-manager__panel/__template/__list`) ancora white-card vecchio stile.
+- **Giudizio DM sul re-skin:** "stesso prodotto? quasi". Estetica ok, ma nodo profondo = **legame Prepare→Run invisibile**: in Prepare c'è gergo widget/Grid/Canvas/Sidecar/Pop-out; le tab Focus esistono solo in Run → non capisci che stai costruendo lo schermo che userai. Top-2 DM: (1) mostrare mappatura Prepare→Run (preview o etichettare i widget per tab Focus); (2) rinominare/tooltip dei controlli (Focus/Sidecar/Pop out) con cosa fanno al tavolo.
+  - → Questo è **più importante** dei cosmetici P0-2/P0-3 per risolvere "non si capisce come funziona". Candidato priorità iter.4 (in attesa giudizio designer).
+- **Next (iter. 4):** sintetizzare designer+DM; probabile focus = chiarezza Prepare→Run (etichette Focus sui widget + tooltip controlli) invece dei soli cosmetici. Poi P0-2 icone per-entità (budget!), P0-3 colori.
+
+
+
+### Iterazione 1 — 2026-07-13 — Understand & plan
+- Letto: ROADMAP, audit, spec 00/01, verification M4, mockup Combat+Narrative.
+- Ground truth: `test:ci` VERDE (20 file/59 test, build/lint/budget ok).
+- **Correzione:** Cinzel È caricato (via `@fontsource` in `session.css`, bundle ok) — mia ipotesi iniziale "non caricato" era falsa (avevo letto solo index.css/html).
+- Root cause reale confermata: **DUE design system** (session=buono in Run; index.css=legacy in shell/Prepare) + Focus con lore hardcoded + 5 violazioni emoji.
+- Agente Explore: mappa feature completa (tutte esistono), test blind spots identificati.
+- Avviato dev server :5174 (Chromium Playwright presente). Creato+aggiornato questo ledger.
+- **Next (iter. 2):** costruire harness screenshot con stato seeded → baseline visiva reale (Run 4 Focus + Prepare) come prova "prima" e base della QA. Poi iniziare DS-1/DS-2 (unificazione design system).
+
+### Iterazione 2 — 2026-07-13 — Baseline visiva + giudizio esperti
+- Harness screenshot: `arcana-screen/screenshot-baseline.mjs` (pilota FirstRun→Run→Focus via Playwright, viewport 1487×1058). Output in `scratchpad/shots/`.
+- Catturati + **visti**: Prepare, Run default, Run×4 Focus.
+- **Verdetto (vedi sopra):** Run buono/fedele; **Prepare è il vero problema** (marketplace widget legacy). Corretta la priorità: Prepare-redesign prima di tutto.
+- Giudici completati (designer + DM). Verificato col codice: editor HP live in Run ESISTE (`RunWorkspace.tsx:395`, click combattente); CA assente dal modello.
+- **Next (iter. 3):** eseguire il backlog sotto, partendo da P0-1 (re-skin Prepare) con QA before/after.
+
+## Backlog prioritizzato (da giudizi esperti + verifica codice)
+
+**P0 — incoerenza/rotto**
+- P0-1 **Re-skin Prepare nel design system del Run** (entrambi i giudici = #1). Sotto-step: (a) unificare token in `index.css` → palette session (navy `#061f36`, gold `#e5ad32`, paper `#fbf7ee`); (b) ristilizzare sidebar "Widgets", card widget e form con pannelli pergamena / azioni oro / heading Cinzel; (c) rimuovere la 2ª riga header (`Manage screens`/`New screen`) → in overflow.
+- P0-2 **Icone per-entità.** Combat: tutti `ShieldChevron` hardcoded (`RunWorkspace.tsx:384`); Social: tutti stesso avatar. Mappare tipo/nome → icona Phosphor (mockup ha icone distinte per riga).
+- P0-3 **Colori off-palette.** Verde "Saved locally", rosso "Reset encounter" → trattamento oro/ink/neutro (spec: oro unico accento).
+
+**P1 — maggiore**
+- P1-1 Ripristinare pacing/clock **etichettati** (cerchi numerati Setup/Develop/Peak/Resolve + caption) in Narrative/Social/Exploration — ora barrette generiche.
+- P1-2 Header: menu overflow `⋮` (ora `?`); ripristinare label testuale "Layout protected".
+- P1-3 Social: lista NPC come **tabella** (Attitude/Motive/Secret), non card impilate.
+- P1-4 Icone di riga (Notebook outline, Location cues, Session flow) — ora solo testo.
+- P1-5 **Scopribilità editor HP** in Combat: l'editor esiste ma non ha affordance visibile → aggiungere segnale "clicca per gestire".
+
+**P2 — polish:** source citation + pin + timestamp (Narrative); dock extra links; caption sotto le tab Focus; verificare che la tab-strip Combat non spinga sotto la fold.
+
+**Decisioni di prodotto (per Cristiano, non unilaterali):**
+- CA nel modello combat (assente) — aggiungere?
+- Roster PG riutilizzabile (feature nuova, molto richiesta dal DM).
+- Autenticità dati: i Focus mostrano lore hardcoded (es. `RunWorkspace.tsx:404` encounter notes) invece dei dati utente; + "start vuoto vs demo".
+- Debito: logica combat duplicata (`domain/encounterModel` id-string in Run vs `widgets/InitiativeTracker.tsx` id-numerico in Prepare).
