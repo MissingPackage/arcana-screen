@@ -7,50 +7,128 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import OnboardingTour from './components/OnboardingTour/OnboardingTour';
 import { useTourStore } from './store/tourStore';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import ScreenManager from './components/ScreenManager/ScreenManager';
+import { useScreenStore } from './store/useScreenStore';
+import { useWidgetStore } from './store/useWidgetStore';
+import { useAppStore } from './store/appStore';
+import DataManager from './components/DataManager/DataManager';
+import FirstRun from './components/FirstRun/FirstRun';
+import RunWorkspace from './components/session/RunWorkspace';
+import { CompassRose, LockKey, MoonStars, Question, Sun } from '@phosphor-icons/react';
 
 function App() {
-  const { theme, toggleTheme } = useThemeStore();
-  const hasSeenTour = useTourStore((state) => state.hasSeenTour);
-  const startTour = useTourStore((state) => state.startTour);
+  const { theme, reducedMotion, toggleTheme, toggleReducedMotion } = useThemeStore();
   const restartTour = useTourStore((state) => state.restartTour);
+  const widgets = useWidgetStore((state) => state.widgets);
+  const favoriteWidgetIds = useAppStore((state) => state.favoriteWidgetIds);
+  const hydrateActiveScreen = useScreenStore((state) => state.hydrateActiveScreen);
+  const saveActiveContent = useScreenStore((state) => state.saveActiveContent);
+  const activeMode = useScreenStore((state) => {
+    const active = state.screens.find((screen) => screen.id === state.activeScreenId);
+    return active?.mode ?? 'prepare';
+  });
+  const activeScreen = useScreenStore((state) =>
+    state.screens.find((screen) => screen.id === state.activeScreenId),
+  );
+  const setActiveFocus = useScreenStore((state) => state.setActiveFocus);
+  const updateActiveFocusWorkspace = useScreenStore((state) => state.updateActiveFocusWorkspace);
+  const [screenIsHydrated, setScreenIsHydrated] = useState(false);
+  const screens = useScreenStore((state) => state.screens);
+  const hasQuickCapture = widgets.some((widget) => widget.type === 'QuickCapture');
 
   useEffect(() => {
-    if (!hasSeenTour) {
-      startTour();
-    }
-  }, [hasSeenTour, startTour]);
+    hydrateActiveScreen();
+    setScreenIsHydrated(true);
+  }, [hydrateActiveScreen]);
+
+  useEffect(() => {
+    if (!screenIsHydrated) return;
+    saveActiveContent(widgets, favoriteWidgetIds);
+  }, [favoriteWidgetIds, saveActiveContent, screenIsHydrated, widgets]);
+
+  useEffect(() => {
+    const handleCaptureShortcut = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        window.dispatchEvent(new Event('arcana:focus-capture'));
+      }
+    };
+    window.addEventListener('keydown', handleCaptureShortcut);
+    return () => window.removeEventListener('keydown', handleCaptureShortcut);
+  }, []);
+
+  if (screenIsHydrated && screens.length === 0) {
+    return <FirstRun />;
+  }
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="h-screen w-full flex flex-col md:flex-row overflow-hidden">
+      <a className="skip-link" href="#main-content">Skip to main content</a>
+      <div className={`app-shell app-shell--${activeMode}`}>
         {/* Left sidebar */}
-        <WidgetSidebar />
+        {activeMode === 'prepare' && <WidgetSidebar />}
 
         {/* Main content area */}
-        <div className="flex-1 min-w-0 min-h-0 flex flex-col">
+        <div className="app-content">
           <Toaster />
-          <header className="p-4 text-center border-b">
-            <h1 className="text-3xl font-bold">ArcanaScreen</h1>
-            <p className="text-sm mt-2">The customizable virtual DM screen</p>
-            <div className="mt-2 flex flex-wrap gap-2 justify-center">
+          <header className="app-header arcana-header">
+            <div className="app-header__brand">
+              <CompassRose size={29} weight="light" aria-hidden="true" />
+              <h1>ArcanaScreen</h1>
+            </div>
+            <ScreenManager />
+            <div className="app-header__utilities">
               <button
+                type="button"
+                className="screen-action-button"
+                disabled={activeMode === 'prepare' && !hasQuickCapture}
+                title={activeMode === 'run' || hasQuickCapture ? 'Focus Quick Capture (Ctrl/Cmd + Shift + K)' : 'Add Quick Capture in Prepare'}
+                onClick={() => window.dispatchEvent(new Event('arcana:focus-capture'))}
+              >
+                Quick capture
+              </button>
+              <span className="layout-protection"><LockKey size={17} /> {activeMode === 'run' ? 'Layout protected' : 'Editing layout'}</span>
+              <button
+                type="button"
                 onClick={toggleTheme}
-                className="px-3 py-2 rounded transition"
+                className="header-icon-button"
+                aria-label={theme === 'dark' ? 'Use light theme' : 'Use dark theme'}
               >
-                Toggle {theme === 'dark' ? 'Light' : 'Dark'}
+                {theme === 'dark' ? <Sun size={19} /> : <MoonStars size={19} />}
               </button>
-              <button
-                onClick={restartTour}
-                className="px-3 py-2 rounded transition"
-              >
-                Restart Tour
-              </button>
+              <details className="header-resources">
+                <summary className="header-icon-button" aria-label="Help and resources">
+                  <Question size={19} aria-hidden="true" />
+                </summary>
+                <div className="header-resources__panel" aria-label="Help and resources">
+                  <button type="button" onClick={restartTour}>Restart guide</button>
+                  <button
+                    type="button"
+                    onClick={toggleReducedMotion}
+                    aria-pressed={reducedMotion}
+                    aria-label={reducedMotion ? 'Enable interface motion' : 'Reduce interface motion'}
+                  >
+                    {reducedMotion ? 'Enable motion' : 'Reduce motion'}
+                  </button>
+                  {activeMode === 'prepare' && <DataManager />}
+                  <a href={`${import.meta.env.BASE_URL}privacy.html`}>Privacy</a>
+                  <a href="https://github.com/MissingPackage/arcana-screen/issues/new/choose" target="_blank" rel="noreferrer">Send feedback</a>
+                </div>
+              </details>
             </div>
           </header>
-          <main className="flex-1 min-h-0 overflow-auto p-2 sm:p-4">
-            <Grid />
-          </main>
+          {activeMode === 'run' && activeScreen ? (
+            <RunWorkspace
+              workspace={activeScreen.focusWorkspace}
+              onFocusChange={setActiveFocus}
+              onWorkspaceChange={(workspace) => updateActiveFocusWorkspace(() => workspace)}
+            />
+          ) : (
+            <main id="main-content" className="app-main" tabIndex={-1}>
+              <Grid mode={activeMode} />
+            </main>
+          )}
         </div>
       </div>
 

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
+import { safeLocalStorage } from '../utils/safeStorage';
 
 interface TourState {
   hasSeenTour: boolean;
@@ -50,6 +51,7 @@ export const useTourStore = create<TourState>()(
     }),
     {
       name: 'arcana_tour',
+      storage: createJSONStorage(() => safeLocalStorage),
       partialize: (state) => ({ hasSeenTour: state.hasSeenTour }),
     }
   )

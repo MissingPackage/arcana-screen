@@ -42,18 +42,18 @@ export default function WidgetHelpButton({ helpText }: WidgetHelpButtonProps) {
         onClick={toggleTooltip}
         onMouseEnter={() => setIsVisible(true)}
         onMouseLeave={() => setIsVisible(false)}
-        className="w-6 h-6 p-0 rounded-full bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] transition-colors flex items-center justify-center text-sm font-bold shadow-sm"
+        className="tool-help-button"
         aria-label="Widget help"
         title="Click for help"
         type="button"
       >
-        ?
+        Help
       </button>
 
       {isVisible && (
         <div
           ref={tooltipRef}
-          className="absolute z-50 w-64 p-3 bg-white dark:bg-[var(--deep-blue)] border-2 border-[var(--accent)] rounded-lg shadow-lg text-sm"
+          className="tool-help-popover"
           style={{
             top: '100%',
             right: 0,

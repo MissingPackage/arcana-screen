@@ -1,54 +1,36 @@
-# React + TypeScript + Vite
+# ArcanaScreen
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+ArcanaScreen is a local-first virtual screen for tabletop game masters. It combines configurable Prepare layouts with a protected Run workspace for notes, quick capture, references, dice, timers and initiative. No backend or account is required; browser storage and portable JSON backups keep the user in control.
 
-Currently, two official plugins are available:
+## Development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Requires Node.js 22 and npm.
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```bash
+npm ci
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The production quality gate is:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+```bash
+npm run test:ci
+npm run check:security
+npm run test:e2e
 ```
+
+`test:ci` builds the app, runs ESLint including JSX accessibility rules, runs Vitest and enforces the JS/CSS budgets. Playwright covers Chromium, Firefox, WebKit and a 390×844 mobile project. Install local browser binaries with `npx playwright install`; CI installs browser-specific host dependencies automatically.
+
+## Release
+
+Versioning follows semantic versioning. The GitHub workflows create immutable preview/staging artifacts and deploy an accepted `v*` tag to GitHub Pages. Do not tag a candidate until all quality and browser jobs are green.
+
+- [User guide](../docs/USER_GUIDE.md)
+- [Release and rollback runbook](../docs/RELEASE_RUNBOOK.md)
+- [Security policy](../SECURITY.md)
+- [Privacy policy](public/privacy.html)
+- [Changelog](../CHANGELOG.md)
+
+## Data and privacy
+
+Screens and preferences stay in local storage. The runtime includes no analytics, advertising SDK or automatic error reporting. Data leaves the browser only when the user opens an external link or explicitly exports and shares a backup.

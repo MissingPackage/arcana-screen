@@ -31,6 +31,13 @@ function TableColumnHeader({ col, index, columns, setColumns, updateColumnLabel,
       }
     },
   });
+  const moveColumn = (to: number) => {
+    if (to < 0 || to >= columns.length || to === index) return;
+    const updatedColumns = [...columns];
+    const [movedColumn] = updatedColumns.splice(index, 1);
+    updatedColumns.splice(to, 0, movedColumn);
+    setColumns(updatedColumns);
+  };
   return (
     <th
       key={col.id}
@@ -39,6 +46,7 @@ function TableColumnHeader({ col, index, columns, setColumns, updateColumnLabel,
     >
       <div className="flex items-center justify-center gap-1">
         <input
+          aria-label={`Column ${index + 1} name`}
           value={col.label}
           onChange={e => updateColumnLabel(col.id, e.target.value)}
           className="text-center px-2 py-1 w-24 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm bg-white"
@@ -46,25 +54,29 @@ function TableColumnHeader({ col, index, columns, setColumns, updateColumnLabel,
         />
         {columns.length > 1 ? (
           <button
+            type="button"
             className="ml-1 text-red-500 hover:bg-red-100 rounded-full p-1 transition"
             onClick={() => removeColumn(col.id)}
-            title="Remove column"
-            tabIndex={-1}
+            aria-label={`Remove column ${col.label}`}
             style={{ lineHeight: 1 }}
           >
             ×
           </button>
         ) : (
           <button
+            type="button"
             className="ml-1 rounded-full p-1 cursor-not-allowed"
             disabled
-            title="Cannot remove last column"
-            tabIndex={-1}
+            aria-label="Cannot remove the last column"
             style={{ lineHeight: 1 }}
           >
             ×
           </button>
         )}
+      </div>
+      <div className="table-reorder-actions" aria-label={`Reorder column ${col.label}`}>
+        <button type="button" disabled={index === 0} onClick={() => moveColumn(index - 1)} aria-label={`Move column ${col.label} left`}>←</button>
+        <button type="button" disabled={index === columns.length - 1} onClick={() => moveColumn(index + 1)} aria-label={`Move column ${col.label} right`}>→</button>
       </div>
     </th>
   );
@@ -84,6 +96,13 @@ function TableRowItem({ row, index, columns, rows, setRows, updateRow, removeRow
     type: ItemTypeRow,
     item: { index },
   });
+  const moveRow = (to: number) => {
+    if (to < 0 || to >= rows.length || to === index) return;
+    const updatedRows = [...rows];
+    const [movedRow] = updatedRows.splice(index, 1);
+    updatedRows.splice(to, 0, movedRow);
+    setRows(updatedRows);
+  };
   const [, drop] = useDrop({
     accept: ItemTypeRow,
     hover: (draggedItem: { index: number }) => {
@@ -105,6 +124,7 @@ function TableRowItem({ row, index, columns, rows, setRows, updateRow, removeRow
       {columns.map(col => (
         <td key={col.id} className="border border-gray-200 px-3 py-2 rounded text-center align-middle max-w-[120px]">
           <input
+            aria-label={`Row ${index + 1}, ${col.label}`}
             value={row[col.key] || ''}
             onChange={e => updateRow(row.id, col.key, e.target.value)}
             className="text-center px-2 py-1 w-20 max-w-full rounded border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm bg-white"
@@ -112,7 +132,12 @@ function TableRowItem({ row, index, columns, rows, setRows, updateRow, removeRow
         </td>
       ))}
       <td className="border px-3 py-2 rounded text-center align-middle">
+        <div className="table-reorder-actions" aria-label={`Reorder row ${index + 1}`}>
+          <button type="button" disabled={index === 0} onClick={() => moveRow(index - 1)} aria-label={`Move row ${index + 1} up`}>↑</button>
+          <button type="button" disabled={index === rows.length - 1} onClick={() => moveRow(index + 1)} aria-label={`Move row ${index + 1} down`}>↓</button>
+        </div>
         <button
+          type="button"
           onClick={() => removeRow(row.id)}
           className={`rounded px-3 py-1 text-xs font-semibold transition ${rows.length === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
           disabled={rows.length === 1}
@@ -128,9 +153,10 @@ function TableRowItem({ row, index, columns, rows, setRows, updateRow, removeRow
 interface SimpleTableProps {
   id: string;
   updateWidget: (id: string, updates: Partial<Widget>) => void;
+  showHeader?: boolean;
 }
 
-function SimpleTable({ id, updateWidget }: SimpleTableProps) {
+function SimpleTable({ id, updateWidget, showHeader = true }: SimpleTableProps) {
   const widget = useWidgetStore(state => state.widgets.find(w => w.id === id));
 
   // Default columns/rows if not present
@@ -223,13 +249,16 @@ Note: You must keep at least one row and one column in your table.`;
     if (!columns.length || !rows.length) return <div>Loading table...</div>;
     return (
       <div className="surface p-2 rounded-xl shadow-lg w-full h-full flex flex-col font-sans max-w-full">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold tracking-tight">Simple Table</h2>
-          <WidgetHelpButton helpText={helpText} />
-        </div>
+        {showHeader && (
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold tracking-tight">Simple Table</h2>
+            <WidgetHelpButton helpText={helpText} />
+          </div>
+        )}
 
       <div className="flex-1 overflow-x-auto w-full">
         <table className="min-w-[400px] max-w-full text-left border-separate border-spacing-y-2">
+          <caption className="sr-only">Editable custom data table. Each row and column can be reordered with the adjacent arrow buttons.</caption>
           <thead>
             <tr>
                 {columns.map((col, index) => (
@@ -268,12 +297,14 @@ Note: You must keep at least one row and one column in your table.`;
 
         <div className="flex gap-3 mt-6 justify-end">
           <button
+            type="button"
             onClick={addRow}
             className="rounded px-2 py-1 text-xs transition font-semibold"
           >
             + Row
           </button>
           <button
+            type="button"
             onClick={addColumn}
             className="py-2 px-5 rounded transition font-semibold"
           >

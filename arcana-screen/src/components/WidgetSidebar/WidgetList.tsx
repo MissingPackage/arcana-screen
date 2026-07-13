@@ -6,9 +6,10 @@ type WidgetListProps = {
   isOpen: boolean;
   favoriteWidgetIds: string[];
   toggleFavorite: (id: string) => void;
+  onAdd: (id: string) => void;
 };
 
-export default function WidgetList({ widgets, isOpen, favoriteWidgetIds, toggleFavorite }: WidgetListProps) {
+export default function WidgetList({ widgets, isOpen, favoriteWidgetIds, toggleFavorite, onAdd }: WidgetListProps) {
   return (
     <ul>
       {widgets.map(widget => (
@@ -18,6 +19,7 @@ export default function WidgetList({ widgets, isOpen, favoriteWidgetIds, toggleF
           isOpen={isOpen}
           isFavorite={favoriteWidgetIds.includes(widget.id)}
           toggleFavorite={toggleFavorite}
+          onAdd={onAdd}
         />
       ))}
     </ul>

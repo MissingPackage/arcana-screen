@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
+import { safeLocalStorage } from '../utils/safeStorage';
 
 interface AppState {
   // Sidebar
@@ -28,6 +29,6 @@ export const useAppStore = create<AppState>()(
       }),
       setFavorites: (ids: string[]) => set({ favoriteWidgetIds: ids }),
     }),
-    { name: 'arcana_app_state' }
+    { name: 'arcana_app_state', storage: createJSONStorage(() => safeLocalStorage) }
   )
 );

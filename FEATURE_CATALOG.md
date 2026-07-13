@@ -1,8 +1,8 @@
 # ArcanaScreen — Capability & Feature Catalog
 
-Versione: 0.1  
-Data: 11 luglio 2026  
-Stato: capability map per definire l'MVP; non è ancora un piano di delivery
+Versione: 0.2
+Data: 12 luglio 2026
+Stato: capability map allineata alle decisioni di Orizzonte 0; la roadmap governa il delivery
 
 Fonti: [Product Brief](PRODUCT_BRIEF.md) · [UX Research](RESEARCH.md) · [Audit dell'app attuale](.codex/product-design/arcana-audit/audit.md)
 
@@ -10,7 +10,7 @@ Fonti: [Product Brief](PRODUCT_BRIEF.md) · [UX Research](RESEARCH.md) · [Audit
 
 Il primo MVP è una **web app desktop-first**, utilizzabile anche da browser su tablet e telefono tramite layout responsivo. Non prevede app native separate, profili di layout per dispositivo, sidecar specializzato, posizionamento libero o integrazioni VTT.
 
-La personalizzazione MVP riguarda quali tool sono presenti, il loro ordine e poche dimensioni strutturate dentro una griglia. Le integrazioni VTT e le modalità spaziali avanzate iniziano dopo la validazione del core.
+La personalizzazione MVP riguarda quali tool sono presenti, il loro ordine e poche dimensioni strutturate dentro una griglia. Lo screen mantiene un core note-first e passa fra Focus Narrative, Social, Exploration e Combat senza diventare un campaign manager. Le integrazioni VTT e le modalità spaziali avanzate iniziano dopo la validazione del core.
 
 ## Come leggere il catalogo
 
@@ -36,6 +36,7 @@ La personalizzazione MVP riguarda quali tool sono presenti, il loro ordine e poc
 |---|---|---|
 | Screen lifecycle | Riprendere rapidamente il proprio setup | MVP |
 | Prepare / Run | Separare configurazione e conduzione live | MVP |
+| Focus della sessione | Adattare lo stesso screen al momento corrente senza perdere contesto | MVP |
 | Layout web responsivo | Usare lo screen senza progettare ogni viewport | MVP |
 | Tool platform | Aggiungere e usare strumenti coerenti e affidabili | MVP |
 | Quick capture e reference | Catturare e ritrovare ciò che serve ora | MVP |
@@ -67,10 +68,21 @@ La personalizzazione MVP riguarda quali tool sono presenti, il loro ordine e poc
 | MOD-01 | Modalità Prepare | Aggiunta, rimozione, riordino, dimensione e configurazione dei tool | MVP | Forte |
 | MOD-02 | Modalità Run | Nasconde il chrome di editing e protegge da modifiche strutturali accidentali | MVP | Forte |
 | MOD-03 | Transizione senza perdita di stato | Il passaggio Prepare/Run non resetta tool, scroll o selezioni | MVP | Decisione |
-| MOD-04 | Layout lock esplicito | Stato bloccato comprensibile anche senza entrare in Run | MVP candidate | Media |
+| MOD-04 | Layout lock esplicito | Stato bloccato comprensibile anche senza entrare in Run | MVP | Decisione H0 |
 | MOD-05 | Focus su un singolo tool | Espansione temporanea con ritorno alla posizione precedente | Post-MVP | Media |
 | MOD-06 | Sidecar dedicato | Vista stretta configurata separatamente | Post-MVP | Forte, rinviata |
 | MOD-07 | Second-monitor mode | Densità e comportamenti ottimizzati per monitor dedicato | Post-MVP | Forte, rinviata |
+
+## 2A. Focus della sessione
+
+| ID | Feature | Outcome / criterio essenziale | Fase | Evidenza |
+|---|---|---|---|---|
+| FOC-01 | Focus Narrative | Notebook e riferimenti restano centrali durante esposizione e storytelling | MVP | Decisione H0 |
+| FOC-02 | Focus Social | NPC, intenzioni, riferimenti e catture emergono senza introdurre un social tracker obbligatorio | MVP | Decisione H0 |
+| FOC-03 | Focus Exploration | Luoghi, indizi, rischi e tempo emergono attraverso note, riferimenti e utility | MVP | Decisione H0 |
+| FOC-04 | Focus Combat | Initiative Tracker e tool di incontro diventano prioritari senza sostituire il core | MVP | Decisione H0 |
+| FOC-05 | Cambio Focus in Run | Passaggio rapido senza entrare in Prepare o cambiare screen | MVP | Decisione H0 |
+| FOC-06 | Stato preservato per Focus | Ritorno a un Focus con stato, selezione e posizione precedenti | MVP | Decisione H0 |
 
 ## 3. Layout web responsivo
 
@@ -108,29 +120,29 @@ La personalizzazione MVP riguarda quali tool sono presenti, il loro ordine e poc
 |---|---|---|---|---|
 | TPL-01 | Template General | Setup equilibrato per una sessione generica | MVP | Forte |
 | TPL-02 | Template Combat | Tool e dimensioni iniziali orientati al combattimento | MVP | Forte |
-| TPL-03 | Template Exploration | Note, riferimenti, timer e tabelle orientati all'esplorazione | MVP candidate | Media |
+| TPL-03 | Template Exploration | Note, riferimenti, timer e tabelle orientati all'esplorazione | Post-MVP | Decisione H0: prima validare Exploration come Focus |
 | TPL-04 | Preview template | Chiarezza su cosa verrà creato prima della conferma | MVP | UX |
 | TPL-05 | Salva come template personale | Riutilizzo indipendente dai singoli screen | Post-MVP | Media |
 | TPL-06 | Import/export template | Condivisione sicura senza codice eseguibile | Post-MVP | Media |
 | ONB-01 | First run basato sul risultato | Creare uno screen utile invece di seguire un tour delle feature | MVP | Audit |
 | ONB-02 | Help contestuale | Spiegazione richiamabile per singolo tool o azione | MVP | Audit |
-| ONB-03 | Checklist non bloccante | Suggerimenti iniziali senza overlay obbligatorio | MVP candidate | Media |
+| ONB-03 | Checklist non bloccante | Suggerimenti iniziali senza overlay obbligatorio | Post-MVP | Decisione H0 |
 
 ## 6. Quick capture, note e riferimenti
 
-Il packaging finale è ancora aperto: queste capacità possono diventare tool distinti oppure modalità coerenti dello stesso tool.
+Il packaging approvato usa tre superfici coerenti e persistenti: Session Notebook, Quick Capture e Quick Reference. Possono condividere infrastruttura e contenuti senza diventare un unico controllo indistinto.
 
 | ID | Feature | Outcome / criterio essenziale | Fase | Evidenza |
 |---|---|---|---|---|
 | CAP-01 | Inbox live | Cattura testo libero a un gesto, senza campi obbligatori | MVP | Forte |
 | CAP-02 | Timestamp automatico | Contesto temporale senza lavoro aggiuntivo | MVP | Forte |
-| CAP-03 | Shortcut globale nell'app | Cattura senza cercare il tool nello screen | MVP candidate | Forte |
-| CAP-04 | Review post-sessione | Modifica, elimina, conserva o promuove le catture | MVP candidate | Forte |
+| CAP-03 | Shortcut globale nell'app | Cattura senza cercare il tool nello screen | MVP | Decisione H0 |
+| CAP-04 | Review post-sessione | Modifica, elimina, conserva o promuove le catture | MVP | Decisione H0 |
 | CAP-05 | Promozione a nota/riferimento | Trasforma una cattura senza ricopiarla | Post-MVP | Media |
 | CAP-06 | Categorie/entità automatiche | NPC, quest o luogo estratti dalla cattura | Future | Bassa |
 | NOT-01 | Nota con titolo | Più note distinguibili sullo stesso screen | MVP | Vision |
 | NOT-02 | Autosave e indicatore | Stato di salvataggio comprensibile | MVP | Forte |
-| NOT-03 | Formattazione leggera | Liste, enfasi e link senza editor complesso | MVP candidate | Media |
+| NOT-03 | Formattazione leggera | Liste, enfasi e link senza editor complesso | MVP | Decisione H0 |
 | NOT-04 | Ricerca nelle note | Recupero trasversale su molti contenuti | Post-MVP | Media |
 | REF-01 | Quick reference editabile | Blocco sintetico pensato per la consultazione a colpo d'occhio | MVP | Forte |
 | REF-02 | Link con etichetta | Collegamento a fonte esterna senza migrazione obbligatoria | MVP | Forte |
@@ -149,7 +161,7 @@ Le utility esistenti sono asset utili, ma la ricerca pubblica non dimostra che a
 | DIC-01 | Notazione standard, quantità e modificatori | MVP | Vision / esistente |
 | DIC-02 | Vantaggio e svantaggio | MVP | Vision / esistente |
 | DIC-03 | Errori inline e risultato leggibile | MVP | Audit |
-| DIC-04 | Storico breve della sessione | MVP candidate | Media |
+| DIC-04 | Storico breve della sessione | Post-MVP | Decisione H0 |
 | DIC-05 | Preset e roll salvati | Post-MVP | Bassa |
 | DIC-06 | Roll ricevuti o inviati al VTT | Post-MVP | Integrazione |
 
@@ -170,15 +182,15 @@ Le utility esistenti sono asset utili, ma la ricerca pubblica non dimostra che a
 |---|---|---|---|
 | TIM-01 | Imposta, avvia, pausa e reset | MVP | Vision / esistente |
 | TIM-02 | Continuità affidabile in background | MVP | Tecnica |
-| TIM-03 | Preset rapidi | MVP candidate | Media |
-| TIM-04 | Segnale visivo e sonoro opzionale | MVP candidate | Media |
+| TIM-03 | Preset rapidi | Post-MVP | Decisione H0 |
+| TIM-04 | Segnale visivo e sonoro opzionale | Post-MVP | Decisione H0 |
 | TIM-05 | Notifiche di sistema | Post-MVP | Bassa |
 
 ### Simple Table
 
 | ID | Feature | Fase | Evidenza |
 |---|---|---|---|
-| TAB-01 | Titolo, righe, colonne e celle editabili | MVP candidate | Vision / esistente |
+| TAB-01 | Titolo, righe, colonne e celle editabili | Post-MVP | Decisione H0 |
 | TAB-02 | Template di tabella | Post-MVP | Media |
 | TAB-03 | Tipi colonna, sort e filtri | Post-MVP | Bassa |
 | TAB-04 | Import/export CSV | Post-MVP | Bassa |
@@ -187,7 +199,7 @@ Le utility esistenti sono asset utili, ma la ricerca pubblica non dimostra che a
 
 | ID | Feature | Fase | Evidenza |
 |---|---|---|---|
-| CNT-01 | Contatore nominato con incremento/decremento | MVP candidate | Media |
+| CNT-01 | Contatore nominato con incremento/decremento | Post-MVP | Decisione H0 |
 | CNT-02 | Soglie, range e reset | Post-MVP | Bassa |
 
 ## 8. Dati, affidabilità e recovery
@@ -214,10 +226,10 @@ Le utility esistenti sono asset utili, ma la ricerca pubblica non dimostra che a
 | SET-01 | Tema light/dark | MVP | Esistente |
 | SET-02 | Preferenza tema persistente | MVP | Esistente |
 | SET-03 | Reduced motion | MVP | Accessibilità |
-| SET-04 | Suoni globali e volume | MVP candidate | Media |
+| SET-04 | Suoni globali e volume | Post-MVP | Decisione H0 |
 | SET-05 | Densità interfaccia | Post-MVP | Media |
 | SET-06 | Temi custom | Post-MVP | Bassa |
-| SET-07 | Infrastruttura i18n | MVP candidate | Tecnica |
+| SET-07 | Infrastruttura i18n | Post-MVP | Decisione H0 |
 | SET-08 | Localizzazione EN/IT | Post-MVP | Decisione futura |
 
 ## 10. Accessibilità, responsive e qualità
@@ -299,14 +311,14 @@ Le utility esistenti sono asset utili, ma la ricerca pubblica non dimostra che a
 - Test automatici e matrice browser.
 - Nessuna dipendenza da account, cloud o integrazione VTT.
 
-## Domande da risolvere nei prototipi
+## Decisioni derivate dai prototipi di Orizzonte 0
 
-1. Quick capture, note e quick reference devono essere tre tool o un unico sistema coerente?
-2. Qual è la differenza minima ma percepibile fra Prepare e Run?
-3. Quali dimensioni strutturate servono davvero nella griglia?
-4. Simple Table e Counter appartengono all'MVP oppure a un template/post-MVP?
-5. Exploration merita un template iniziale distinto da General?
-6. Qual è il minimo onboarding necessario quando si parte da un template?
+1. Quick Capture, Session Notebook e Quick Reference sono superfici distinte di un core coerente.
+2. Prepare espone struttura e configurazione; Run protegge la conduzione e consente il cambio di Focus.
+3. Il numero esatto di dimensioni strutturate viene verificato durante `M1.3`, senza introdurre resize libero.
+4. Simple Table e Counter sono rinviati post-MVP.
+5. Exploration entra come Focus; un template iniziale separato viene valutato post-MVP.
+6. L'onboarding MVP porta a uno screen utile; la checklist aggiuntiva è rinviata.
 
 ## Regola per popolare la roadmap
 

@@ -1,52 +1,135 @@
-import { memo, useEffect } from 'react';
-import WidgetHelpButton from '../WidgetHelpButton/WidgetHelpButton';
+import { memo, useEffect, useRef, type ReactNode } from 'react';
 import { useWidgetStore } from '../../store/useWidgetStore';
+import { useTrustStore } from '../../store/trustStore';
 
 interface QuickNotesProps {
   id: string;
+  showHeader?: boolean;
+}
+
+function renderInline(text: string): ReactNode[] {
+  const tokens = text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\(https?:\/\/[^)]+\))/g);
+
+  return tokens.map((token, index) => {
+    if (token.startsWith('**') && token.endsWith('**')) {
+      return <strong key={`${token}-${index}`}>{token.slice(2, -2)}</strong>;
+    }
+
+    const link = token.match(/^\[([^\]]+)\]\((https?:\/\/[^)]+)\)$/);
+    if (link) {
+      return (
+        <a key={`${token}-${index}`} href={link[2]} target="_blank" rel="noreferrer">
+          {link[1]}
+        </a>
+      );
+    }
+
+    return token;
+  });
 }
 
 function QuickNotes({ id }: QuickNotesProps) {
-  const widget = useWidgetStore(state => state.widgets.find(w => w.id === id));
-  const updateWidget = useWidgetStore(state => state.updateWidget);
+  const widget = useWidgetStore((state) => state.widgets.find((item) => item.id === id));
+  const updateWidget = useWidgetStore((state) => state.updateWidget);
+  const saveStatus = useTrustStore((state) => state.status);
+  const editorRef = useRef<HTMLTextAreaElement>(null);
 
-  const text = widget?.text || '';
+  const title = widget?.title ?? 'Session notebook';
+  const text = widget?.text ?? '';
 
-  // Initialize text property if not present
   useEffect(() => {
-    if (widget && !widget.text) {
-      updateWidget(id, { text: '' });
+    if (widget && (widget.title === undefined || widget.text === undefined)) {
+      updateWidget(id, {
+        title: widget.title ?? 'Session notebook',
+        text: widget.text ?? '',
+      });
     }
-  }, [id, widget, updateWidget]);
+  }, [id, updateWidget, widget]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    updateWidget(id, { text: e.target.value });
+  const applyFormatting = (kind: 'bold' | 'list' | 'link') => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    const start = editor.selectionStart;
+    const end = editor.selectionEnd;
+    const selected = text.slice(start, end);
+    let replacement = selected;
+    let cursorOffset = 0;
+
+    if (kind === 'bold') {
+      replacement = `**${selected || 'important'}**`;
+      cursorOffset = selected ? replacement.length : 2;
+    } else if (kind === 'list') {
+      replacement = (selected || 'list item')
+        .split('\n')
+        .map((line) => `- ${line}`)
+        .join('\n');
+      cursorOffset = replacement.length;
+    } else {
+      replacement = `[${selected || 'label'}](https://)`;
+      cursorOffset = replacement.length - 1;
+    }
+
+    updateWidget(id, { text: `${text.slice(0, start)}${replacement}${text.slice(end)}` });
+    requestAnimationFrame(() => {
+      editor.focus();
+      const cursor = start + cursorOffset;
+      editor.setSelectionRange(cursor, cursor);
+    });
   };
 
-  const helpText = `Quick Notes is a simple text area for jotting down important information during your session.
-
-Use it for:
-• Campaign notes and reminders
-• NPC names and details
-• Quest objectives
-• Random ideas and improvisation notes
-• Session planning
-
-Note: Your notes are stored locally in your browser and will persist between sessions.`;
+  if (!widget) return <div className="tool-empty-state">Loading notebook…</div>;
 
   return (
-    <div className="surface p-4 rounded-lg shadow-md w-full h-full flex flex-col">
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="text-lg font-bold">Quick Notes</h2>
-        <WidgetHelpButton helpText={helpText} />
+    <div className="surface session-notebook">
+      <div className="session-notebook__heading">
+        <label>
+          <span className="sr-only">Notebook title</span>
+          <input
+            className="session-notebook__title"
+            value={title}
+            onChange={(event) => updateWidget(id, { title: event.target.value })}
+            placeholder="Notebook title"
+          />
+        </label>
+        <span className="tool-save-indicator" role="status">
+          {saveStatus === 'saving' ? 'Saving…' : saveStatus === 'error' ? 'Save issue' : 'Saved locally'}
+        </span>
       </div>
+
+      <div className="note-toolbar" aria-label="Light formatting">
+        <button type="button" onClick={() => applyFormatting('bold')} aria-label="Bold selection">
+          Bold
+        </button>
+        <button type="button" onClick={() => applyFormatting('list')} aria-label="Make a list">
+          List
+        </button>
+        <button type="button" onClick={() => applyFormatting('link')} aria-label="Insert a link">
+          Link
+        </button>
+      </div>
+
       <textarea
+        ref={editorRef}
         value={text}
-        onChange={handleChange}
-        placeholder="Write your notes here..."
-        className="flex-1 border rounded p-2 resize-none focus:outline-none focus:ring-2"
-        style={{ fontSize: '1em' }}
+        onChange={(event) => updateWidget(id, { text: event.target.value })}
+        placeholder="Prepare beats, NPC details, clues and reminders…"
+        className="session-notebook__editor"
       />
+
+      {text.trim() ? (
+        <details className="note-preview">
+          <summary>Formatted preview</summary>
+          <div className="note-preview__content">
+            {text.split('\n').map((line, index) => (
+              <p key={`${line}-${index}`} className={line.startsWith('- ') ? 'note-preview__list-item' : undefined}>
+                {line.startsWith('- ') ? '• ' : ''}{renderInline(line.replace(/^- /, '')) || <br />}
+              </p>
+            ))}
+          </div>
+        </details>
+      ) : (
+        <p className="tool-empty-state">Your prepared session notes will stay here while you change tools or modes.</p>
+      )}
     </div>
   );
 }

@@ -1,0 +1,70 @@
+name: Release web app
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Deployment lane
+        required: true
+        type: choice
+        options: [preview, staging, production]
+        default: preview
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  release-candidate:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'production' }}
+    defaults:
+      run:
+        working-directory: arcana-screen
+    env:
+      VITE_BASE_PATH: /${{ github.event.repository.name }}/
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: arcana-screen/package-lock.json
+      - run: npm ci
+      - run: npm run test:ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e:critical -- --project=chromium-desktop
+      - name: Package immutable release artifact
+        run: |
+          tar -C dist -czf ../arcana-screen-web.tar.gz .
+          sha256sum ../arcana-screen-web.tar.gz > ../arcana-screen-web.tar.gz.sha256
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: arcana-screen/dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: arcana-screen-${{ inputs.environment || github.ref_name }}
+          path: |
+            arcana-screen-web.tar.gz
+            arcana-screen-web.tar.gz.sha256
+      - name: Create GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" arcana-screen-web.tar.gz arcana-screen-web.tar.gz.sha256 --verify-tag --generate-notes
+
+  deploy-production:
+    if: startsWith(github.ref, 'refs/tags/') || inputs.environment == 'production'
+    needs: release-candidate
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy verified artifact
+        id: deployment
+        uses: actions/deploy-pages@v4

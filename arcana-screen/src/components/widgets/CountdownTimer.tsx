@@ -1,115 +1,120 @@
-import { useEffect, useRef, memo } from 'react';
-import { useWidgetStore, Widget } from '../../store/useWidgetStore';
-import WidgetHelpButton from '../WidgetHelpButton/WidgetHelpButton';
+import { memo, useEffect, useMemo, useState } from 'react';
+import { useWidgetStore, type Widget } from '../../store/useWidgetStore';
 
 interface CountdownTimerProps {
   id: string;
   updateWidget: (id: string, updates: Partial<Widget>) => void;
+  showHeader?: boolean;
 }
 
+const clampDuration = (seconds: number) => Math.min(24 * 60 * 60, Math.max(0, Math.round(seconds)));
+
+const formatDuration = (seconds: number) => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainder = seconds % 60;
+  return hours > 0
+    ? `${hours}:${String(minutes).padStart(2, '0')}:${String(remainder).padStart(2, '0')}`
+    : `${String(minutes).padStart(2, '0')}:${String(remainder).padStart(2, '0')}`;
+};
+
 function CountdownTimer({ id, updateWidget }: CountdownTimerProps) {
-  const widget = useWidgetStore(state => state.widgets.find(w => w.id === id));
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const widget = useWidgetStore((state) => state.widgets.find((item) => item.id === id));
+  const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
-    if (widget && (widget.seconds === undefined || widget.isRunning === undefined)) {
+    if (widget && (widget.seconds === undefined || widget.timerDurationSeconds === undefined || widget.timerEndAt === undefined)) {
       updateWidget(id, {
         seconds: widget.seconds ?? 60,
+        timerDurationSeconds: widget.timerDurationSeconds ?? widget.seconds ?? 60,
+        timerEndAt: widget.timerEndAt ?? null,
         isRunning: widget.isRunning ?? false,
       });
     }
-  }, [widget, id, updateWidget]);
+  }, [id, updateWidget, widget]);
 
-  const seconds = widget?.seconds ?? 60;
-  const isRunning = widget?.isRunning ?? false;
-
-  const setSeconds = (s: number) => updateWidget(id, { seconds: s });
-  const setIsRunning = (r: boolean) => updateWidget(id, { isRunning: r });
-
-  const startTimer = () => {
-    if (isRunning || seconds <= 0) return;
-    setIsRunning(true);
-  };
+  const remaining = useMemo(() => {
+    if (!widget) return 0;
+    if (widget.isRunning && widget.timerEndAt) {
+      return Math.max(0, Math.ceil((widget.timerEndAt - now) / 1000));
+    }
+    return widget.seconds ?? 60;
+  }, [now, widget]);
 
   useEffect(() => {
-    if (!isRunning) return;
+    if (!widget?.isRunning || !widget.timerEndAt) return;
+    const interval = window.setInterval(() => setNow(Date.now()), 250);
+    return () => window.clearInterval(interval);
+  }, [widget?.isRunning, widget?.timerEndAt]);
 
-    timerRef.current = setInterval(() => {
-      const current = useWidgetStore.getState().widgets.find(w => w.id === id)?.seconds ?? 0;
-      if (current <= 1) {
-        updateWidget(id, { seconds: 0, isRunning: false });
-      } else {
-        updateWidget(id, { seconds: current - 1 });
-      }
-    }, 1000);
+  useEffect(() => {
+    if (widget?.isRunning && widget.timerEndAt && remaining === 0) {
+      updateWidget(id, { seconds: 0, isRunning: false, timerEndAt: null });
+    }
+  }, [id, remaining, updateWidget, widget?.isRunning, widget?.timerEndAt]);
 
-    return () => {
-      if (timerRef.current !== null) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-  }, [id, isRunning, updateWidget]);
+  if (!widget) return <div className="tool-empty-state">Loading timer…</div>;
 
-  const stopTimer = () => {
-    setIsRunning(false);
+  const duration = widget.timerDurationSeconds ?? 60;
+  const minutes = Math.floor(duration / 60);
+  const secondsPart = duration % 60;
+
+  const setDuration = (nextMinutes: number, nextSeconds: number) => {
+    const nextDuration = clampDuration(Math.max(0, nextMinutes) * 60 + Math.min(59, Math.max(0, nextSeconds)));
+    updateWidget(id, {
+      timerDurationSeconds: nextDuration,
+      seconds: nextDuration,
+      isRunning: false,
+      timerEndAt: null,
+    });
   };
 
-  const resetTimer = () => {
-    stopTimer();
-    setSeconds(60);
-    setIsRunning(false);
+  const start = () => {
+    if (remaining <= 0 || widget.isRunning) return;
+    updateWidget(id, {
+      seconds: remaining,
+      isRunning: true,
+      timerEndAt: Date.now() + remaining * 1000,
+    });
+    setNow(Date.now());
   };
 
-  const helpText = `Set a custom time using the number input at the bottom, then use the controls to manage the timer.
+  const pause = () => {
+    if (!widget.isRunning) return;
+    updateWidget(id, { seconds: remaining, isRunning: false, timerEndAt: null });
+  };
 
-Start: Begin counting down from the current time.
-Stop: Pause the timer at its current value.
-Reset: Stop the timer and reset it back to 60 seconds.
+  const reset = () => {
+    updateWidget(id, { seconds: duration, isRunning: false, timerEndAt: null });
+  };
 
-The timer will automatically stop when it reaches 0 seconds.`;
-
-  if (widget == null) return <div>Loading timer...</div>;
   return (
-    <div className="surface p-4 rounded-lg shadow-md w-full h-full flex flex-col justify-between">
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="text-lg font-bold">Countdown Timer</h2>
-        <WidgetHelpButton helpText={helpText} />
+    <div className="surface countdown-timer">
+      <output className={`timer-display ${remaining === 0 ? 'timer-display--complete' : ''}`} aria-live="polite">
+        {formatDuration(remaining)}
+      </output>
+      <p className="timer-status">
+        {remaining === 0 ? 'Time is up' : widget.isRunning ? 'Running from a reliable end timestamp' : 'Paused'}
+      </p>
+
+      <div className="timer-actions">
+        <button type="button" className="screen-action-button" onClick={start} disabled={widget.isRunning || remaining <= 0}>Start</button>
+        <button type="button" onClick={pause} disabled={!widget.isRunning}>Pause</button>
+        <button type="button" onClick={reset}>Reset</button>
       </div>
 
-      <div className="text-4xl font-bold text-center">{seconds}s</div>
-
-      <div className="flex gap-2 justify-center mt-4">
-        <button
-          onClick={startTimer}
-          disabled={isRunning || seconds <= 0}
-          className="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600"
-        >
-          Start
-        </button>
-        <button
-          onClick={stopTimer}
-          className="px-3 py-2 rounded transition"
-        >
-          Stop
-        </button>
-        <button
-          onClick={resetTimer}
-          className="px-3 py-2 rounded transition"
-        >
-          Reset
-        </button>
-      </div>
-
-      <div className="mt-4">
-        <input
-          type="number"
-          value={seconds}
-          onChange={(e) => setSeconds(Math.max(0, Number(e.target.value)))}
-          className="w-full border rounded p-2 text-center"
-          min={0}
-        />
-      </div>
+      <fieldset className="timer-duration" disabled={widget.isRunning}>
+        <legend>Set duration</legend>
+        <label>
+          <span>Minutes</span>
+          <input type="number" min={0} max={1440} value={minutes} onChange={(event) => setDuration(Number(event.target.value) || 0, secondsPart)} />
+        </label>
+        <label>
+          <span>Seconds</span>
+          <input type="number" min={0} max={59} value={secondsPart} onChange={(event) => setDuration(minutes, Number(event.target.value) || 0)} />
+        </label>
+      </fieldset>
+      <p className="timer-recovery-note">The countdown catches up after background tabs, sleep and reload.</p>
     </div>
   );
 }

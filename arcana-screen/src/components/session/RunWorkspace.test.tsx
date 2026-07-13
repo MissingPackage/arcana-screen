@@ -1,0 +1,251 @@
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { useState } from 'react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { createDefaultFocusWorkspace, switchFocus, type FocusWorkspace } from '../../domain/focusModel';
+import RunWorkspace from './RunWorkspace';
+
+function StatefulRun({ initial }: { initial: FocusWorkspace }) {
+  const [workspace, setWorkspace] = useState(initial);
+  return (
+    <RunWorkspace
+      workspace={workspace}
+      onFocusChange={(focus) => setWorkspace((current) => switchFocus(current, focus))}
+      onWorkspaceChange={setWorkspace}
+    />
+  );
+}
+
+describe('RunWorkspace', () => {
+  afterEach(() => vi.restoreAllMocks());
+  it('renders the note-first Social source hierarchy and universal utilities', () => {
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'social';
+    render(
+      <RunWorkspace
+        workspace={workspace}
+        onFocusChange={vi.fn()}
+        onWorkspaceChange={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole('heading', { name: 'Session Notebook' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Social Focus' })).toBeVisible();
+    expect(screen.getByLabelText('Quick capture')).toBeVisible();
+    expect(screen.getByLabelText('Dice roller')).toBeVisible();
+    expect(screen.getByLabelText('Session timer')).toBeVisible();
+  });
+
+  it('keeps encounter setup out of the default Combat Run viewport', () => {
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'combat';
+    render(
+      <RunWorkspace
+        workspace={workspace}
+        onFocusChange={vi.fn()}
+        onWorkspaceChange={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole('heading', { name: 'Initiative Tracker' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Next Turn' })).toBeVisible();
+    expect(screen.queryByText('Add combatant')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Remove' })).not.toBeInTheDocument();
+    expect(screen.getByText('Charmed')).toBeVisible();
+    expect(screen.getByText('Frightened')).toBeVisible();
+    expect(screen.getByText('Total Cover')).toBeVisible();
+    expect(screen.getByRole('link', { name: /Monster Manual/ })).toHaveAttribute('href', 'https://www.dndbeyond.com/sources/dnd/free-rules');
+  });
+
+  it('captures once and retains the result while changing Focus', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'social';
+    render(<StatefulRun initial={workspace} />);
+
+    await user.type(screen.getByLabelText('Quick capture'), 'The warden recognized Kael');
+    await user.click(screen.getByRole('button', { name: 'Save capture' }));
+    await user.click(screen.getByRole('button', { name: 'Exploration' }));
+
+    expect(screen.getByText('The warden recognized Kael')).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Exploration Focus' })).toBeVisible();
+  });
+
+  it('reviews, edits, promotes and deletes universal captures from Run', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'narrative';
+    render(<StatefulRun initial={workspace} />);
+
+    await user.type(screen.getByLabelText('Quick capture'), 'A rough consequence');
+    await user.click(screen.getByRole('button', { name: 'Save capture' }));
+    await user.click(screen.getByRole('button', { name: 'Review captures' }));
+
+    const editor = screen.getByLabelText('Capture text');
+    await user.clear(editor);
+    await user.type(editor, 'The ward answers to Kael');
+    await user.click(screen.getByRole('button', { name: 'Promote capture' }));
+    expect(screen.getByText('The ward answers to Kael', { selector: '.narrative-document li' })).toBeVisible();
+    expect(screen.getByText('Promoted')).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: 'Delete capture' }));
+    expect(screen.queryByLabelText('Capture text')).not.toBeInTheDocument();
+  });
+
+  it('advances the Social scene clock without changing Focus', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'social';
+    render(<StatefulRun initial={workspace} />);
+
+    expect(screen.getByLabelText('Scene Clock: 3 of 8')).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Advance' }));
+    expect(screen.getByLabelText('Scene Clock: 4 of 8')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Social' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('completes Exploration and advances the persistent counter', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'exploration';
+    render(<StatefulRun initial={workspace} />);
+
+    await user.click(screen.getByRole('button', { name: /Complete moment/ }));
+    expect(screen.getByText('The Sunken Archive', { selector: '.saved-note' })).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: 'Increase counter' }));
+    expect(screen.getByLabelText('Counter value')).toHaveTextContent('4');
+  });
+
+  it('adds Exploration clues and chronological log entries from Run', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'exploration';
+    render(<StatefulRun initial={workspace} />);
+
+    await user.type(screen.getByLabelText('New clue'), 'Ash points toward the lower vault');
+    await user.click(screen.getByRole('button', { name: 'Add clue' }));
+    expect(screen.getByText('Ash points toward the lower vault')).toBeVisible();
+
+    await user.type(screen.getByLabelText('New log entry'), 'The party opened the hidden stair');
+    await user.click(screen.getByRole('button', { name: 'Add log entry' }));
+    expect(screen.getByText('The party opened the hidden stair')).toBeVisible();
+  });
+
+  it('wraps Combat to a new round from the last combatant', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'combat';
+    workspace.contexts.combat.currentIndex = workspace.contexts.combat.combatants.length - 1;
+    render(<StatefulRun initial={workspace} />);
+
+    await user.click(screen.getByRole('button', { name: 'Next Turn' }));
+    expect(screen.getByText('Round 4')).toBeVisible();
+    expect(screen.getByText('Ser Kael', { selector: '.combatant-identity strong' })).toBeVisible();
+  });
+
+  it('keeps compact Combat HP controls on demand and supports reset undo', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'combat';
+    render(<StatefulRun initial={workspace} />);
+
+    await user.click(screen.getByRole('button', { name: 'Manage Ser Kael' }));
+    await user.click(screen.getByRole('button', { name: '−5 HP' }));
+    expect(screen.getByRole('region', { name: 'Live controls for Ser Kael' })).toHaveTextContent('HP 19 / 24');
+    await user.click(screen.getByRole('button', { name: '+1 Temp' }));
+    expect(screen.getByRole('region', { name: 'Live controls for Ser Kael' })).toHaveTextContent('Temp 1');
+    await user.clear(screen.getByLabelText('Conditions for Ser Kael'));
+    await user.type(screen.getByLabelText('Conditions for Ser Kael'), 'Blessed, Prone');
+    expect(screen.getByText('Prone', { selector: '.condition-chips span' })).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: 'Reset encounter' }));
+    expect(screen.getByRole('alert')).toHaveTextContent('Clear the encounter');
+    await user.click(screen.getByRole('button', { name: 'Confirm reset' }));
+    expect(screen.queryByRole('button', { name: 'Manage Ser Kael' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Undo encounter change' }));
+    expect(screen.getByRole('button', { name: 'Manage Ser Kael' })).toBeVisible();
+  });
+
+  it('advances the Narrative beat in the context drawer', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'narrative';
+    render(<StatefulRun initial={workspace} />);
+
+    expect(screen.getByText('Current beat · 2 of 4')).toBeVisible();
+    await user.click(screen.getByRole('button', { name: /Move to next beat/ }));
+    expect(screen.getByText('Current beat · 3 of 4')).toBeVisible();
+  });
+
+  it('supports standard dice formulae from the compact Run dock', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValueOnce(0).mockReturnValueOnce(0.5);
+    render(<StatefulRun initial={createDefaultFocusWorkspace()} />);
+
+    await user.click(screen.getByRole('button', { name: 'Dice options' }));
+    await user.type(screen.getByLabelText('Dice formula'), '2d6+3');
+    await user.click(screen.getByRole('button', { name: 'Roll' }));
+
+    expect(screen.getByLabelText('Roll result')).toHaveTextContent('8');
+    expect(screen.getByText(/2d6\[1,4\]/)).toBeVisible();
+  });
+
+  it('shows an actionable inline dice error without replacing the previous Focus', async () => {
+    const user = userEvent.setup();
+    render(<StatefulRun initial={createDefaultFocusWorkspace()} />);
+
+    await user.click(screen.getByRole('button', { name: 'Dice options' }));
+    await user.type(screen.getByLabelText('Dice formula'), '1d2junk');
+    await user.click(screen.getByRole('button', { name: 'Roll' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Invalid dice notation');
+    expect(screen.getByRole('button', { name: 'Narrative' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('uses the lower roll for Disadvantage and keeps the raw breakdown', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValueOnce(0.999).mockReturnValueOnce(0);
+    render(<StatefulRun initial={createDefaultFocusWorkspace()} />);
+
+    await user.click(screen.getByRole('button', { name: 'Dice options' }));
+    await user.type(screen.getByLabelText('Dice formula'), 'd20+4');
+    await user.click(screen.getByRole('button', { name: 'Disadvantage' }));
+    await user.click(screen.getByRole('button', { name: 'Roll' }));
+
+    expect(screen.getByLabelText('Roll result')).toHaveTextContent('5');
+    expect(screen.getByText(/disadvantage: 20, 1 → 1/)).toBeVisible();
+  });
+
+  it('edits the Social scene and confirms a destructive clock reset', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'social';
+    render(<StatefulRun initial={workspace} />);
+
+    await user.clear(screen.getByLabelText('Social scene title'));
+    await user.type(screen.getByLabelText('Social scene title'), 'Council at Dusk');
+    expect(screen.getByDisplayValue('Council at Dusk')).toBeVisible();
+
+    const clock = screen.getByText('Scene Clock').closest('.clock-block');
+    if (!(clock instanceof HTMLElement)) throw new Error('Scene Clock region missing');
+    await user.click(within(clock).getByRole('button', { name: 'Reset' }));
+    expect(within(clock).getByRole('button', { name: 'Confirm reset' })).toBeVisible();
+    expect(screen.getByLabelText('Scene Clock: 3 of 8')).toBeVisible();
+    await user.click(within(clock).getByRole('button', { name: 'Confirm reset' }));
+    expect(screen.getByLabelText('Scene Clock: 0 of 8')).toBeVisible();
+  });
+
+  it('sets the Timer duration from the Run dock without entering Prepare', async () => {
+    const user = userEvent.setup();
+    render(<StatefulRun initial={createDefaultFocusWorkspace()} />);
+
+    await user.click(screen.getByRole('button', { name: 'Set time' }));
+    await user.clear(screen.getByLabelText('Timer minutes'));
+    await user.type(screen.getByLabelText('Timer minutes'), '2');
+    await user.clear(screen.getByLabelText('Timer seconds'));
+    await user.type(screen.getByLabelText('Timer seconds'), '30');
+
+    expect(screen.getByLabelText('Session timer')).toHaveTextContent('02:30');
+  });
+});

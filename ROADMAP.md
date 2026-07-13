@@ -1,8 +1,8 @@
 # ArcanaScreen — Product Roadmap
 
-Versione: 1.0  
-Data: 11 luglio 2026  
-Stato: proposta di sequenza per un team piccolo; gli ordini indicano dipendenze, non date contrattuali
+Versione: 1.5-m3-hardening
+Data: 13 luglio 2026
+Stato: Orizzonti 1–3 implementati e protetti da gate ripetibili. L'accettazione prodotto resta separata dall'implementazione: nessun orizzonte è accettato finché la matrice in `docs/specs/acceptance-matrix.md` contiene righe `missing`, `red`, `partial` o `blocked`.
 
 Fonti:
 
@@ -44,10 +44,10 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 | Orizzonte | Outcome | Stato |
 |---|---|---|
-| 0. Decision gates | Chiudere le scelte che cambiano IA e scope | Prossimo |
-| 1. Web foundation | Rendere possibile creare, riprendere e configurare uno screen affidabile | Pianificato |
-| 2. Session-ready core | Portare note, riferimenti e utility al livello necessario per il live | Pianificato |
-| 3. MVP hardening & release | Rendere il prodotto verificabile, accessibile e distribuibile sul web | Pianificato |
+| 0. Decision gates | Chiudere le scelte che cambiano IA e scope | Prototipato; validazione DM mancante |
+| 1. Web foundation | Rendere possibile creare, riprendere e configurare uno screen affidabile | Implementato; ri-verifica in corso |
+| 2. Session-ready core | Portare note, riferimenti e utility al livello necessario per il live | Implementato; ri-verifica in corso |
+| 3. MVP hardening & release | Rendere il prodotto verificabile, accessibile e distribuibile sul web | Implementato; prima RC e gate WebKit in CI da eseguire |
 | 4. Workspace evolution | Espandere layout, distribuzione e organizzazione dopo l'MVP | Post-MVP |
 | 5. VTT integrations | Ridurre il doppio inserimento tramite adapter opzionali | Post-MVP |
 | 6. Ecosystem bets | Valutare SDK, community, AI e modelli avanzati | Future |
@@ -55,6 +55,22 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 # Orizzonte 0 — Decision gates
 
 **Obiettivo:** risolvere con prototipi le decisioni che cambierebbero il modello dell'app prima di costruire la nuova shell.
+
+**Stato:** prototipi e decisioni recuperati il 13 luglio 2026. Le quattro sorgenti visuali (Narrative, Social, Exploration e Combat) sono ora vincoli di implementazione, non materiale opzionale. L'approvazione finale resta sospesa fino a test moderati con DM reali.
+
+## Decisioni approvate
+
+- Il General Screen è **note-first**: Session Notebook, Quick Capture e Quick Reference costituiscono il core persistente.
+- Prepare e Run restano modalità operative; Narrative, Social, Exploration e Combat sono **Focus della sessione**, non screen o modalità separati.
+- Il cambio di Focus modifica gerarchia e tool contestuali senza interrompere notebook, catture, riferimenti o stato precedente.
+- Dice Roller e Timer restano utility universali compatte; Initiative Tracker compare nel Focus Combat.
+- Nuove entità specializzate per Social, Exploration o Narrative non entrano nell'MVP finché note e riferimenti strutturati non dimostrano un limite reale.
+- La validazione con DM reali prosegue come checkpoint iniziale di Orizzonte 1 e può correggere nomenclatura e dettagli d'interazione senza riaprire automaticamente il modello.
+
+## Risoluzione delle feature candidate
+
+- **Promosse in MVP:** `MOD-04`, `CAP-03`, `CAP-04`, `NOT-03`.
+- **Rinviate post-MVP:** `TPL-03`, `ONB-03`, `DIC-04`, `TIM-03`, `TIM-04`, `TAB-01`, `CNT-01`, `SET-04`, `SET-07`.
 
 ## D0.1 — Flusso Screen
 
@@ -86,44 +102,70 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Gate:** i tester distinguono le due modalità e non compiono modifiche strutturali accidentali durante Run.
 
-## D0.3 — Capture, Note e Reference
+## D0.3 — Session notebook, capture e curation
 
-**Outcome:** il prodotto supporta sia la cattura grezza live sia la consultazione a colpo d'occhio, senza diventare una knowledge base.
+**Outcome:** appunti, catture e riferimenti formano la continuità operativa dello screen durante tutta la sessione, senza obbligare il DM a migrare l'intera campagna in una nuova knowledge base.
 
-**Da confrontare**
+**Da progettare**
 
-- Un unico tool con modalità coerenti.
-- Tool distinti ma interoperabili.
-- Inbox globale più note/reference sullo screen.
+- Session notebook come superficie persistente e primaria, non come widget secondario.
+- Inbox live a un gesto per nomi, decisioni, conseguenze e improvvisazioni.
+- Note preparate e riferimenti appuntati con provenienza chiara.
+- Distinzione fra contenuto sorgente, contenuto curato per la sessione e cattura grezza.
+- Continuità di note, scroll, selezione e posizione quando cambia il Focus della sessione.
+- Review post-sessione per conservare, eliminare o promuovere le catture.
 
 **Feature collegate:** `CAP-01`–`CAP-04`, `NOT-01`–`NOT-03`, `REF-01`, `REF-02`.
 
-**Gate:** una nota live viene catturata in pochi secondi e un riferimento preparato viene ritrovato senza ricerca globale.
+**Gate:** il DM cattura una nota live in pochi secondi, ritrova un appunto o riferimento preparato senza ricerca globale e conserva lo stesso contesto passando fra almeno due Focus.
 
-## D0.4 — MVP tool set
+## D0.4 — Core universale e tool di Focus
 
-**Outcome:** mantenere solo gli strumenti che dimostrano valore senza trasformare l'MVP in un catalogo.
+**Outcome:** distinguere ciò che serve per tutta la sessione dagli strumenti utili solo in un momento specifico, senza trasformare l'MVP in un catalogo permanente.
 
 **Decisioni**
 
-- Confermare Dice Roller, Initiative Tracker e Timer nel core.
-- Decidere se Simple Table e Counter entrano nell'MVP.
-- Decidere se Exploration merita un template distinto da General.
-- Decidere storico dadi, preset timer e segnale sonoro.
+- Confermare Session Notebook, Quick Capture e Quick Reference come core universale.
+- Decidere se Dice Roller e Timer restano utility universali compatte o appartengono a specifici Focus.
+- Trattare Initiative Tracker come tool del Focus Combat, non come centro del prodotto.
+- Definire il set minimo per Narrative, Social ed Exploration usando note e riferimenti strutturati prima di introdurre nuove entità di dominio.
+- Decidere se Simple Table e Counter coprono job distinti in uno o più Focus.
+- Decidere storico dadi, preset timer e segnale sonoro solo nei flussi che li richiedono.
 - Decidere se la checklist iniziale aggiunge valore dopo la scelta del template.
 - Decidere se suoni globali e infrastruttura i18n sono enabler MVP o post-MVP.
 
-**Candidate collegate:** `TPL-03`, `ONB-03`, `DIC-04`, `TIM-03`, `TIM-04`, `TAB-01`, `CNT-01`, `SET-04`, `SET-07`.
+**Feature collegate:** `LIB-01`–`LIB-07`, `CAP-01`–`CAP-04`, `NOT-01`–`NOT-03`, `REF-01`, `REF-02`, `DIC-01`–`DIC-04`, `INI-01`–`INI-05`, `TIM-01`–`TIM-04`.
 
-**Gate:** ogni tool incluso copre un job distinto e viene usato in almeno uno dei flussi prototipati.
+**Candidate collegate:** `ONB-03`, `DIC-04`, `TIM-03`, `TIM-04`, `TAB-01`, `CNT-01`, `SET-04`, `SET-07`.
+
+**Gate:** ogni capacità universale viene usata in almeno due Focus; ogni tool contestuale copre un job distinto nel proprio Focus e non occupa spazio quando è irrilevante.
+
+## D0.5 — Focus della sessione
+
+**Outcome:** lo stesso Screen segue il momento della sessione — Narrative, Social, xploration o Combat — senza frammentare appunti, catture e riferimenti in screen separati.
+
+**Da progettare**
+
+- Distinzione comprensibile fra modalità Prepare/Run, Focus della sessione e template di partenza.
+- General Screen note-first come base utile anche senza scegliere un Focus specializzato.
+- Passaggio rapido fra Narrative, Social, Exploration e Combat durante Run.
+- Gerarchia e tool che cambiano con il Focus mentre Session Notebook, Capture e riferimenti restano continui.
+- Stato dei tool contestuali preservato quando un Focus viene lasciato e poi ripreso.
+- Default e nomenclatura che non trasformano Focus in un campaign manager, una scena VTT o quattro layout da configurare separatamente.
+
+**Feature collegate:** `MOD-02`, `MOD-03`, `LAY-01`–`LAY-06`, `LIB-04`–`LIB-06`, `TPL-01`–`TPL-04`, `CAP-01`–`CAP-04`, `NOT-01`–`NOT-03`, `REF-01`, `REF-02`.
+
+**Gate:** in un unico wireflow il DM passa Social → Exploration → Combat e ritorna al contesto precedente senza perdere appunti, catture, posizione o stato; i tester distinguono Focus, Screen e modalità senza spiegazione verbale.
 
 ## Exit criteria Orizzonte 0
 
-- Architettura dell'informazione e modello Screen comprensibili.
-- Wireflow completo di create/resume → Prepare → Run.
-- Visual target selezionato per la shell web e i tool core.
-- Packaging di capture/note/reference deciso.
-- Elenco definitivo delle feature `MVP candidate` promosse o rinviate.
+- [x] Architettura dell'informazione e modello Screen documentati in specifiche funzionali.
+- [x] Wireflow create/resume → Prepare → Run e transizioni di Focus recuperato dai prototipi.
+- [x] Quattro direzioni visuali recuperate come sorgenti verificabili.
+- [x] Packaging di Session Notebook, capture, curation e review specificato.
+- [x] Modello Focus distinto da Screen, modalità e template coperto da test automatici.
+- [ ] Test moderati confermano comprensione e task success con DM reali.
+- [ ] Promozione finale delle candidate confermata dai risultati dei test, non solo dal documento.
 
 # Orizzonte 1 — Web foundation
 
@@ -132,6 +174,8 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 ## M1.1 — Screen lifecycle
 
 **Outcome:** il DM riprende o crea uno screen senza configurazione superflua.
+
+**Stato:** implementato; test store verdi, verifica completa UI/browser ancora aperta.
 
 **Scope**
 
@@ -144,11 +188,13 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Dipende da:** D0.1.
 
-**Done quando:** reload e riapertura riportano allo screen atteso; ogni azione distruttiva è recuperabile.
+**Done quando:** reload e riapertura riportano allo screen atteso; ogni azione distruttiva è recuperabile. Verificato con create da General, Combat e Blank, switch con stato preservato, rename, duplicate, delete con undo e resume dopo reload.
 
 ## M1.2 — Prepare / Run shell
 
 **Outcome:** il DM personalizza quando vuole e conduce senza chrome di editing.
+
+**Stato:** implementato; distinzione Run/Prepare verificata parzialmente, test input e transizione completi ancora aperti.
 
 **Scope**
 
@@ -162,11 +208,13 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Dipende da:** D0.2.
 
-**Done quando:** le operazioni strutturali sono possibili con mouse, touch e tastiera; Run non espone azioni accidentali di layout.
+**Done quando:** le operazioni strutturali sono possibili con mouse, touch e tastiera; Run non espone azioni accidentali di layout. Verificato con add esplicito, reorder alternativo al drag, dimensioni strutturate, remove e undo; Run conserva note e stato live, nasconde tutto il chrome strutturale e persiste dopo reload.
 
 ## M1.3 — Responsive web layout
 
 **Outcome:** lo stesso screen resta utilizzabile da browser su desktop, tablet e telefono.
+
+**Stato:** ri-verificato il 13 luglio su Run a 1280/768/390 senza overflow globale; flussi completi a ogni viewport ancora aperti.
 
 **Scope**
 
@@ -179,11 +227,13 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Dipende da:** D0.2.
 
-**Done quando:** i flussi core sono completabili almeno a 1280×720, 768×1024 e 390×844 senza overflow globale o azioni irraggiungibili.
+**Done quando:** i flussi core sono completabili almeno a 1280×720, 768×1024 e 390×844 senza overflow globale o azioni irraggiungibili. Verificato nel browser reale: 1280×720 usa due colonne, 768×1024 e 390×844 effettuano reflow a una colonna, tutte e tre le viewport mantengono `scrollWidth` uguale alla larghezza disponibile e le azioni Prepare, Run e Data & recovery restano raggiungibili. Il modal di recovery resta contenuto a 390×844.
 
 ## M1.4 — Tool platform
 
 **Outcome:** ogni tool segue lo stesso contratto di stato, configurazione e interazione.
+
+**Stato:** implementato; registry presente, test di contratto e migrazione non ancora esaustivi.
 
 **Scope**
 
@@ -196,11 +246,13 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Dipende da:** M1.2.
 
-**Done quando:** un nuovo tool interno può essere aggiunto senza modificare la shell in più punti e ogni istanza persiste in modo indipendente.
+**Done quando:** un nuovo tool interno può essere aggiunto senza modificare la shell in più punti e ogni istanza persiste in modo indipendente. Verificato con registry centrale tipizzato, default e versione di stato per tool, catalogo ricercabile e filtrabile, chrome/configurazione condivisi e due istanze Quick Notes con contenuti indipendenti preservati dopo reload. In Run libreria e configurazione scompaiono mentre i tool restano attivi.
 
 ## M1.5 — Trust layer
 
 **Outcome:** il DM può usare ArcanaScreen durante una sessione senza temere perdita o corruzione dei dati.
+
+**Stato:** implementato; test unitari di payload invalido, snapshot e import verdi, verifica cross-browser ancora aperta.
 
 **Scope**
 
@@ -216,15 +268,15 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Dipende da:** M1.1, M1.4.
 
-**Done quando:** dati corrotti non bloccano l'app, l'export/import funziona fra due browser e uno snapshot precedente può essere ripristinato.
+**Done quando:** dati corrotti non bloccano l'app, l'export/import funziona fra due browser e uno snapshot precedente può essere ripristinato. Verificato con storage protetto e fallback per payload invalido, stato di autosave visibile, backup JSON completo, preview e rifiuto dei file invalidi, import merge con screen reale, recovery della nota “Recovery candidate” da uno snapshot precedente, error boundary con retry/export raw/reset e bundle senza dipendenze runtime esterne.
 
 ## Exit criteria Orizzonte 1
 
-- Uno screen può essere creato, ripreso, modificato e usato in Run.
-- Tool multipli persistono correttamente e seguono lo stesso contratto.
-- Tablet e telefono completano i flussi core tramite web responsive.
-- Storage invalido, reload e import non producono perdita silenziosa.
-- Nessuna integrazione VTT o layout avanzato è necessario per usare il core.
+- [ ] Uno screen può essere creato, ripreso, modificato e usato in Run nell'intero smoke browser ripetibile.
+- [ ] Tool multipli persistono correttamente e seguono lo stesso contratto in test automatici.
+- [ ] Tablet e telefono completano tutti i flussi core, non solo il reflow.
+- [ ] Storage invalido, reload e import non producono perdita silenziosa anche nella prova cross-browser.
+- [x] Nessuna integrazione VTT o layout avanzato è necessaria per usare il core.
 
 # Orizzonte 2 — Session-ready core
 
@@ -233,6 +285,8 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 ## M2.1 — Template e first run
 
 **Outcome:** il primo screen utile nasce da un risultato, non da un tour delle feature.
+
+**Stato:** implementato e coperto da test component; browser manual-pass completato su origine pulita per preview General/Combat/Blank, nome opzionale e creazione diretta.
 
 **Scope**
 
@@ -246,11 +300,13 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Dipende da:** D0.1, M1.1, M1.4.
 
-**Done quando:** un nuovo utente raggiunge uno screen usabile senza tour obbligatorio.
+**Done quando:** un nuovo utente raggiunge uno screen usabile senza tour obbligatorio. Verificato da storage pulito con scelta General/Combat/Blank, preview di outcome e tool, nome opzionale e creazione diretta del General Screen; ogni tool espone help contestuale richiamabile.
 
 ## M2.2 — Capture, Note e Quick Reference
 
 **Outcome:** il DM cattura ciò che accade e ritrova ciò che ha preparato con poca attenzione.
+
+**Stato:** recuperato nella nuova shell Run; capture, continuità Focus, inbox edit/keep/delete/promote e riferimenti esterni coperti da test e browser manual-pass.
 
 **Scope minimo**
 
@@ -266,11 +322,13 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Dipende da:** D0.3, M1.4, M1.5.
 
-**Done quando:** cattura e recupero soddisfano i tempi-obiettivo definiti nei test di usabilità.
+**Done quando:** cattura e recupero soddisfano i tempi-obiettivo definiti nei test di usabilità. Implementati Session Notebook con titolo, autosave e formattazione leggera, Quick Capture con shortcut globale, timestamp e review edit/keep/delete/promote, e Quick Reference editabile con link etichettati. Verificati nel browser cattura a un gesto, promozione nel notebook, persistenza dopo reload e ripristino del link esterno.
 
 ## M2.3 — Dice Roller session-ready
 
 **Outcome:** il DM esegue un tiro comune senza aprire un'altra applicazione e comprende sempre il risultato.
+
+**Stato:** parser, errori, formula e vantaggio/svantaggio integrati nel dock Run e coperti da test component; browser manual-pass completato per formula valida/invalida, Advantage e Disadvantage con breakdown raw.
 
 **Scope**
 
@@ -284,11 +342,13 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Dipende da:** D0.4, M1.4, M1.5.
 
-**Done quando:** formule valide e non valide hanno feedback univoco e lo stato sopravvive al reload.
+**Done quando:** formule valide e non valide hanno feedback univoco e lo stato sopravvive al reload. Verificati errore inline per formula invalida e tiro `d20+4` con vantaggio, risultato, breakdown e raw roll preservati al reload; lo storico `DIC-04` resta escluso come post-MVP.
 
 ## M2.4 — Initiative Tracker session-ready
 
 **Outcome:** il DM conduce un incontro senza perdere turno, round o stato essenziale.
+
+**Stato:** modello turno/round/HP/temp HP/condizioni testato e Run conforme al bozzetto; browser manual-pass completato per un round intero, reset con conferma e ripristino Undo. Il setup Prepare resta coperto da component/unit e richiede il gate con DM reale.
 
 **Scope**
 
@@ -302,11 +362,13 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Dipende da:** D0.4, M1.4, M1.5.
 
-**Done quando:** un incontro simulato completo può essere condotto solo con controlli espliciti, con undo/recovery per le azioni distruttive.
+**Done quando:** un incontro simulato completo può essere condotto solo con controlli espliciti, con undo/recovery per le azioni distruttive. Verificati ordinamento per iniziativa e tie-break, reorder manuale, edit, HP/temp HP/condizioni, passaggio turno con incremento round, reset con conferma e undo completo dello stato dell'incontro.
 
 ## M2.5 — Timer session-ready
 
 **Outcome:** il DM gestisce una scadenza senza perdere continuità quando il tab non è attivo.
+
+**Stato:** aritmetica timestamp testata, continuità su reload e configurazione durata verificate nel browser; resta aperta la prova di sospensione lunga/background.
 
 **Scope**
 
@@ -319,11 +381,13 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Dipende da:** D0.4, M1.4, M1.5.
 
-**Done quando:** il timer rimane coerente dopo cambio tab, sospensione breve e reload.
+**Done quando:** il timer rimane coerente dopo cambio tab, sospensione breve e reload. Il countdown persiste un timestamp finale e ricalcola il residuo invece di affidarsi ai tick del tab; verificati start, avanzamento, reload durante l'esecuzione e completamento coerente. Preset e suoni restano post-MVP.
 
 ## M2.6 — Visual settings essenziali
 
 **Outcome:** il prodotto resta leggibile e confortevole nei contesti principali.
+
+**Stato:** persistenza coperta da test e computed-style verificati nel browser sulle nuove superfici; audit leggibilità/contrasto completo ancora aperto.
 
 **Scope**
 
@@ -336,18 +400,20 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Dipende da:** M1.2.
 
-**Done quando:** tema e preferenze non alterano leggibilità, focus o stato dei tool.
+**Done quando:** tema e preferenze non alterano leggibilità, focus o stato dei tool. Verificati tema dark persistente su superfici reali, controllo reduced motion persistente e override effettivo delle durate, mantenendo tool e Run utilizzabili.
 
 ## Exit criteria Orizzonte 2
 
-- I tool core coprono consultazione, cattura, dadi, iniziativa e tempo.
-- Ogni tool ha stati empty, active, error e recovery.
-- Un utente può condurre una sessione simulata senza tornare in Prepare.
-- Le candidate non promosse sono marcate post-MVP nel catalogo e non restano mezze implementate.
+- [ ] I tool core coprono consultazione, cattura, dadi, iniziativa e tempo nella nuova shell Run.
+- [ ] Ogni tool ha stati empty, active, error e recovery coperti da test.
+- [ ] Un DM completa una sessione simulata senza tornare in Prepare e senza perdita dati.
+- [ ] Le candidate non promosse sono marcate post-MVP e non restano mezze implementate.
 
 # Orizzonte 3 — MVP hardening & web release
 
 **Obiettivo:** rendere il prodotto verificabile, accessibile e distribuibile come web app pubblica.
+
+**Stato:** implementazione completata il 13 luglio 2026. I gate locali sono verdi su Chromium desktop/mobile e Firefox; WebKit è obbligatorio nella matrice CI, ma il fallback Ubuntu di Playwright non può avviarsi sul workstation Fedora senza librerie di sistema installabili solo con privilegi amministrativi. La prima pubblicazione resta un'azione di release esplicita, non eseguita da questo worktree.
 
 ## M3.1 — Accessibilità e input
 
@@ -366,6 +432,8 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Done quando:** i flussi core soddisfano WCAG 2.2 AA nelle verifiche applicabili e non perdono controlli a zoom 200%.
 
+**Evidenza M3:** skip navigation, focus visibile, focus trap del dialogo recovery, alternative esplicite al drag, target touch da 44 px, reflow a 640 CSS px, reduced motion persistente e axe su first run, Prepare e Run. Gate locali verdi.
+
 ## M3.2 — Qualità automatizzata
 
 **Outcome:** ogni release preserva dati e flussi critici.
@@ -382,6 +450,8 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 **Dipende da:** Orizzonti 1 e 2.
 
 **Done quando:** build, lint e test sono verdi su ogni pull request e i flussi critici hanno una smoke suite ripetibile.
+
+**Evidenza M3:** `test:ci` copre build, lint JSX-accessibility, 50 test Vitest e budget; Playwright copre create/resume, Prepare/Run, cattura/reload, reorder, export/import, axe, reduced motion, privacy runtime e performance. Il workflow `Quality gate` esegue inoltre la matrice browser su ogni pull request.
 
 ## M3.3 — Browser, performance e privacy
 
@@ -401,6 +471,8 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Done quando:** i browser dichiarati superano la matrice di test e nessun dato utente viene trasmesso senza consenso esplicito.
 
+**Evidenza M3:** Chromium desktop, Chromium mobile e Firefox verdi localmente (25 test, 2 skip intenzionali); WebKit/Safari engine è un gate CI con `playwright install --with-deps`. Bundle entro 500 KiB JS e 100 KiB CSS, nessuna vulnerabilità npm nota, nessuna richiesta cross-origin nel flusso core, privacy policy e CSP/headers versionati.
+
 ## M3.4 — Release web
 
 **Outcome:** il team può distribuire, osservare e correggere il prodotto con rischio controllato.
@@ -417,6 +489,8 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 **Dipende da:** M3.1–M3.3.
 
 **Done quando:** una release candidate può essere distribuita, verificata e ripristinata senza procedure manuali non documentate.
+
+**Evidenza M3:** versione `1.0.0-rc.1`, changelog, artefatto immutabile con SHA-256, lane Preview/Staging/Production, GitHub Pages, release GitHub, runbook di rollback/hotfix, guida utente, security policy e feedback path. Tag, push e deploy non sono stati eseguiti automaticamente.
 
 ## Exit criteria MVP
 
@@ -544,6 +618,7 @@ Queste opzioni non hanno una data e non devono influenzare l'architettura MVP ol
 - Tempo per catturare una nota live.
 - Numero di cambi finestra nei task osservati.
 - Errori o esitazioni nel passaggio Prepare/Run.
+- Errori, perdita di contesto o esitazioni nel cambio di Focus.
 
 ## Affidabilità
 
@@ -568,11 +643,10 @@ Queste opzioni non hanno una data e non devono influenzare l'architettura MVP ol
 
 # Sequenza immediata
 
-1. Progettare e prototipare i gate D0.1–D0.4.
-2. Promuovere o rinviare le feature `MVP candidate` nel Feature Catalog.
-3. Selezionare il visual target e i wireflow della nuova shell.
-4. Costruire Web foundation e Trust layer prima di ampliare i tool.
-5. Portare i tool scelti allo standard session-ready.
-6. Chiudere accessibilità, test e release web prima di aprire il post-MVP.
+1. Chiudere tutte le righe `missing` e `partial` della matrice di recovery per Orizzonti 1 e 2.
+2. Chiudere le prove browser rimanenti di Dice vantaggio/svantaggio e Timer dopo sospensione lunga/background.
+3. Completare smoke browser ripetibili per first run, lifecycle, Prepare/Run, import/export e recovery.
+4. Eseguire sessioni simulate con DM reali e registrare task success e tempi di cattura/recupero.
+5. Solo dopo l'accettazione esplicita di Orizzonti 0–2, aprire `M3.1` e la release hardening.
 
-Il prossimo workflow Product Design è quindi: `$get-context` sui flussi D0 → `$ideate` sulle alternative → selezione → `$image-to-code` del prototipo → `$audit` e aggiornamento dei gate.
+Orizzonte 3 non è una baseline valida finché il recupero precedente non è chiuso.

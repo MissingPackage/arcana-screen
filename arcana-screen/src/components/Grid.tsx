@@ -1,41 +1,33 @@
 import { useDrag, useDrop } from 'react-dnd';
-import { useCallback, useEffect, useRef } from 'react';
-import QuickNotes from './widgets/QuickNotes';
-import DiceRoller from './widgets/DiceRoller';
-import CountdownTimer from './widgets/CountdownTimer';
-import SimpleTable from './widgets/SimpleTable';
-import InitiativeTracker from './widgets/InitiativeTracker';
-import { useWidgetStore, Widget } from '../store/useWidgetStore';
-import ProfileManagerPanel from './ProfileManager/ProfileManagerPanel';
+import { useCallback } from 'react';
+import { useWidgetStore } from '../store/useWidgetStore';
+import type { WidgetDisplaySize } from '../store/useWidgetStore';
+import type { ScreenMode } from '../store/useScreenStore';
+import { createToolInstance, getToolDefinitionByType } from './widgets/toolRegistry';
+import ToolFrame from './ToolFrame';
 
 const GridItemType = 'GRID_WIDGET';
 const SidebarItemType = 'SIDEBAR_WIDGET';
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const components: { [key: string]: React.FC<any> } = {
-  SimpleTable,
-  CountdownTimer,
-  DiceRoller,
-  InitiativeTracker,
-  QuickNotes,
-};
 
 interface DraggableBoxProps {
   id: string;
   index: number;
   moveItem: (from: number, to: number) => void;
   children: React.ReactNode;
+  canDrag: boolean;
 }
 
-function DraggableBox({ id, index, moveItem, children }: DraggableBoxProps) {
+function DraggableBox({ id, index, moveItem, children, canDrag }: DraggableBoxProps) {
   const [, drag] = useDrag({
     type: GridItemType,
     item: { id, index },
+    canDrag,
   });
 
   const [, drop] = useDrop({
     accept: GridItemType,
     hover: (dragged: { id: string; index: number }) => {
+      if (!canDrag) return;
       if (dragged.index !== index) {
         moveItem(dragged.index, index);
         dragged.index = index;
@@ -48,193 +40,129 @@ function DraggableBox({ id, index, moveItem, children }: DraggableBoxProps) {
       ref={node => {
         drag(drop(node));
       }}
-      className="w-full h-full"
+      className={`w-full h-full ${canDrag ? 'cursor-grab' : ''}`}
     >
       {children}
     </div>
   );
 }
 
-export default function Grid() {
+interface GridProps {
+  mode: ScreenMode;
+}
+
+const sizeClass: Record<WidgetDisplaySize, string> = {
+  compact: 'widget-frame--compact',
+  standard: 'widget-frame--standard',
+  wide: 'widget-frame--wide',
+};
+
+export default function Grid({ mode }: GridProps) {
   const widgets = useWidgetStore((state) => state.widgets);
   const updateWidget = useWidgetStore((state) => state.updateWidget);
   const removeWidget = useWidgetStore((state) => state.removeWidget);
   const addWidget = useWidgetStore((state) => state.addWidget);
-  const clearWidgets = useWidgetStore((state) => state.clearWidgets);
-
-  // Use a local flag to prevent duplication of default widgets
-  const hasInitialized = useRef(false);
-  useEffect(() => {
-    if (!hasInitialized.current && widgets.length === 0) {
-      hasInitialized.current = true;
-      addWidget({
-        id: 'table-1',
-        type: 'SimpleTable',
-        position: { x: 0, y: 0 },
-        size: { w: 4, h: 4 },
-        columns: [
-          { id: 1, key: 'name', label: 'Name' },
-          { id: 2, key: 'value', label: 'Value' }
-        ],
-        rows: [
-          { id: 1, name: 'Example', value: '42' },
-          { id: 2, name: 'Other', value: '17' }
-        ]
-      });
-      addWidget({
-        id: 'timer-1',
-        type: 'CountdownTimer',
-        position: { x: 4, y: 0 },
-        size: { w: 2, h: 2 },
-        seconds: 60,
-        isRunning: false
-      });
-      addWidget({
-        id: 'dice-1',
-        type: 'DiceRoller',
-        position: { x: 0, y: 4 },
-        size: { w: 2, h: 2 },
-        diceType: 20,
-        numDice: 1,
-        modifier: 0,
-        advantage: 'none',
-        formula: '',
-        results: [],
-        finalResult: null
-      });
-      addWidget({
-        id: 'init-1',
-        type: 'InitiativeTracker',
-        position: { x: 2, y: 4 },
-        size: { w: 4, h: 3 },
-        combatants: [],
-        name: '',
-        initiative: 0,
-        currentIndex: null,
-        turnChangeAnimation: false
-      });
-    }
-  }, [widgets, addWidget]);
+  const moveWidget = useWidgetStore((state) => state.moveWidget);
+  const setWidgetDisplaySize = useWidgetStore((state) => state.setWidgetDisplaySize);
+  const structuralHistory = useWidgetStore((state) => state.structuralHistory);
+  const undoStructuralChange = useWidgetStore((state) => state.undoStructuralChange);
+  const isPrepare = mode === 'prepare';
 
   const moveItem = useCallback((from: number, to: number) => {
     if (from === to) return;
-    const updated = [...widgets];
-    const [moved] = updated.splice(from, 1);
-    updated.splice(to, 0, moved);
-    // Update the widgets order in the store
-    clearWidgets();
-    updated.forEach(w => addWidget(w));
-  }, [widgets, clearWidgets, addWidget]);
+    moveWidget(from, to);
+  }, [moveWidget]);
 
   // Global drop target for the grid
   const [, drop] = useDrop({
     accept: SidebarItemType,
     drop: (item: { widgetType?: string }) => {
-      // If it's a new widget from sidebar (has widgetType and isn't already present)
-      if (item.widgetType) {
-        // Generate a collision-free id even after widgets have been deleted.
-        let suffix = 1;
-        while (widgets.some((widget) => widget.id === `${item.widgetType}-${suffix}`)) {
-          suffix += 1;
-        }
-        const newId = `${item.widgetType}-${suffix}`;
-        // Map the type to the one required by the grid
-        let type = '';
-        switch (item.widgetType) {
-          case 'simple-table':
-            type = 'SimpleTable';
-            break;
-          case 'countdown-timer':
-            type = 'CountdownTimer';
-            break;
-          case 'dice-roller':
-            type = 'DiceRoller';
-            break;
-          case 'initiative-tracker':
-            type = 'InitiativeTracker';
-            break;
-          case 'quick-notes':
-            type = 'QuickNotes';
-            break;
-          default:
-            type = item.widgetType;
-        }
-        // Create the new widget with minimal data
-        const newWidget: Widget = {
-          id: newId,
-          type,
-          position: { x: 0, y: 0 },
-          size: { w: 2, h: 2 }
-        };
-        // Optionally add type-specific data
-        if (type === 'SimpleTable') {
-          newWidget.columns = [
-            { id: 1, key: 'name', label: 'Name' },
-            { id: 2, key: 'value', label: 'Value' }
-          ];
-          newWidget.rows = [
-            { id: 1, name: '', value: '' },
-            { id: 2, name: '', value: '' }
-          ];
-        }
-        if (type === 'CountdownTimer') {
-          newWidget.seconds = 60;
-          newWidget.isRunning = false;
-        }
-        if (type === 'DiceRoller') {
-          newWidget.diceType = 20;
-          newWidget.numDice = 1;
-          newWidget.modifier = 0;
-          newWidget.advantage = 'none';
-          newWidget.formula = '';
-          newWidget.results = [];
-          newWidget.finalResult = null;
-        }
-        if (type === 'InitiativeTracker') {
-          newWidget.combatants = [];
-          newWidget.name = '';
-          newWidget.initiative = 0;
-          newWidget.currentIndex = null;
-          newWidget.turnChangeAnimation = false;
-        }
-        if (type === 'QuickNotes') {
-          newWidget.text = '';
-        }
-        addWidget(newWidget);
+      if (isPrepare && item.widgetType) {
+        addWidget(createToolInstance(item.widgetType));
       }
     },
-    canDrop: (item: { widgetType?: string }) => !!item.widgetType,
+    canDrop: (item: { widgetType?: string }) => isPrepare && !!item.widgetType,
   });
 
   return (
-    <>
-      <ProfileManagerPanel />
+    <section className="workspace" data-mode={mode}>
+      {isPrepare && (
+        <div className="workspace-toolbar" aria-label="Layout controls">
+          <div>
+            <strong>Prepare layout</strong>
+            <span>Add tools from the library, then order and size them here.</span>
+          </div>
+          <button
+            type="button"
+            className="screen-action-button screen-action-button--quiet"
+            disabled={structuralHistory.length === 0}
+            onClick={undoStructuralChange}
+          >
+            Undo layout change
+          </button>
+        </div>
+      )}
       <div
         ref={(node) => {
           drop(node);
         }}
-        className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4 p-4 lg:p-8 min-h-[400px]"
+        className="workspace-grid"
       >
+        {widgets.length === 0 && (
+          <div className="surface workspace-empty">
+            <h2>No tools on this screen</h2>
+            <p>
+              {isPrepare
+                ? 'Add a tool from the library to begin.'
+                : 'Switch to Prepare to add tools to this screen.'}
+            </p>
+          </div>
+        )}
         {widgets.map((widget, index) => {
-          const WidgetComponent = components[widget.type] || (() => null);
+          const definition = getToolDefinitionByType(widget.type);
+          const displaySize = widget.displaySize ?? 'standard';
+          if (!definition) {
+            return (
+              <article key={widget.id} className="surface unknown-tool">
+                <h2>Unsupported tool</h2>
+                <p>{widget.type}</p>
+                {isPrepare && (
+                  <button
+                    type="button"
+                    className="screen-action-button screen-action-button--danger"
+                    onClick={() => removeWidget(widget.id)}
+                  >
+                    Remove tool
+                  </button>
+                )}
+              </article>
+            );
+          }
           return (
-            <div key={widget.id} className="relative min-h-64">
-              <button
-                type="button"
-                onClick={() => removeWidget(widget.id)}
-                className="absolute top-2 right-10 z-10 px-2 py-1 text-sm"
-                aria-label={`Remove ${widget.type} widget ${widget.id}`}
-                title="Remove widget"
+            <article
+              key={widget.id}
+              className={`widget-frame ${sizeClass[displaySize]}`}
+              data-tool-type={definition.type}
+              data-tool-schema={widget.schemaVersion ?? definition.stateVersion}
+            >
+              <ToolFrame
+                definition={definition}
+                mode={mode}
+                index={index}
+                total={widgets.length}
+                displaySize={displaySize}
+                onMove={(to) => moveItem(index, to)}
+                onSizeChange={(size) => setWidgetDisplaySize(widget.id, size)}
+                onRemove={() => removeWidget(widget.id)}
               >
-                ×
-              </button>
-              <DraggableBox id={widget.id} index={index} moveItem={moveItem}>
-                <WidgetComponent {...widget} updateWidget={updateWidget} removeWidget={removeWidget} />
-              </DraggableBox>
-            </div>
+                <DraggableBox id={widget.id} index={index} moveItem={moveItem} canDrag={isPrepare}>
+                  {definition.render(widget, { updateWidget, removeWidget })}
+                </DraggableBox>
+              </ToolFrame>
+            </article>
           );
         })}
       </div>
-    </>
+    </section>
   );
 }

@@ -1,8 +1,8 @@
 # ArcanaScreen — Product Brief
 
-Versione: 0.3 — MVP scope working draft  
-Data: 11 luglio 2026  
-Stato: fondazione di prodotto supportata da ricerca pubblica, da validare con interviste e test
+Versione: 0.4 — Horizon 0 decisions
+Data: 12 luglio 2026
+Stato: fondazione e prototipi recuperati; approvazione finale sospesa finché nomenclatura e usabilità non sono validate con DM reali
 
 Evidenze collegate: [UX Research Brief](RESEARCH.md) · [Audit dell'esperienza attuale](.codex/product-design/arcana-audit/audit.md)
 
@@ -118,8 +118,17 @@ Mouse, tastiera e touch devono avere percorsi equivalenti. Dimensione della fine
 ```text
 Workspace locale
 └── Screen
-    ├── Layout / modalità di visualizzazione
-    ├── Tool instances
+    ├── Core persistente
+    │   ├── Session Notebook
+    │   ├── Quick Capture
+    │   └── Quick Reference
+    ├── Modalità Prepare / Run
+    ├── Focus della sessione
+    │   ├── Narrative
+    │   ├── Social
+    │   ├── Exploration
+    │   └── Combat
+    ├── Tool instances e stato per Focus
     ├── Preset o template di partenza
     └── Context opzionale
         ├── Campagna
@@ -127,7 +136,7 @@ Workspace locale
         └── Fonte esterna / integrazione VTT
 ```
 
-Lo screen possiede layout e configurazione. I tool possiedono il proprio stato. Il contesto serve a organizzare o precompilare, non è obbligatorio per usare il prodotto.
+Lo screen possiede layout, configurazione e continuità operativa. I tool possiedono il proprio stato. Il Focus cambia la gerarchia e rende disponibili strumenti contestuali senza creare un nuovo screen o perdere il core persistente. Il contesto serve a organizzare o precompilare, non è obbligatorio per usare il prodotto.
 
 ## Stati dell'esperienza — ipotesi
 
@@ -138,6 +147,10 @@ Permette di aggiungere, rimuovere, configurare, spostare e ridimensionare strume
 ### Run
 
 Riduce il chrome di editing e ottimizza leggibilità, rapidità e sicurezza. Le azioni distruttive o strutturali non devono interferire con la conduzione live.
+
+### Focus della sessione
+
+Durante Run, il DM può passare fra Narrative, Social, Exploration e Combat. Il Focus non è una terza modalità e non è un template: adatta priorità e tool alla fase corrente conservando Session Notebook, Quick Capture, Quick Reference e lo stato lasciato negli altri Focus.
 
 ### Responsive web — MVP
 
@@ -152,7 +165,7 @@ Sidecar specializzato, profili per dispositivo, second-monitor mode, focus/fulls
 Queste aree organizzano la futura feature map; non sono ancora una promessa di roadmap.
 
 1. **Workspace e screen:** creazione, ripristino, duplicazione, rinomina, archiviazione.
-2. **Layout e modalità:** griglia responsiva, ordine e visibilità dei tool, lock, Prepare/Run; layout spaziali avanzati post-MVP.
+2. **Layout, modalità e Focus:** griglia responsiva, ordine e visibilità dei tool, lock, Prepare/Run e Focus della sessione; layout spaziali avanzati post-MVP.
 3. **Tool platform:** registry, configurazione, istanze multiple, preset, interoperabilità fra tool.
 4. **Tool essenziali:** note, dadi, timer, iniziativa, tabelle, contatori e riferimenti rapidi.
 5. **Curation e cattura:** pin temporanei, link profondi, recenti, inbox live e review post-sessione.

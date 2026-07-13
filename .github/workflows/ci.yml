@@ -1,0 +1,71 @@
+name: Quality gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: arcana-screen
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: arcana-screen/package-lock.json
+      - run: npm ci
+      - run: npm run test:ci
+      - name: Audit all dependencies
+        run: npm run check:security
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=moderate
+      - uses: actions/upload-artifact@v4
+        with:
+          name: arcana-screen-dist
+          path: arcana-screen/dist
+          if-no-files-found: error
+
+  browser-matrix:
+    needs: quality
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: chromium-desktop
+            browser: chromium
+          - project: firefox-desktop
+            browser: firefox
+          - project: webkit-desktop
+            browser: webkit
+          - project: chromium-mobile
+            browser: chromium
+    defaults:
+      run:
+        working-directory: arcana-screen
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: arcana-screen/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - run: npm run test:e2e -- --project=${{ matrix.project }}
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-${{ matrix.project }}
+          path: arcana-screen/test-results
+          if-no-files-found: ignore

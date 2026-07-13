@@ -1,260 +1,279 @@
-import { useEffect, memo } from 'react';
-import { useWidgetStore, Widget, Combatant } from '../../store/useWidgetStore';
+import { memo, useEffect, useState, type FormEvent } from 'react';
+import { useWidgetStore, type Combatant, type InitiativeSnapshot, type Widget } from '../../store/useWidgetStore';
 
 interface InitiativeTrackerProps {
   id: string;
   updateWidget: (id: string, updates: Partial<Widget>) => void;
+  showHeader?: boolean;
 }
 
+interface CombatantDraft {
+  name: string;
+  initiative: number;
+  tieBreaker: number;
+  currentHp?: number;
+  maxHp?: number;
+  tempHp?: number;
+  conditions: string;
+}
+
+const emptyDraft = (): CombatantDraft => ({
+  name: '',
+  initiative: 0,
+  tieBreaker: 0,
+  currentHp: undefined,
+  maxHp: undefined,
+  tempHp: undefined,
+  conditions: '',
+});
+
+const sortCombatants = (combatants: Combatant[]) =>
+  [...combatants].sort((a, b) =>
+    b.initiative - a.initiative ||
+    (b.tieBreaker ?? 0) - (a.tieBreaker ?? 0) ||
+    a.name.localeCompare(b.name),
+  );
+
+const createCombatantId = () => Date.now() + Math.floor(Math.random() * 1000);
 
 function InitiativeTracker({ id, updateWidget }: InitiativeTrackerProps) {
-  const widget = useWidgetStore(state => state.widgets.find(w => w.id === id));
+  const widget = useWidgetStore((state) => state.widgets.find((item) => item.id === id));
+  const [draft, setDraft] = useState<CombatantDraft>(emptyDraft);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingDraft, setEditingDraft] = useState<CombatantDraft>(emptyDraft);
+  const [confirmReset, setConfirmReset] = useState(false);
 
   useEffect(() => {
-    if (!widget?.combatants) {
-      updateWidget(id, { combatants: [], name: '', initiative: 0, currentHp: undefined, maxHp: undefined, currentIndex: null, turnChangeAnimation: false });
+    if (widget && (widget.combatants === undefined || widget.round === undefined)) {
+      updateWidget(id, {
+        combatants: widget.combatants ?? [],
+        currentIndex: widget.currentIndex ?? null,
+        round: widget.round ?? 1,
+        initiativeUndo: widget.initiativeUndo ?? null,
+      });
     }
-  }, [widget, id, updateWidget]);
+  }, [id, updateWidget, widget]);
 
-  const combatants = widget?.combatants || [];
-  const name = widget?.name || '';
-  const initiative = widget?.initiative || 0;
-  const currentHp = widget?.currentHp;
-  const maxHp = widget?.maxHp;
-  const currentIndex = widget?.currentIndex ?? null;
-  const turnChangeAnimation = widget?.turnChangeAnimation || false;
+  useEffect(() => {
+    if (!widget?.turnChangeAnimation) return;
+    const timeout = window.setTimeout(() => updateWidget(id, { turnChangeAnimation: false }), 450);
+    return () => window.clearTimeout(timeout);
+  }, [id, updateWidget, widget?.turnChangeAnimation]);
 
-  const setCombatants = (v: Combatant[]) => updateWidget(id, { combatants: v });
-  const setName = (v: string) => updateWidget(id, { name: v });
-  const setInitiative = (v: number) => updateWidget(id, { initiative: v });
-  const setCurrentHp = (v: number | undefined) => updateWidget(id, { currentHp: v });
-  const setMaxHp = (v: number | undefined) => updateWidget(id, { maxHp: v });
-  const setCurrentIndex = (v: number | null) => updateWidget(id, { currentIndex: v });
-  const setTurnChangeAnimation = (v: boolean) => updateWidget(id, { turnChangeAnimation: v });
+  if (!widget) return <div className="tool-empty-state">Loading initiative tracker…</div>;
 
-  const addCombatant = () => {
-    if (!name) return;
-    const newCombatant: Combatant = {
-      id: Date.now(),
-      name,
-      initiative,
-      currentHp,
-      maxHp,
+  const combatants = widget.combatants ?? [];
+  const currentIndex = widget.currentIndex ?? null;
+  const round = widget.round ?? 1;
+  const activeCombatant = currentIndex === null ? undefined : combatants[currentIndex];
+
+  const snapshot = (): InitiativeSnapshot => ({
+    combatants: combatants.map((combatant) => ({ ...combatant })),
+    currentIndex,
+    round,
+  });
+
+  const updateList = (next: Combatant[], activeId = activeCombatant?.id, extra: Partial<Widget> = {}) => {
+    const nextIndex = activeId === undefined ? 0 : next.findIndex((item) => item.id === activeId);
+    updateWidget(id, {
+      combatants: next,
+      currentIndex: next.length === 0 ? null : nextIndex >= 0 ? nextIndex : 0,
+      ...extra,
+    });
+  };
+
+  const addCombatant = (event: FormEvent) => {
+    event.preventDefault();
+    if (!draft.name.trim()) return;
+    const combatant: Combatant = {
+      id: createCombatantId(),
+      name: draft.name.trim(),
+      initiative: draft.initiative,
+      tieBreaker: draft.tieBreaker,
+      currentHp: draft.currentHp,
+      maxHp: draft.maxHp,
+      tempHp: draft.tempHp,
+      conditions: draft.conditions.trim(),
     };
-    const updated = [...combatants, newCombatant].sort((a, b) => b.initiative - a.initiative);
-    setCombatants(updated);
-    setName('');
-    setInitiative(0);
-    setCurrentHp(undefined);
-    setMaxHp(undefined);
-    if (currentIndex === null) setCurrentIndex(0);
+    updateList(sortCombatants([...combatants, combatant]), activeCombatant?.id ?? combatant.id);
+    setDraft(emptyDraft());
   };
 
   const nextTurn = () => {
-    if (combatants.length === 0) return;
+    if (!combatants.length) return;
     const nextIndex = currentIndex === null ? 0 : (currentIndex + 1) % combatants.length;
-    setCurrentIndex(nextIndex);
-    // Trigger animation
-    setTurnChangeAnimation(true);
-  };
-
-  const removeCombatant = (id: number) => {
-    const activeCombatantId = currentIndex === null ? null : combatants[currentIndex]?.id;
-    const updated = combatants.filter((c) => c.id !== id);
-    setCombatants(updated);
-
-    if (updated.length === 0) {
-      setCurrentIndex(null);
-    } else if (activeCombatantId === id || activeCombatantId === null) {
-      setCurrentIndex(Math.min(currentIndex ?? 0, updated.length - 1));
-    } else {
-      setCurrentIndex(updated.findIndex((combatant) => combatant.id === activeCombatantId));
-    }
-  };
-
-  const updateCombatantHp = (combatantId: number, hpChange: number) => {
-    const updated = combatants.map((c) => {
-      if (c.id === combatantId && c.currentHp !== undefined && c.maxHp !== undefined) {
-        const newHp = Math.max(0, Math.min(c.maxHp, c.currentHp + hpChange));
-        return { ...c, currentHp: newHp };
-      }
-      return c;
+    updateWidget(id, {
+      currentIndex: nextIndex,
+      round: currentIndex !== null && nextIndex === 0 ? round + 1 : round,
+      turnChangeAnimation: true,
     });
-    setCombatants(updated);
   };
 
-  const getHpBarColor = (currentHp: number, maxHp: number): string => {
-    const percentage = (currentHp / maxHp) * 100;
-    if (percentage > 50) return 'bg-green-500';
-    if (percentage >= 25) return 'bg-yellow-500';
-    return 'bg-red-500';
+  const removeCombatant = (combatantId: number) => {
+    const next = combatants.filter((combatant) => combatant.id !== combatantId);
+    updateList(next, activeCombatant?.id === combatantId ? next[0]?.id : activeCombatant?.id, { initiativeUndo: snapshot() });
   };
 
-  const isDownedCombatant = (c: Combatant): boolean => {
-    return c.currentHp !== undefined && c.currentHp === 0;
+  const moveCombatant = (index: number, direction: -1 | 1) => {
+    const target = index + direction;
+    if (target < 0 || target >= combatants.length) return;
+    const next = [...combatants];
+    [next[index], next[target]] = [next[target], next[index]];
+    updateList(next);
   };
 
-  useEffect(() => {
-    if (turnChangeAnimation) {
-      const timeout = setTimeout(() => setTurnChangeAnimation(false), 500);
-      return () => clearTimeout(timeout);
-    }
-    // setTurnChangeAnimation is stable and doesn't need to be in dependencies
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [turnChangeAnimation]);
+  const beginEdit = (combatant: Combatant) => {
+    setEditingId(combatant.id);
+    setEditingDraft({
+      name: combatant.name,
+      initiative: combatant.initiative,
+      tieBreaker: combatant.tieBreaker ?? 0,
+      currentHp: combatant.currentHp,
+      maxHp: combatant.maxHp,
+      tempHp: combatant.tempHp,
+      conditions: combatant.conditions ?? '',
+    });
+  };
+
+  const saveEdit = (event: FormEvent) => {
+    event.preventDefault();
+    if (editingId === null || !editingDraft.name.trim()) return;
+    const next = sortCombatants(combatants.map((combatant) =>
+      combatant.id === editingId
+        ? { ...combatant, ...editingDraft, name: editingDraft.name.trim(), conditions: editingDraft.conditions.trim() }
+        : combatant,
+    ));
+    updateList(next);
+    setEditingId(null);
+  };
+
+  const changeHp = (combatantId: number, amount: number) => {
+    const next = combatants.map((combatant) => {
+      if (combatant.id !== combatantId || combatant.currentHp === undefined) return combatant;
+      if (amount < 0) {
+        const damage = Math.abs(amount);
+        const absorbed = Math.min(combatant.tempHp ?? 0, damage);
+        return {
+          ...combatant,
+          tempHp: Math.max(0, (combatant.tempHp ?? 0) - absorbed),
+          currentHp: Math.max(0, combatant.currentHp - (damage - absorbed)),
+        };
+      }
+      return {
+        ...combatant,
+        currentHp: Math.min(combatant.maxHp ?? Number.MAX_SAFE_INTEGER, combatant.currentHp + amount),
+      };
+    });
+    updateList(next);
+  };
+
+  const resetEncounter = () => {
+    updateWidget(id, {
+      initiativeUndo: snapshot(),
+      combatants: [],
+      currentIndex: null,
+      round: 1,
+      turnChangeAnimation: false,
+    });
+    setConfirmReset(false);
+  };
+
+  const undoEncounterChange = () => {
+    const previous = widget.initiativeUndo;
+    if (!previous) return;
+    updateWidget(id, {
+      combatants: previous.combatants,
+      currentIndex: previous.currentIndex,
+      round: previous.round,
+      initiativeUndo: null,
+    });
+  };
 
   return (
-    <div className="surface transition p-4 rounded-lg shadow-md w-full h-full flex flex-col relative overflow-hidden">
-      <h2 className="text-lg font-bold mb-2">Initiative Tracker</h2>
-
-      {/* Turn counter */}
-      {combatants.length > 0 && currentIndex !== null && (
-        <div className="rounded px-3 py-1 text-xs font-semibold transition">Turn: {currentIndex + 1} / {combatants.length}</div>
-      )}
-
-      <div className="flex flex-col gap-2 mb-4">
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Name"
-          className="border p-2 rounded w-full"
-        />
-        <input
-          type="number"
-          value={initiative}
-          onChange={(e) => setInitiative(Number(e.target.value))}
-          placeholder="Initiative"
-          className="border p-2 rounded w-full"
-        />
-        <input
-          type="number"
-          value={currentHp ?? ''}
-          onChange={(e) => setCurrentHp(e.target.value ? Number(e.target.value) : undefined)}
-          placeholder="Current HP (optional)"
-          className="border p-2 rounded w-full"
-        />
-        <input
-          type="number"
-          value={maxHp ?? ''}
-          onChange={(e) => setMaxHp(e.target.value ? Number(e.target.value) : undefined)}
-          placeholder="Max HP (optional)"
-          className="border p-2 rounded w-full"
-        />
-        <button
-          onClick={addCombatant}
-          className="rounded px-2 py-1 text-xs transition"
-        >
-          Add Combatant
-        </button>
+    <div className={`surface initiative-tracker ${widget.turnChangeAnimation ? 'initiative-tracker--turn-change' : ''}`}>
+      <div className="initiative-status" aria-live="polite">
+        <div><span>Round</span><strong>{round}</strong></div>
+        <div><span>Current turn</span><strong>{activeCombatant?.name ?? 'Not started'}</strong></div>
+        <div><span>Combatants</span><strong>{combatants.length}</strong></div>
       </div>
 
-      {/* List of combatants */}
-      <div className="flex-1 overflow-auto">
-        {combatants.map((c, index) => {
-          const isDowned = isDownedCombatant(c);
-          return (
-          <div
-            key={c.id}
-            className={`p-2 rounded mb-2 text-gray-900 transition-all duration-300 ${
-              isDowned ? 'opacity-60 border-2 border-red-600' : ''
-            } ${
-              index === currentIndex
-                ? 'bg-yellow-300 font-bold'
-                : 'bg-yellow-200'
-            }`}
-          >
-            <div className="flex justify-between items-center mb-2">
-              <div>
-                <span className={isDowned ? 'line-through' : ''}>
-                  {c.name}
-                </span> (Initiative: {c.initiative})
-                {c.currentHp !== undefined && c.maxHp !== undefined && (
-                  <span className="ml-2 font-semibold">HP: {c.currentHp}/{c.maxHp}</span>
-                )}
-                {isDowned && (
-                  <span className="ml-2 text-red-600 font-bold text-xs">DOWNED</span>
-                )}
-              </div>
-              <button
-                onClick={() => removeCombatant(c.id)}
-                className="text-red-600 text-sm hover:underline"
-              >
-                Remove
-              </button>
-            </div>
-            {c.currentHp !== undefined && c.maxHp !== undefined && (
-              <>
-                {/* HP Bar */}
-                <div className="w-full bg-gray-300 rounded-full h-4 mb-2 overflow-hidden">
-                  <div
-                    className={`h-full transition-all duration-300 ${getHpBarColor(c.currentHp, c.maxHp)}`}
-                    style={{ width: `${c.maxHp > 0 ? (c.currentHp / c.maxHp) * 100 : 0}%` }}
-                  />
-                </div>
-                <div className="flex gap-1 mt-2">
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => updateCombatantHp(c.id, -10)}
-                    className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition"
-                  >
-                    -10
-                  </button>
-                  <button
-                    onClick={() => updateCombatantHp(c.id, -5)}
-                    className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition"
-                  >
-                    -5
-                  </button>
-                  <button
-                    onClick={() => updateCombatantHp(c.id, -1)}
-                    className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition"
-                  >
-                    -1
-                  </button>
-                </div>
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => updateCombatantHp(c.id, 1)}
-                    className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition"
-                  >
-                    +1
-                  </button>
-                  <button
-                    onClick={() => updateCombatantHp(c.id, 5)}
-                    className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition"
-                  >
-                    +5
-                  </button>
-                  <button
-                    onClick={() => updateCombatantHp(c.id, 10)}
-                    className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition"
-                  >
-                    +10
-                  </button>
-                </div>
-              </div>
-              </>
-            )}
+      <form className="initiative-add" onSubmit={addCombatant}>
+        <strong>Add combatant</strong>
+        <div className="initiative-add__grid">
+          <label><span>Name</span><input value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} required /></label>
+          <label><span>Initiative</span><input type="number" value={draft.initiative} onChange={(event) => setDraft({ ...draft, initiative: Number(event.target.value) || 0 })} /></label>
+          <label><span>Tie-break</span><input type="number" value={draft.tieBreaker} onChange={(event) => setDraft({ ...draft, tieBreaker: Number(event.target.value) || 0 })} /></label>
+          <label><span>HP</span><input type="number" min={0} value={draft.currentHp ?? ''} onChange={(event) => setDraft({ ...draft, currentHp: event.target.value ? Number(event.target.value) : undefined })} /></label>
+          <label><span>Max HP</span><input type="number" min={0} value={draft.maxHp ?? ''} onChange={(event) => setDraft({ ...draft, maxHp: event.target.value ? Number(event.target.value) : undefined })} /></label>
+          <label><span>Temp HP</span><input type="number" min={0} value={draft.tempHp ?? ''} onChange={(event) => setDraft({ ...draft, tempHp: event.target.value ? Number(event.target.value) : undefined })} /></label>
+          <label className="initiative-add__conditions"><span>Conditions</span><input value={draft.conditions} onChange={(event) => setDraft({ ...draft, conditions: event.target.value })} placeholder="Poisoned, prone…" /></label>
+        </div>
+        <button type="submit" className="screen-action-button" disabled={!draft.name.trim()}>Add combatant</button>
+      </form>
+
+      {combatants.length === 0 ? (
+        <p className="tool-empty-state">Add combatants to begin. Initiative and tie-break values determine the initial order.</p>
+      ) : (
+        <ol className="combatant-list">
+          {combatants.map((combatant, index) => (
+            <li key={combatant.id} className={`combatant-card ${index === currentIndex ? 'combatant-card--active' : ''}`}>
+              {editingId === combatant.id ? (
+                <form className="combatant-edit" onSubmit={saveEdit}>
+                  <input aria-label="Name" value={editingDraft.name} onChange={(event) => setEditingDraft({ ...editingDraft, name: event.target.value })} />
+                  <input aria-label="Initiative" type="number" value={editingDraft.initiative} onChange={(event) => setEditingDraft({ ...editingDraft, initiative: Number(event.target.value) || 0 })} />
+                  <input aria-label="Tie-break" type="number" value={editingDraft.tieBreaker} onChange={(event) => setEditingDraft({ ...editingDraft, tieBreaker: Number(event.target.value) || 0 })} />
+                  <input aria-label="Current HP" type="number" value={editingDraft.currentHp ?? ''} onChange={(event) => setEditingDraft({ ...editingDraft, currentHp: event.target.value ? Number(event.target.value) : undefined })} />
+                  <input aria-label="Max HP" type="number" value={editingDraft.maxHp ?? ''} onChange={(event) => setEditingDraft({ ...editingDraft, maxHp: event.target.value ? Number(event.target.value) : undefined })} />
+                  <input aria-label="Temporary HP" type="number" value={editingDraft.tempHp ?? ''} onChange={(event) => setEditingDraft({ ...editingDraft, tempHp: event.target.value ? Number(event.target.value) : undefined })} />
+                  <input aria-label="Conditions" value={editingDraft.conditions} onChange={(event) => setEditingDraft({ ...editingDraft, conditions: event.target.value })} />
+                  <div><button type="submit">Save</button><button type="button" onClick={() => setEditingId(null)}>Cancel</button></div>
+                </form>
+              ) : (
+                <>
+                  <div className="combatant-card__identity">
+                    <span className="combatant-card__order">{index + 1}</span>
+                    <div>
+                      <strong>{combatant.name}</strong>
+                      <span>Initiative {combatant.initiative} · tie-break {combatant.tieBreaker ?? 0}</span>
+                    </div>
+                  </div>
+                  <div className="combatant-card__state">
+                    <span>HP {combatant.currentHp ?? '—'}{combatant.maxHp !== undefined ? ` / ${combatant.maxHp}` : ''}</span>
+                    <span>Temp {combatant.tempHp ?? 0}</span>
+                    <span>{combatant.conditions || 'No conditions'}</span>
+                  </div>
+                  <div className="combatant-card__hp-actions">
+                    <button type="button" onClick={() => changeHp(combatant.id, -5)} disabled={combatant.currentHp === undefined}>−5 HP</button>
+                    <button type="button" onClick={() => changeHp(combatant.id, -1)} disabled={combatant.currentHp === undefined}>−1 HP</button>
+                    <button type="button" onClick={() => changeHp(combatant.id, 1)} disabled={combatant.currentHp === undefined}>+1 HP</button>
+                    <button type="button" onClick={() => changeHp(combatant.id, 5)} disabled={combatant.currentHp === undefined}>+5 HP</button>
+                  </div>
+                  <div className="combatant-card__actions">
+                    <button type="button" onClick={() => moveCombatant(index, -1)} disabled={index === 0} aria-label={`Move ${combatant.name} earlier`}>↑</button>
+                    <button type="button" onClick={() => moveCombatant(index, 1)} disabled={index === combatants.length - 1} aria-label={`Move ${combatant.name} later`}>↓</button>
+                    <button type="button" onClick={() => beginEdit(combatant)}>Edit</button>
+                    <button type="button" className="danger-text" onClick={() => removeCombatant(combatant.id)}>Remove</button>
+                  </div>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+      )}
+
+      <div className="initiative-actions">
+        <button type="button" className="screen-action-button" onClick={nextTurn} disabled={!combatants.length}>Next turn</button>
+        {widget.initiativeUndo && <button type="button" onClick={undoEncounterChange}>Undo last remove/reset</button>}
+        {!confirmReset ? (
+          <button type="button" className="danger-text" onClick={() => setConfirmReset(true)} disabled={!combatants.length}>Reset encounter</button>
+        ) : (
+          <div className="initiative-reset-confirm" role="alert">
+            <span>Clear the encounter and return to round 1?</span>
+            <button type="button" className="screen-action-button screen-action-button--danger" onClick={resetEncounter}>Confirm reset</button>
+            <button type="button" onClick={() => setConfirmReset(false)}>Cancel</button>
           </div>
-          );
-        })}
+        )}
       </div>
-
-      {/* Next Turn button */}
-      {combatants.length > 0 && (
-        <button
-          onClick={nextTurn}
-          className="mt-4 p-2 rounded transition"
-        >
-          Next Turn
-        </button>
-      )}
-
-      {/* Turn Change Animation */}
-      {turnChangeAnimation && (
-        <div className="absolute inset-0 bg-opacity-30 animate-pulse pointer-events-none" />
-      )}
     </div>
   );
 }
