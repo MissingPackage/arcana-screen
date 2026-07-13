@@ -31,4 +31,16 @@ describe('Screen lifecycle and modes', () => {
     useScreenStore.getState().setActiveMode('prepare');
     expect(useScreenStore.getState().screens.find((item) => item.id === id)?.mode).toBe('prepare');
   });
+
+  it('stores M4 organization and independent device geometry', () => {
+    const id = useScreenStore.getState().createScreen('Campaign hub', 'general');
+    useScreenStore.getState().updateScreenOrganization(id, { folder: 'Vhal', tags: ['mystery', 'tier-2'] });
+    useScreenStore.getState().setActiveLayoutMode('canvas');
+    const widgetId = useWidgetStore.getState().widgets[0].id;
+    useWidgetStore.getState().setWidgetGeometry(widgetId, 'mobile', { x: 12, y: 24, w: 320, h: 440 });
+
+    const screen = useScreenStore.getState().screens.find((item) => item.id === id);
+    expect(screen).toMatchObject({ folder: 'Vhal', tags: ['mystery', 'tier-2'], layoutMode: 'canvas' });
+    expect(useWidgetStore.getState().widgets[0].deviceLayouts?.mobile).toEqual({ x: 12, y: 24, w: 320, h: 440 });
+  });
 });

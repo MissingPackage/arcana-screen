@@ -6,6 +6,7 @@ import QuickNotes from './QuickNotes';
 import QuickCapture from './QuickCapture';
 import QuickReference from './QuickReference';
 import SimpleTable from './SimpleTable';
+import Counter from './Counter';
 import type { Widget, WidgetDisplaySize } from '../../store/useWidgetStore';
 
 export type ToolLibraryId =
@@ -15,7 +16,8 @@ export type ToolLibraryId =
   | 'dice-roller'
   | 'countdown-timer'
   | 'initiative-tracker'
-  | 'simple-table';
+  | 'simple-table'
+  | 'counter';
 
 export type ToolCategory = 'Notes' | 'Utilities' | 'Tracking' | 'Data';
 
@@ -57,7 +59,7 @@ const definitions = [
     description: 'Capture live facts in one step with automatic timestamps, then keep, edit, delete or promote them after the session.',
     category: 'Notes',
     tags: ['capture', 'inbox', 'live', 'review'],
-    stateVersion: 1,
+    stateVersion: 2,
     defaultDisplaySize: 'standard',
     createState: () => ({ captures: [] }),
     render: (widget) => <QuickCapture id={widget.id} />,
@@ -69,7 +71,7 @@ const definitions = [
     description: 'Keep concise prepared information and labeled links visible at a glance.',
     category: 'Notes',
     tags: ['reference', 'links', 'rules', 'prepared'],
-    stateVersion: 1,
+    stateVersion: 2,
     defaultDisplaySize: 'standard',
     createState: () => ({ referenceTitle: 'Quick reference', referenceBody: '', referenceLinks: [] }),
     render: (widget) => <QuickReference id={widget.id} />,
@@ -81,7 +83,7 @@ const definitions = [
     description: 'Roll common dice, formulas, modifiers, advantage and disadvantage.',
     category: 'Utilities',
     tags: ['dice', 'roll', 'formula'],
-    stateVersion: 2,
+    stateVersion: 3,
     defaultDisplaySize: 'standard',
     createState: () => ({
       diceType: 20,
@@ -93,6 +95,7 @@ const definitions = [
       finalResult: null,
       rollBreakdown: [],
       formulaError: '',
+      dicePresets: [],
     }),
     render: (widget, actions) => (
       <DiceRoller id={widget.id} updateWidget={actions.updateWidget} showHeader={false} />
@@ -105,9 +108,20 @@ const definitions = [
     description: 'Run a persistent countdown that continues reliably during the session.',
     category: 'Utilities',
     tags: ['timer', 'time', 'countdown'],
-    stateVersion: 2,
+    stateVersion: 3,
     defaultDisplaySize: 'compact',
-    createState: () => ({ seconds: 60, timerDurationSeconds: 60, timerEndAt: null, isRunning: false }),
+    createState: () => ({
+      seconds: 60,
+      timerDurationSeconds: 60,
+      timerEndAt: null,
+      isRunning: false,
+      timerPresets: [
+        { id: 'one-minute', name: '1 min', seconds: 60 },
+        { id: 'five-minutes', name: '5 min', seconds: 300 },
+        { id: 'ten-minutes', name: '10 min', seconds: 600 },
+      ],
+      notifyOnComplete: false,
+    }),
     render: (widget, actions) => (
       <CountdownTimer id={widget.id} updateWidget={actions.updateWidget} showHeader={false} />
     ),
@@ -141,20 +155,44 @@ const definitions = [
     description: 'Keep lightweight structured rows and columns for session data.',
     category: 'Data',
     tags: ['table', 'data', 'rows', 'columns'],
-    stateVersion: 1,
+    stateVersion: 2,
     defaultDisplaySize: 'standard',
     createState: () => ({
       columns: [
-        { id: 1, key: 'name', label: 'Name' },
-        { id: 2, key: 'value', label: 'Value' },
+        { id: 1, key: 'name', label: 'Name', type: 'text' },
+        { id: 2, key: 'value', label: 'Value', type: 'text' },
       ],
       rows: [
         { id: 1, name: '', value: '' },
         { id: 2, name: '', value: '' },
       ],
+      tableTemplate: 'blank',
+      sortColumnKey: '',
+      sortDirection: 'asc',
+      tableFilter: '',
     }),
     render: (widget, actions) => (
       <SimpleTable id={widget.id} updateWidget={actions.updateWidget} showHeader={false} />
+    ),
+  },
+  {
+    id: 'counter',
+    type: 'Counter',
+    name: 'Resource Counter',
+    description: 'Track a bounded resource with fast adjustments and a configurable warning threshold.',
+    category: 'Tracking',
+    tags: ['counter', 'resource', 'threshold', 'tracking'],
+    stateVersion: 1,
+    defaultDisplaySize: 'compact',
+    createState: () => ({
+      counterName: 'Resource counter',
+      counterValue: 0,
+      counterMin: 0,
+      counterMax: 20,
+      counterThreshold: 5,
+    }),
+    render: (widget, actions) => (
+      <Counter id={widget.id} updateWidget={actions.updateWidget} />
     ),
   },
 ] satisfies ToolDefinition[];

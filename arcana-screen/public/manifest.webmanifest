@@ -1,0 +1,18 @@
+{
+  "name": "ArcanaScreen",
+  "short_name": "ArcanaScreen",
+  "description": "A local-first, customizable screen for tabletop game masters.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#1c2541",
+  "theme_color": "#3a506b",
+  "icons": [
+    {
+      "src": "./ArcanaScreen-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 import { getToolDefinitionByType, migrateToolInstance } from '../components/widgets/toolRegistry';
 import { useScreenStore, type Screen, type ScreenImportStrategy } from '../store/useScreenStore';
 import { useThemeStore } from '../store/themeStore';
+import { useEvolutionStore } from '../store/useEvolutionStore';
 import {
   getRecoverySnapshots,
   INVALID_STORAGE_PREFIX,
@@ -10,7 +11,7 @@ import {
 } from './safeStorage';
 
 const BACKUP_FORMAT = 'arcana-screen-backup';
-const BACKUP_SCHEMA_VERSION = 1;
+const BACKUP_SCHEMA_VERSION = 2;
 
 interface ArcanaBackup {
   format: typeof BACKUP_FORMAT;
@@ -20,6 +21,10 @@ interface ArcanaBackup {
     screens: Screen[];
     activeScreenId: string;
     theme: 'light' | 'dark';
+    evolution?: Pick<
+      ReturnType<typeof useEvolutionStore.getState>,
+      'personalTemplates' | 'referencePacks' | 'density' | 'locale' | 'accentTheme' | 'customAccent'
+    >;
   };
 }
 
@@ -55,7 +60,7 @@ export const parseBackup = (text: string): ParseBackupResult => {
     if (!isRecord(parsed) || parsed.format !== BACKUP_FORMAT) {
       return { ok: false, error: 'This file is not an ArcanaScreen backup.' };
     }
-    if (parsed.schemaVersion !== BACKUP_SCHEMA_VERSION) {
+    if (parsed.schemaVersion !== 1 && parsed.schemaVersion !== BACKUP_SCHEMA_VERSION) {
       return { ok: false, error: 'This backup version is not supported.' };
     }
     if (!isRecord(parsed.data) || !Array.isArray(parsed.data.screens)) {
@@ -80,8 +85,9 @@ export const parseBackup = (text: string): ParseBackupResult => {
     const warnings = backup.data.screens.flatMap((screen) =>
       screen.layoutConfig
         .filter((widget) => !getToolDefinitionByType(widget.type))
-        .map((widget) => `Unknown tool “${widget.type}” in ${screen.name} will be preserved but not rendered.`),
+        .map((widget) => `Unknown tool “${widget.type}” in ${screen.name} will be preserved as an unsupported placeholder.`),
     );
+    if (backup.schemaVersion === 1) warnings.push('Legacy backup: M4 templates and appearance preferences are not included.');
 
     return {
       ok: true,
@@ -119,6 +125,14 @@ export const exportBackup = () => {
       screens: screenState.screens,
       activeScreenId: screenState.activeScreenId,
       theme: useThemeStore.getState().theme,
+      evolution: {
+        personalTemplates: useEvolutionStore.getState().personalTemplates,
+        referencePacks: useEvolutionStore.getState().referencePacks,
+        density: useEvolutionStore.getState().density,
+        locale: useEvolutionStore.getState().locale,
+        accentTheme: useEvolutionStore.getState().accentTheme,
+        customAccent: useEvolutionStore.getState().customAccent,
+      },
     },
   };
   triggerJsonDownload(backup, `arcana-screen-backup-${new Date().toISOString().slice(0, 10)}.json`);
@@ -134,6 +148,9 @@ export const importBackup = (preview: ImportPreview, strategy: ScreenImportStrat
   const currentTheme = useThemeStore.getState().theme;
   if (preview.backup.data.theme && preview.backup.data.theme !== currentTheme) {
     useThemeStore.getState().toggleTheme();
+  }
+  if (preview.backup.data.evolution) {
+    useEvolutionStore.setState(preview.backup.data.evolution);
   }
   return imported;
 };

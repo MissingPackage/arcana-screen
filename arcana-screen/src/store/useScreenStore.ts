@@ -22,6 +22,10 @@ export interface Screen {
   layoutConfig: Widget[];
   focusWorkspace: FocusWorkspace;
   favoriteWidgetIds: string[];
+  folder: string;
+  archived: boolean;
+  tags: string[];
+  layoutMode: 'grid' | 'canvas';
   createdAt: string;
   updatedAt: string;
 }
@@ -41,6 +45,9 @@ interface ScreenStoreState {
   createScreen: (name: string, template: ScreenTemplate) => string;
   openScreen: (id: string) => void;
   renameScreen: (id: string, name: string) => void;
+  updateScreenOrganization: (id: string, updates: Partial<Pick<Screen, 'folder' | 'archived' | 'tags'>>) => void;
+  setActiveLayoutMode: (mode: Screen['layoutMode']) => void;
+  createScreenFromTemplate: (name: string, template: Pick<Screen, 'layoutConfig' | 'focusWorkspace'> & Partial<Pick<Screen, 'layoutMode'>>) => string;
   duplicateScreen: (id: string) => string | null;
   deleteScreen: (id: string) => DeletedScreen | null;
   restoreDeletedScreen: (deleted: DeletedScreen) => Screen;
@@ -64,6 +71,9 @@ const cloneWidgets = (widgets: Widget[]): Widget[] =>
     id: `${widget.type.toLowerCase()}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     position: { ...widget.position },
     size: { ...widget.size },
+    deviceLayouts: widget.deviceLayouts
+      ? Object.fromEntries(Object.entries(widget.deviceLayouts).map(([profile, geometry]) => [profile, geometry ? { ...geometry } : geometry]))
+      : undefined,
     columns: widget.columns?.map((column) => ({ ...column })),
     rows: widget.rows?.map((row) => ({ ...row })),
     combatants: widget.combatants?.map((combatant) => ({ ...combatant })),
@@ -75,6 +85,8 @@ const cloneWidgets = (widgets: Widget[]): Widget[] =>
       : widget.initiativeUndo,
     captures: widget.captures?.map((capture) => ({ ...capture })),
     referenceLinks: widget.referenceLinks?.map((link) => ({ ...link })),
+    dicePresets: widget.dicePresets?.map((preset) => ({ ...preset })),
+    timerPresets: widget.timerPresets?.map((preset) => ({ ...preset })),
     results: widget.results ? [...widget.results] : undefined,
     rollBreakdown: widget.rollBreakdown ? [...widget.rollBreakdown] : undefined,
   }));
@@ -130,6 +142,10 @@ const createFallbackScreen = (): Screen => {
     layoutConfig: createTemplateWidgets('general'),
     focusWorkspace: createFocusWorkspaceForTemplate('general'),
     favoriteWidgetIds: useAppStore.getState().favoriteWidgetIds,
+    folder: '',
+    archived: false,
+    tags: [],
+    layoutMode: 'grid',
     createdAt: now,
     updatedAt: now,
   };
@@ -147,6 +163,10 @@ const createInitialScreens = (): Screen[] => {
     layoutConfig: Array.isArray(profile.layoutConfig) ? profile.layoutConfig : [],
     focusWorkspace: createFocusWorkspaceForTemplate('general'),
     favoriteWidgetIds: profile.favoriteWidgetIds ?? [],
+    folder: '',
+    archived: false,
+    tags: [],
+    layoutMode: 'grid' as const,
     createdAt: now,
     updatedAt: now,
   }));
@@ -161,6 +181,10 @@ const createInitialScreens = (): Screen[] => {
         layoutConfig: legacyWidgets,
         focusWorkspace: createFocusWorkspaceForTemplate('general'),
         favoriteWidgetIds: useAppStore.getState().favoriteWidgetIds,
+        folder: '',
+        archived: false,
+        tags: [],
+        layoutMode: 'grid' as const,
         createdAt: now,
         updatedAt: now,
       },
@@ -200,6 +224,10 @@ export const useScreenStore = create<ScreenStoreState>()(
           layoutConfig: createTemplateWidgets(template),
           focusWorkspace: createFocusWorkspaceForTemplate(template),
           favoriteWidgetIds: useAppStore.getState().favoriteWidgetIds,
+          folder: '',
+          archived: false,
+          tags: [],
+          layoutMode: 'grid',
           createdAt: now,
           updatedAt: now,
         };
@@ -235,6 +263,53 @@ export const useScreenStore = create<ScreenStoreState>()(
               : screen,
           ),
         }));
+      },
+
+      updateScreenOrganization: (id, updates) => {
+        set((state) => ({
+          screens: state.screens.map((screen) =>
+            screen.id === id
+              ? { ...screen, ...updates, updatedAt: new Date().toISOString() }
+              : screen,
+          ),
+        }));
+      },
+
+      setActiveLayoutMode: (layoutMode) => {
+        const activeId = get().activeScreenId;
+        set((state) => ({
+          screens: state.screens.map((screen) =>
+            screen.id === activeId
+              ? { ...screen, layoutMode, updatedAt: new Date().toISOString() }
+              : screen,
+          ),
+        }));
+      },
+
+      createScreenFromTemplate: (name, template) => {
+        get().saveActiveContent(
+          useWidgetStore.getState().widgets,
+          useAppStore.getState().favoriteWidgetIds,
+        );
+        const now = new Date().toISOString();
+        const screen: Screen = {
+          id: createId(),
+          name: name.trim() || 'Personal template screen',
+          template: 'general',
+          mode: 'prepare',
+          layoutConfig: cloneWidgets(template.layoutConfig),
+          focusWorkspace: cloneFocusWorkspace(template.focusWorkspace),
+          favoriteWidgetIds: [],
+          folder: '',
+          archived: false,
+          tags: [],
+          layoutMode: template.layoutMode ?? 'grid',
+          createdAt: now,
+          updatedAt: now,
+        };
+        set((state) => ({ screens: [screen, ...state.screens], activeScreenId: screen.id }));
+        applyScreen(screen);
+        return screen.id;
       },
 
       duplicateScreen: (id) => {
@@ -374,6 +449,10 @@ export const useScreenStore = create<ScreenStoreState>()(
             layoutConfig: screen.layoutConfig.map(migrateToolInstance),
             focusWorkspace: migrateFocusWorkspace(screen.focusWorkspace ?? createFocusWorkspaceForTemplate(screen.template ?? 'general')),
             favoriteWidgetIds: screen.favoriteWidgetIds ?? [],
+            folder: screen.folder ?? '',
+            archived: screen.archived ?? false,
+            tags: screen.tags ?? [],
+            layoutMode: screen.layoutMode ?? 'grid',
             createdAt: screen.createdAt ?? now,
             updatedAt: now,
           };
@@ -417,7 +496,7 @@ export const useScreenStore = create<ScreenStoreState>()(
     }),
     {
       name: STORAGE_KEY,
-      version: 4,
+      version: 5,
       storage: createJSONStorage(() => safeLocalStorage),
       migrate: (persistedState) => {
         const state = persistedState as Pick<ScreenStoreState, 'screens' | 'activeScreenId'>;
@@ -428,6 +507,10 @@ export const useScreenStore = create<ScreenStoreState>()(
             mode: screen.mode ?? 'prepare',
             layoutConfig: screen.layoutConfig.map(migrateToolInstance),
             focusWorkspace: migrateFocusWorkspace(screen.focusWorkspace ?? createFocusWorkspaceForTemplate(screen.template ?? 'general')),
+            folder: screen.folder ?? '',
+            archived: screen.archived ?? false,
+            tags: screen.tags ?? [],
+            layoutMode: screen.layoutMode ?? 'grid',
           })),
         };
       },

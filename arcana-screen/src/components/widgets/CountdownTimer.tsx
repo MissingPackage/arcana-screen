@@ -21,14 +21,27 @@ const formatDuration = (seconds: number) => {
 function CountdownTimer({ id, updateWidget }: CountdownTimerProps) {
   const widget = useWidgetStore((state) => state.widgets.find((item) => item.id === id));
   const [now, setNow] = useState(Date.now());
+  const [presetName, setPresetName] = useState('');
 
   useEffect(() => {
-    if (widget && (widget.seconds === undefined || widget.timerDurationSeconds === undefined || widget.timerEndAt === undefined)) {
+    if (widget && (
+      widget.seconds === undefined
+      || widget.timerDurationSeconds === undefined
+      || widget.timerEndAt === undefined
+      || widget.timerPresets === undefined
+      || widget.notifyOnComplete === undefined
+    )) {
       updateWidget(id, {
         seconds: widget.seconds ?? 60,
         timerDurationSeconds: widget.timerDurationSeconds ?? widget.seconds ?? 60,
         timerEndAt: widget.timerEndAt ?? null,
         isRunning: widget.isRunning ?? false,
+        timerPresets: widget.timerPresets ?? [
+          { id: 'one-minute', name: '1 min', seconds: 60 },
+          { id: 'five-minutes', name: '5 min', seconds: 300 },
+          { id: 'ten-minutes', name: '10 min', seconds: 600 },
+        ],
+        notifyOnComplete: widget.notifyOnComplete ?? false,
       });
     }
   }, [id, updateWidget, widget]);
@@ -49,15 +62,19 @@ function CountdownTimer({ id, updateWidget }: CountdownTimerProps) {
 
   useEffect(() => {
     if (widget?.isRunning && widget.timerEndAt && remaining === 0) {
+      if (widget.notifyOnComplete && 'Notification' in window && Notification.permission === 'granted') {
+        new Notification('ArcanaScreen timer', { body: 'Time is up.' });
+      }
       updateWidget(id, { seconds: 0, isRunning: false, timerEndAt: null });
     }
-  }, [id, remaining, updateWidget, widget?.isRunning, widget?.timerEndAt]);
+  }, [id, remaining, updateWidget, widget?.isRunning, widget?.notifyOnComplete, widget?.timerEndAt]);
 
   if (!widget) return <div className="tool-empty-state">Loading timer…</div>;
 
   const duration = widget.timerDurationSeconds ?? 60;
   const minutes = Math.floor(duration / 60);
   const secondsPart = duration % 60;
+  const presets = widget.timerPresets ?? [];
 
   const setDuration = (nextMinutes: number, nextSeconds: number) => {
     const nextDuration = clampDuration(Math.max(0, nextMinutes) * 60 + Math.min(59, Math.max(0, nextSeconds)));
@@ -114,6 +131,48 @@ function CountdownTimer({ id, updateWidget }: CountdownTimerProps) {
           <input type="number" min={0} max={59} value={secondsPart} onChange={(event) => setDuration(minutes, Number(event.target.value) || 0)} />
         </label>
       </fieldset>
+      <div className="timer-presets">
+        <div className="timer-presets__items" aria-label="Timer presets">
+          {presets.map((preset) => (
+            <span key={preset.id}>
+              <button type="button" disabled={widget.isRunning} onClick={() => setDuration(Math.floor(preset.seconds / 60), preset.seconds % 60)}>{preset.name}</button>
+              {!['one-minute', 'five-minutes', 'ten-minutes'].includes(preset.id) && (
+                <button type="button" className="danger-text" aria-label={`Delete ${preset.name}`} onClick={() => updateWidget(id, { timerPresets: presets.filter((item) => item.id !== preset.id) })}>×</button>
+              )}
+            </span>
+          ))}
+        </div>
+        <div className="timer-presets__save">
+          <input value={presetName} onChange={(event) => setPresetName(event.target.value)} placeholder="Preset name" aria-label="Timer preset name" />
+          <button
+            type="button"
+            disabled={!presetName.trim() || duration <= 0}
+            onClick={() => {
+              updateWidget(id, { timerPresets: [...presets, { id: globalThis.crypto?.randomUUID?.() ?? `timer-preset-${Date.now()}`, name: presetName.trim(), seconds: duration }] });
+              setPresetName('');
+            }}
+          >
+            Save duration
+          </button>
+        </div>
+      </div>
+      {'Notification' in window && (
+        <label className="timer-notification">
+          <input
+            type="checkbox"
+            checked={widget.notifyOnComplete ?? false}
+            onChange={async (event) => {
+              if (event.target.checked && Notification.permission === 'default') {
+                const permission = await Notification.requestPermission();
+                updateWidget(id, { notifyOnComplete: permission === 'granted' });
+              } else {
+                updateWidget(id, { notifyOnComplete: event.target.checked && Notification.permission === 'granted' });
+              }
+            }}
+          />
+          <span>Desktop notification when complete</span>
+        </label>
+      )}
       <p className="timer-recovery-note">The countdown catches up after background tabs, sleep and reload.</p>
     </div>
   );

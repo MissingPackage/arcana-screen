@@ -4,11 +4,13 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { createToolInstance } from './toolRegistry';
 import { useWidgetStore } from '../../store/useWidgetStore';
 import QuickReference from './QuickReference';
+import { useEvolutionStore } from '../../store/useEvolutionStore';
 
 describe('QuickReference', () => {
   beforeEach(() => {
     localStorage.clear();
     useWidgetStore.setState({ widgets: [], structuralHistory: [] });
+    useEvolutionStore.setState({ personalTemplates: [], referencePacks: [], density: 'comfortable', locale: 'en', accentTheme: 'arcane', customAccent: '#6d4aa2' });
   });
 
   it('preserves an invalid draft and adds a normalized HTTPS source only after validation', async () => {
@@ -29,5 +31,11 @@ describe('QuickReference', () => {
     await user.click(screen.getByRole('button', { name: 'Add' }));
     expect(screen.getByRole('link', { name: 'Rules' })).toHaveAttribute('href', 'https://example.com/rules');
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Pin Rules' }));
+    expect(screen.getByRole('link', { name: '★ Rules' })).toBeInTheDocument();
+    await user.type(screen.getByLabelText('Reference pack name'), 'Core rules');
+    await user.click(screen.getByRole('button', { name: 'Save current links' }));
+    expect(useEvolutionStore.getState().referencePacks[0].name).toBe('Core rules');
   });
 });

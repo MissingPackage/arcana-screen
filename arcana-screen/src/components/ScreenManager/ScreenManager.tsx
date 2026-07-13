@@ -4,6 +4,8 @@ import { screenTemplateCatalog, templateLabel, type ScreenTemplate } from '../..
 import { useScreenStore } from '../../store/useScreenStore';
 import type { ScreenMode } from '../../store/useScreenStore';
 import { useTrustStore } from '../../store/trustStore';
+import { useWidgetStore } from '../../store/useWidgetStore';
+import { useEvolutionStore, type PersonalScreenTemplate } from '../../store/useEvolutionStore';
 
 export default function ScreenManager() {
   const screens = useScreenStore((state) => state.screens);
@@ -11,12 +13,20 @@ export default function ScreenManager() {
   const createScreen = useScreenStore((state) => state.createScreen);
   const openScreen = useScreenStore((state) => state.openScreen);
   const renameScreen = useScreenStore((state) => state.renameScreen);
+  const updateScreenOrganization = useScreenStore((state) => state.updateScreenOrganization);
+  const createScreenFromTemplate = useScreenStore((state) => state.createScreenFromTemplate);
   const duplicateScreen = useScreenStore((state) => state.duplicateScreen);
   const deleteScreen = useScreenStore((state) => state.deleteScreen);
   const restoreDeletedScreen = useScreenStore((state) => state.restoreDeletedScreen);
   const setActiveMode = useScreenStore((state) => state.setActiveMode);
   const saveStatus = useTrustStore((state) => state.status);
   const saveMessage = useTrustStore((state) => state.message);
+  const widgets = useWidgetStore((state) => state.widgets);
+  const personalTemplates = useEvolutionStore((state) => state.personalTemplates);
+  const savePersonalTemplate = useEvolutionStore((state) => state.savePersonalTemplate);
+  const deletePersonalTemplate = useEvolutionStore((state) => state.deletePersonalTemplate);
+  const importPersonalTemplates = useEvolutionStore((state) => state.importPersonalTemplates);
+  const locale = useEvolutionStore((state) => state.locale);
 
   const [isCreating, setIsCreating] = useState(false);
   const [isManaging, setIsManaging] = useState(false);
@@ -24,6 +34,8 @@ export default function ScreenManager() {
   const [template, setTemplate] = useState<ScreenTemplate>('general');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
+  const [screenSearch, setScreenSearch] = useState('');
+  const [showArchived, setShowArchived] = useState(false);
   const createNameRef = useRef<HTMLInputElement>(null);
   const renameRef = useRef<HTMLInputElement>(null);
 
@@ -40,6 +52,26 @@ export default function ScreenManager() {
     [activeScreenId, screens],
   );
   const activeMode = activeScreen?.mode ?? 'prepare';
+  const copy = locale === 'it' ? {
+    controls: 'Controlli schermata', current: 'Schermata corrente', prepare: 'Prepara', run: 'Gioca',
+    saved: 'Salvato in locale', saving: 'Salvataggio…', issue: 'Problema salvataggio', manage: 'Gestisci schermate',
+    create: 'Nuova schermata', prepareStatus: 'Modalità Preparazione · Il layout è modificabile.',
+    runStatus: 'Modalità Gioco · Il layout è protetto mentre gli strumenti restano attivi.',
+  } : {
+    controls: 'Screen controls', current: 'Current screen', prepare: 'Prepare', run: 'Run',
+    saved: 'Saved locally', saving: 'Saving…', issue: 'Save issue', manage: 'Manage screens',
+    create: 'New screen', prepareStatus: 'Prepare mode · Layout editing is available.',
+    runStatus: 'Run mode · Layout is protected while tools remain active.',
+  };
+  const selectableScreens = screens.filter((screen) => !screen.archived || screen.id === activeScreenId);
+  const visibleScreens = useMemo(() => {
+    const query = screenSearch.trim().toLowerCase();
+    return screens.filter((screen) => {
+      if (screen.archived !== showArchived) return false;
+      if (!query) return true;
+      return [screen.name, screen.folder, ...screen.tags].join(' ').toLowerCase().includes(query);
+    });
+  }, [screenSearch, screens, showArchived]);
 
   const handleModeChange = (mode: ScreenMode) => {
     setIsCreating(false);
@@ -94,18 +126,53 @@ export default function ScreenManager() {
     );
   };
 
+  const handleArchive = (id: string, archived: boolean) => {
+    updateScreenOrganization(id, { archived });
+    if (archived && id === activeScreenId) {
+      const next = screens.find((screen) => screen.id !== id && !screen.archived);
+      if (next) openScreen(next.id);
+    }
+    toast.success(archived ? 'Screen archived' : 'Screen restored');
+  };
+
+  const handleTemplateImport = async (file: File | undefined) => {
+    if (!file) return;
+    try {
+      const parsed = JSON.parse(await file.text()) as { templates?: PersonalScreenTemplate[] };
+      const imported = importPersonalTemplates(Array.isArray(parsed.templates) ? parsed.templates : []);
+      if (!imported) throw new Error('No valid templates found');
+      toast.success(`${imported} template${imported === 1 ? '' : 's'} imported`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Template import failed');
+    }
+  };
+
+  const exportPersonalTemplates = () => {
+    const blob = new Blob([JSON.stringify({
+      format: 'arcana-screen-templates',
+      schemaVersion: 1,
+      templates: personalTemplates,
+    }, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `arcana-templates-${new Date().toISOString().slice(0, 10)}.json`;
+    anchor.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
+  };
+
   return (
-    <section className="screen-manager" aria-label="Screen controls">
+    <section className="screen-manager" aria-label={copy.controls}>
       <div className="screen-manager__primary">
         <div className="min-w-0">
-          <p className="screen-manager__eyebrow">Current screen</p>
+          <p className="screen-manager__eyebrow">{copy.current}</p>
           <select
             className="screen-manager__select"
-            aria-label="Current screen"
+            aria-label={copy.current}
             value={activeScreen?.id ?? ''}
             onChange={(event) => openScreen(event.target.value)}
           >
-            {screens.map((screen) => (
+            {selectableScreens.map((screen) => (
               <option key={screen.id} value={screen.id}>
                 {screen.name}
               </option>
@@ -121,7 +188,7 @@ export default function ScreenManager() {
               aria-pressed={activeMode === 'prepare'}
               onClick={() => handleModeChange('prepare')}
             >
-              Prepare
+              {copy.prepare}
             </button>
             <button
               type="button"
@@ -129,7 +196,7 @@ export default function ScreenManager() {
               aria-pressed={activeMode === 'run'}
               onClick={() => handleModeChange('run')}
             >
-              Run
+              {copy.run}
             </button>
           </div>
           <span
@@ -138,10 +205,10 @@ export default function ScreenManager() {
             title={saveMessage ?? undefined}
           >
             {saveStatus === 'saving'
-              ? 'Saving…'
+              ? copy.saving
               : saveStatus === 'error'
-                ? 'Save issue'
-                : 'Saved locally'}
+                ? copy.issue
+                : copy.saved}
           </span>
           {activeMode === 'prepare' && (
             <>
@@ -154,7 +221,7 @@ export default function ScreenManager() {
                 }}
                 aria-expanded={isManaging}
               >
-                Manage screens
+                {copy.manage}
               </button>
               <button
                 type="button"
@@ -165,7 +232,7 @@ export default function ScreenManager() {
                 }}
                 aria-expanded={isCreating}
               >
-                New screen
+                {copy.create}
               </button>
             </>
           )}
@@ -174,8 +241,8 @@ export default function ScreenManager() {
 
       <p className="screen-mode__status" role="status">
         {activeMode === 'prepare'
-          ? 'Prepare mode · Layout editing is available.'
-          : 'Run mode · Layout is protected while tools remain active.'}
+          ? copy.prepareStatus
+          : copy.runStatus}
       </p>
 
       {isCreating && (
@@ -223,6 +290,31 @@ export default function ScreenManager() {
             </div>
           </fieldset>
 
+          {personalTemplates.length > 0 && (
+            <fieldset className="screen-manager__templates">
+              <legend>Personal templates</legend>
+              <div className="screen-manager__template-grid">
+                {personalTemplates.map((item) => (
+                  <article className="screen-template" key={item.id}>
+                    <span className="screen-template__name">{item.name}</span>
+                    <span className="screen-template__description">{item.description}</span>
+                    <button
+                      type="button"
+                      className="screen-action-button"
+                      onClick={() => {
+                        createScreenFromTemplate(name.trim() || item.name, item);
+                        setIsCreating(false);
+                        toast.success('Screen created from personal template');
+                      }}
+                    >
+                      Use template
+                    </button>
+                  </article>
+                ))}
+              </div>
+            </fieldset>
+          )}
+
           <div className="screen-manager__panel-actions">
             <button
               type="button"
@@ -254,8 +346,51 @@ export default function ScreenManager() {
             </button>
           </div>
 
+          <div className="screen-library-controls">
+            <label className="screen-manager__field">
+              <span>Search names, folders or tags</span>
+              <input
+                type="search"
+                value={screenSearch}
+                onChange={(event) => setScreenSearch(event.target.value)}
+                placeholder="Search screens"
+              />
+            </label>
+            <button
+              type="button"
+              className="screen-action-button screen-action-button--quiet"
+              aria-pressed={showArchived}
+              onClick={() => setShowArchived((value) => !value)}
+            >
+              {showArchived ? 'Show active' : `Archive (${screens.filter((screen) => screen.archived).length})`}
+            </button>
+            {activeScreen && (
+              <button
+                type="button"
+                className="screen-action-button screen-action-button--quiet"
+                onClick={() => {
+                  savePersonalTemplate({ ...activeScreen, layoutConfig: widgets });
+                  toast.success('Personal template saved');
+                }}
+              >
+                Save current as template
+              </button>
+            )}
+            <button type="button" className="screen-action-button screen-action-button--quiet" onClick={exportPersonalTemplates} disabled={!personalTemplates.length}>
+              Export templates
+            </button>
+            <label className="screen-action-button screen-action-button--quiet template-import-button">
+              Import templates
+              <input
+                type="file"
+                accept="application/json,.json"
+                onChange={(event) => void handleTemplateImport(event.target.files?.[0])}
+              />
+            </label>
+          </div>
+
           <ul className="screen-list">
-            {screens.map((screen) => (
+            {visibleScreens.map((screen) => (
               <li className="screen-list__item" key={screen.id}>
                 {editingId === screen.id ? (
                   <form
@@ -288,8 +423,30 @@ export default function ScreenManager() {
                       <strong>{screen.name}</strong>
                       <span>
                         {templateLabel[screen.template]}
+                        {screen.folder ? ` · ${screen.folder}` : ''}
+                        {screen.tags.length ? ` · ${screen.tags.join(', ')}` : ''}
                         {screen.id === activeScreenId ? ' · Current' : ''}
                       </span>
+                      <div className="screen-list__organization">
+                        <label>
+                          <span className="sr-only">Folder for {screen.name}</span>
+                          <input
+                            defaultValue={screen.folder}
+                            placeholder="Folder"
+                            onBlur={(event) => updateScreenOrganization(screen.id, { folder: event.target.value.trim() })}
+                          />
+                        </label>
+                        <label>
+                          <span className="sr-only">Tags for {screen.name}</span>
+                          <input
+                            defaultValue={screen.tags.join(', ')}
+                            placeholder="Tags, comma separated"
+                            onBlur={(event) => updateScreenOrganization(screen.id, {
+                              tags: event.target.value.split(',').map((tag) => tag.trim()).filter(Boolean),
+                            })}
+                          />
+                        </label>
+                      </div>
                     </div>
                     <div className="screen-list__actions">
                       {screen.id !== activeScreenId && (
@@ -317,6 +474,23 @@ export default function ScreenManager() {
                       </button>
                       <button
                         type="button"
+                        className="screen-action-button screen-action-button--quiet"
+                        onClick={() => {
+                          savePersonalTemplate(screen.id === activeScreenId ? { ...screen, layoutConfig: widgets } : screen);
+                          toast.success('Personal template saved');
+                        }}
+                      >
+                        Save template
+                      </button>
+                      <button
+                        type="button"
+                        className="screen-action-button screen-action-button--quiet"
+                        onClick={() => handleArchive(screen.id, !screen.archived)}
+                      >
+                        {screen.archived ? 'Restore' : 'Archive'}
+                      </button>
+                      <button
+                        type="button"
                         className="screen-action-button screen-action-button--danger"
                         onClick={() => handleDelete(screen.id)}
                       >
@@ -328,6 +502,21 @@ export default function ScreenManager() {
               </li>
             ))}
           </ul>
+          {visibleScreens.length === 0 && <p className="screen-manager__panel-copy">No matching screens.</p>}
+
+          {personalTemplates.length > 0 && (
+            <details className="personal-template-library">
+              <summary>Manage personal templates ({personalTemplates.length})</summary>
+              <ul>
+                {personalTemplates.map((item) => (
+                  <li key={item.id}>
+                    <span><strong>{item.name}</strong><small>{item.description}</small></span>
+                    <button type="button" className="screen-action-button screen-action-button--danger" onClick={() => deletePersonalTemplate(item.id)}>Delete</button>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
         </div>
       )}
     </section>

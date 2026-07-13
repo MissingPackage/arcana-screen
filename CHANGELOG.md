@@ -4,9 +4,18 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 
 ## [Unreleased]
 
+### Added
+
+- Advanced per-device canvas layouts with focus, sidecar, continuous drag/resize, second-monitor and pop-out views.
+- Screen folders, tags, archive, cross-screen search, personal templates and reusable reference packs.
+- Dice and timer presets, desktop timer notifications, richer notes, advanced CSV tables and a threshold Resource Counter.
+- Installable PWA assets, offline runtime caching, storage quota controls, compact density, accent themes and EN/IT shell localization.
+- An explicit threat/conflict model that keeps optional cloud sync disabled until its activation gates are approved.
+
 ### Changed
 
 - Release candidates must pass the automated quality, accessibility, security and browser gates.
+- Portable backups now include M4 templates, reference packs and appearance preferences while still accepting schema 1 files.
 
 ## [1.0.0-rc.1] — 2026-07-13
 

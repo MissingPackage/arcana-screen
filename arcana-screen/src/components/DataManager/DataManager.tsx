@@ -24,6 +24,7 @@ export default function DataManager() {
   const [pastedBackup, setPastedBackup] = useState('');
   const [confirmReset, setConfirmReset] = useState(false);
   const [, setSnapshotRevision] = useState(0);
+  const [storageEstimate, setStorageEstimate] = useState<{ usage: number; quota: number } | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLElement>(null);
 
@@ -31,6 +32,12 @@ export default function DataManager() {
 
   useEffect(() => {
     if (!isOpen) return;
+    if (navigator.storage?.estimate) {
+      void navigator.storage.estimate().then((estimate) => setStorageEstimate({
+        usage: estimate.usage ?? 0,
+        quota: estimate.quota ?? 0,
+      }));
+    }
     const dialog = dialogRef.current;
     const focusable = () => Array.from(dialog?.querySelectorAll<HTMLElement>(
       'button:not([disabled]), a[href], input:not([disabled]), textarea:not([disabled]), select:not([disabled]), summary, [tabindex]:not([tabindex="-1"])',
@@ -171,6 +178,24 @@ export default function DataManager() {
             </div>
 
             <div className="data-manager__grid">
+              <section className="data-card">
+                <h3>Storage quota</h3>
+                {storageEstimate?.quota ? (
+                  <>
+                    <p>{(storageEstimate.usage / 1024 / 1024).toFixed(2)} MB used of {(storageEstimate.quota / 1024 / 1024).toFixed(0)} MB available to this origin.</p>
+                    <progress max={storageEstimate.quota} value={storageEstimate.usage}>{(storageEstimate.usage / storageEstimate.quota * 100).toFixed(1)}%</progress>
+                  </>
+                ) : (
+                  <p>This browser does not expose a storage estimate.</p>
+                )}
+                <button
+                  type="button"
+                  className="screen-action-button screen-action-button--quiet"
+                  onClick={() => void navigator.storage?.persist?.().then((granted) => toast(granted ? 'Persistent storage granted' : 'Browser kept its current storage policy'))}
+                >
+                  Request persistent storage
+                </button>
+              </section>
               <section className="data-card">
                 <h3>Portable backup</h3>
                 <p>Download all screens, tool state and current preferences as JSON.</p>

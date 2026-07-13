@@ -64,11 +64,16 @@ function QuickCapture({ id }: QuickCaptureProps) {
     });
   };
 
-  const promoteCapture = (capture: CaptureItem) => {
-    const notebook = widgets.find((item) => item.type === 'QuickNotes');
-    if (!notebook) return;
-    const prefix = notebook.text?.trim() ? `${notebook.text.trim()}\n\n` : '';
-    updateWidget(notebook.id, { text: `${prefix}- ${capture.text}` });
+  const promoteCapture = (capture: CaptureItem, target: 'notebook' | 'reference') => {
+    const destination = widgets.find((item) => item.type === (target === 'notebook' ? 'QuickNotes' : 'QuickReference'));
+    if (!destination) return;
+    if (target === 'notebook') {
+      const prefix = destination.text?.trim() ? `${destination.text.trim()}\n\n` : '';
+      updateWidget(destination.id, { text: `${prefix}- ${capture.text}` });
+    } else {
+      const prefix = destination.referenceBody?.trim() ? `${destination.referenceBody.trim()}\n` : '';
+      updateWidget(destination.id, { referenceBody: `${prefix}• ${capture.text}` });
+    }
     updateCapture(capture.id, { status: 'promoted' });
   };
 
@@ -129,7 +134,8 @@ function QuickCapture({ id }: QuickCaptureProps) {
                 <div className="capture-card__actions">
                   <button type="button" onClick={() => { setEditingId(capture.id); setEditingText(capture.text); }}>Edit</button>
                   <button type="button" onClick={() => updateCapture(capture.id, { status: 'kept' })}>Keep</button>
-                  <button type="button" onClick={() => promoteCapture(capture)} disabled={!widgets.some((item) => item.type === 'QuickNotes')}>Promote to notebook</button>
+                  <button type="button" onClick={() => promoteCapture(capture, 'notebook')} disabled={!widgets.some((item) => item.type === 'QuickNotes')}>Promote to notebook</button>
+                  <button type="button" onClick={() => promoteCapture(capture, 'reference')} disabled={!widgets.some((item) => item.type === 'QuickReference')}>Promote to reference</button>
                   <button type="button" className="danger-text" onClick={() => updateWidget(id, { captures: captures.filter((item) => item.id !== capture.id) })}>Delete</button>
                 </div>
               )}

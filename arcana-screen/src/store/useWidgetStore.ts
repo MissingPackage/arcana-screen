@@ -8,6 +8,7 @@ export interface TableColumn {
   id: number;
   key: string;
   label: string;
+  type?: 'text' | 'number' | 'checkbox';
 }
 
 export interface TableRow {
@@ -38,6 +39,8 @@ export interface ReferenceLink {
   id: string;
   label: string;
   url: string;
+  pinned?: boolean;
+  lastOpenedAt?: string;
 }
 
 export interface InitiativeSnapshot {
@@ -47,6 +50,14 @@ export interface InitiativeSnapshot {
 }
 
 export type WidgetDisplaySize = 'compact' | 'standard' | 'wide';
+export type DeviceProfile = 'desktop' | 'tablet' | 'mobile';
+
+export interface WidgetGeometry {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
 
 export interface Widget {
   id: string;
@@ -54,6 +65,7 @@ export interface Widget {
   position: { x: number; y: number };
   size: { w: number; h: number };
   displaySize?: WidgetDisplaySize;
+  deviceLayouts?: Partial<Record<DeviceProfile, WidgetGeometry>>;
   schemaVersion?: number;
   // SimpleTable
   columns?: TableColumn[];
@@ -63,6 +75,8 @@ export interface Widget {
   isRunning?: boolean;
   timerDurationSeconds?: number;
   timerEndAt?: number | null;
+  timerPresets?: Array<{ id: string; name: string; seconds: number }>;
+  notifyOnComplete?: boolean;
   // DiceRoller
   diceType?: number;
   numDice?: number;
@@ -73,6 +87,7 @@ export interface Widget {
   finalResult?: number | null;
   rollBreakdown?: string[];
   formulaError?: string;
+  dicePresets?: Array<{ id: string; name: string; formula: string }>;
   // InitiativeTracker
   combatants?: Combatant[];
   name?: string;
@@ -92,6 +107,16 @@ export interface Widget {
   referenceTitle?: string;
   referenceBody?: string;
   referenceLinks?: ReferenceLink[];
+  tableTemplate?: 'blank' | 'initiative' | 'loot' | 'travel';
+  sortColumnKey?: string;
+  sortDirection?: 'asc' | 'desc';
+  tableFilter?: string;
+  counterName?: string;
+  counterValue?: number;
+  counterMin?: number;
+  counterMax?: number;
+  counterThreshold?: number;
+  widgetZIndex?: number;
 }
 
 interface WidgetStore {
@@ -104,6 +129,7 @@ interface WidgetStore {
   replaceWidgets: (widgets: Widget[]) => void;
   moveWidget: (from: number, to: number) => void;
   setWidgetDisplaySize: (id: string, size: WidgetDisplaySize) => void;
+  setWidgetGeometry: (id: string, profile: DeviceProfile, geometry: WidgetGeometry) => void;
   undoStructuralChange: () => void;
 }
 
@@ -167,6 +193,25 @@ export const useWidgetStore = create<WidgetStore>()(
         set({
           widgets: widgets.map((item) =>
             item.id === id ? { ...item, displaySize: size } : item,
+          ),
+          structuralHistory: withSnapshot(widgets, get().structuralHistory),
+        });
+      },
+      setWidgetGeometry: (id, profile, geometry) => {
+        const widgets = get().widgets;
+        const widget = widgets.find((item) => item.id === id);
+        if (!widget) return;
+        useTrustStore.getState().markSaving();
+        set({
+          widgets: widgets.map((item) =>
+            item.id === id
+              ? {
+                  ...item,
+                  position: { x: geometry.x, y: geometry.y },
+                  size: { w: geometry.w, h: geometry.h },
+                  deviceLayouts: { ...item.deviceLayouts, [profile]: geometry },
+                }
+              : item,
           ),
           structuralHistory: withSnapshot(widgets, get().structuralHistory),
         });

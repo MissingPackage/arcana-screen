@@ -8,11 +8,15 @@ interface QuickNotesProps {
 }
 
 function renderInline(text: string): ReactNode[] {
-  const tokens = text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\(https?:\/\/[^)]+\))/g);
+  const tokens = text.split(/(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\(https?:\/\/[^)]+\))/g);
 
   return tokens.map((token, index) => {
     if (token.startsWith('**') && token.endsWith('**')) {
       return <strong key={`${token}-${index}`}>{token.slice(2, -2)}</strong>;
+    }
+
+    if (token.startsWith('`') && token.endsWith('`')) {
+      return <code key={`${token}-${index}`}>{token.slice(1, -1)}</code>;
     }
 
     const link = token.match(/^\[([^\]]+)\]\((https?:\/\/[^)]+)\)$/);
@@ -46,7 +50,7 @@ function QuickNotes({ id }: QuickNotesProps) {
     }
   }, [id, updateWidget, widget]);
 
-  const applyFormatting = (kind: 'bold' | 'list' | 'link') => {
+  const applyFormatting = (kind: 'bold' | 'list' | 'link' | 'heading' | 'check' | 'code') => {
     const editor = editorRef.current;
     if (!editor) return;
     const start = editor.selectionStart;
@@ -64,9 +68,18 @@ function QuickNotes({ id }: QuickNotesProps) {
         .map((line) => `- ${line}`)
         .join('\n');
       cursorOffset = replacement.length;
-    } else {
+    } else if (kind === 'link') {
       replacement = `[${selected || 'label'}](https://)`;
       cursorOffset = replacement.length - 1;
+    } else if (kind === 'heading') {
+      replacement = (selected || 'Section').split('\n').map((line) => `## ${line}`).join('\n');
+      cursorOffset = replacement.length;
+    } else if (kind === 'check') {
+      replacement = (selected || 'task').split('\n').map((line) => `- [ ] ${line}`).join('\n');
+      cursorOffset = replacement.length;
+    } else {
+      replacement = `\`${selected || 'value'}\``;
+      cursorOffset = selected ? replacement.length : 1;
     }
 
     updateWidget(id, { text: `${text.slice(0, start)}${replacement}${text.slice(end)}` });
@@ -106,6 +119,9 @@ function QuickNotes({ id }: QuickNotesProps) {
         <button type="button" onClick={() => applyFormatting('link')} aria-label="Insert a link">
           Link
         </button>
+        <button type="button" onClick={() => applyFormatting('heading')} aria-label="Make a heading">Heading</button>
+        <button type="button" onClick={() => applyFormatting('check')} aria-label="Make a checklist">Checklist</button>
+        <button type="button" onClick={() => applyFormatting('code')} aria-label="Format as inline code">Code</button>
       </div>
 
       <textarea
@@ -120,11 +136,16 @@ function QuickNotes({ id }: QuickNotesProps) {
         <details className="note-preview">
           <summary>Formatted preview</summary>
           <div className="note-preview__content">
-            {text.split('\n').map((line, index) => (
-              <p key={`${line}-${index}`} className={line.startsWith('- ') ? 'note-preview__list-item' : undefined}>
-                {line.startsWith('- ') ? '• ' : ''}{renderInline(line.replace(/^- /, '')) || <br />}
-              </p>
-            ))}
+            {text.split('\n').map((line, index) => {
+              if (line.startsWith('## ')) return <h3 key={`${line}-${index}`}>{renderInline(line.slice(3))}</h3>;
+              const checklist = line.match(/^- \[([ xX])\] (.*)$/);
+              if (checklist) return <p key={`${line}-${index}`} className="note-preview__list-item">{checklist[1] === ' ' ? '☐ ' : '☑ '}{renderInline(checklist[2])}</p>;
+              return (
+                <p key={`${line}-${index}`} className={line.startsWith('- ') ? 'note-preview__list-item' : undefined}>
+                  {line.startsWith('- ') ? '• ' : ''}{renderInline(line.replace(/^- /, '')) || <br />}
+                </p>
+              );
+            })}
           </div>
         </details>
       ) : (

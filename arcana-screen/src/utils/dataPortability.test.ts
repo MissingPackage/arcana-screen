@@ -2,12 +2,17 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { createDefaultFocusWorkspace } from '../domain/focusModel';
 import { useScreenStore, type Screen } from '../store/useScreenStore';
 import { importBackup, parseBackup } from './dataPortability';
+import { useEvolutionStore } from '../store/useEvolutionStore';
 
 const screen: Screen = {
   id: 'screen-1',
   name: 'Recovered Vhal',
   template: 'general',
   mode: 'run',
+  folder: '',
+  archived: false,
+  tags: [],
+  layoutMode: 'grid',
   layoutConfig: [],
   focusWorkspace: createDefaultFocusWorkspace(),
   favoriteWidgetIds: [],
@@ -26,6 +31,7 @@ describe('data portability', () => {
   beforeEach(() => {
     localStorage.clear();
     useScreenStore.setState({ screens: [], activeScreenId: '' });
+    useEvolutionStore.setState({ personalTemplates: [], referencePacks: [], density: 'comfortable', locale: 'en', accentTheme: 'arcane', customAccent: '#6d4aa2' });
   });
 
   it('previews a complete backup including Focus state without mutating the store', () => {
@@ -44,5 +50,23 @@ describe('data portability', () => {
     expect(importBackup(result.preview, 'replace')).toBe(1);
     expect(useScreenStore.getState().screens[0].name).toBe('Recovered Vhal');
     expect(useScreenStore.getState().screens[0].focusWorkspace.contexts.social.sceneClock).toBe(3);
+  });
+
+  it('restores M4 reusable content and appearance from schema 2 backups', () => {
+    const payload = JSON.parse(backupText([screen]));
+    payload.schemaVersion = 2;
+    payload.data.evolution = {
+      personalTemplates: [],
+      referencePacks: [{ id: 'pack-1', name: 'Rules', links: [], createdAt: '2026-07-13T11:00:00.000Z' }],
+      density: 'compact',
+      locale: 'it',
+      accentTheme: 'forest',
+      customAccent: '#6d4aa2',
+    };
+    const result = parseBackup(JSON.stringify(payload));
+    if (!result.ok) throw new Error('schema 2 fixture must parse');
+    importBackup(result.preview, 'replace');
+    expect(useEvolutionStore.getState()).toMatchObject({ density: 'compact', locale: 'it', accentTheme: 'forest' });
+    expect(useEvolutionStore.getState().referencePacks[0].name).toBe('Rules');
   });
 });

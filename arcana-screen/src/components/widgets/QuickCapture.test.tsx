@@ -11,11 +11,12 @@ describe('QuickCapture review', () => {
     useWidgetStore.setState({ widgets: [], structuralHistory: [] });
   });
 
-  it('timestamps a live capture and promotes it into the Session Notebook', async () => {
+  it('timestamps a live capture and promotes it into notes or references', async () => {
     const user = userEvent.setup();
     const capture = createToolInstance('quick-capture');
     const notebook = createToolInstance('quick-notes');
-    useWidgetStore.setState({ widgets: [capture, notebook], structuralHistory: [] });
+    const reference = createToolInstance('quick-reference');
+    useWidgetStore.setState({ widgets: [capture, notebook, reference], structuralHistory: [] });
     render(<QuickCapture id={capture.id} />);
 
     await user.type(screen.getByLabelText('Capture what just happened'), 'The eastern ward broke');
@@ -28,5 +29,8 @@ describe('QuickCapture review', () => {
     await user.click(screen.getByRole('button', { name: 'Promote to notebook' }));
     expect(useWidgetStore.getState().widgets.find((item) => item.id === notebook.id)?.text).toContain('- The eastern ward broke');
     expect(useWidgetStore.getState().widgets.find((item) => item.id === capture.id)?.captures?.[0].status).toBe('promoted');
+
+    await user.click(screen.getByRole('button', { name: 'Promote to reference' }));
+    expect(useWidgetStore.getState().widgets.find((item) => item.id === reference.id)?.referenceBody).toContain('• The eastern ward broke');
   });
 });

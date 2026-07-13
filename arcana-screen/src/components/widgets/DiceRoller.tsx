@@ -1,4 +1,4 @@
-import { memo, useEffect } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { useWidgetStore, type Widget } from '../../store/useWidgetStore';
 import { executeFormula, parseDiceFormula, type DiceTerm } from '../../utils/diceFormulaParser';
 
@@ -18,6 +18,7 @@ function modifierTotal(terms: DiceTerm[]) {
 
 function DiceRoller({ id, updateWidget }: DiceRollerProps) {
   const widget = useWidgetStore((state) => state.widgets.find((item) => item.id === id));
+  const [presetName, setPresetName] = useState('');
 
   useEffect(() => {
     if (widget && widget.diceType === undefined) {
@@ -31,6 +32,7 @@ function DiceRoller({ id, updateWidget }: DiceRollerProps) {
         finalResult: null,
         rollBreakdown: [],
         formulaError: '',
+        dicePresets: [],
       });
     }
   }, [id, updateWidget, widget]);
@@ -46,6 +48,7 @@ function DiceRoller({ id, updateWidget }: DiceRollerProps) {
   const finalResult = widget.finalResult ?? null;
   const breakdown = widget.rollBreakdown ?? [];
   const error = widget.formulaError ?? '';
+  const presets = widget.dicePresets ?? [];
 
   const runSingleDieWithAdvantage = (sides: number, modifierValue: number) => {
     const rolls = [Math.floor(Math.random() * sides) + 1, Math.floor(Math.random() * sides) + 1];
@@ -140,6 +143,33 @@ function DiceRoller({ id, updateWidget }: DiceRollerProps) {
           aria-describedby={error ? `dice-error-${id}` : undefined}
         />
       </label>
+
+      <div className="dice-preset-library">
+        <div className="dice-preset-library__save">
+          <input value={presetName} onChange={(event) => setPresetName(event.target.value)} placeholder="Preset name" aria-label="Dice preset name" />
+          <button
+            type="button"
+            disabled={!presetName.trim()}
+            onClick={() => {
+              const presetFormula = formula.trim() || `${numDice}d${diceType}${modifier >= 0 ? '+' : ''}${modifier}`;
+              updateWidget(id, { dicePresets: [...presets, { id: globalThis.crypto?.randomUUID?.() ?? `dice-preset-${Date.now()}`, name: presetName.trim(), formula: presetFormula }] });
+              setPresetName('');
+            }}
+          >
+            Save preset
+          </button>
+        </div>
+        {presets.length > 0 && (
+          <div className="dice-preset-library__items" aria-label="Saved dice presets">
+            {presets.map((preset) => (
+              <span key={preset.id}>
+                <button type="button" title={preset.formula} onClick={() => updateWidget(id, { formula: preset.formula, advantage: 'none', formulaError: '' })}>{preset.name}</button>
+                <button type="button" className="danger-text" aria-label={`Delete ${preset.name}`} onClick={() => updateWidget(id, { dicePresets: presets.filter((item) => item.id !== preset.id) })}>×</button>
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
 
       {error && <p id={`dice-error-${id}`} className="tool-error" role="alert">{error}</p>}
 

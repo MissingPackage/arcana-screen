@@ -1,5 +1,6 @@
 import { memo, useEffect, useState, type FormEvent } from 'react';
 import { useWidgetStore, type ReferenceLink } from '../../store/useWidgetStore';
+import { useEvolutionStore } from '../../store/useEvolutionStore';
 
 interface QuickReferenceProps {
   id: string;
@@ -19,7 +20,15 @@ function QuickReference({ id }: QuickReferenceProps) {
   const [label, setLabel] = useState('');
   const [url, setUrl] = useState('');
   const [error, setError] = useState('');
+  const [packName, setPackName] = useState('');
+  const referencePacks = useEvolutionStore((state) => state.referencePacks);
+  const saveReferencePack = useEvolutionStore((state) => state.saveReferencePack);
+  const deleteReferencePack = useEvolutionStore((state) => state.deleteReferencePack);
   const links = widget?.referenceLinks ?? [];
+  const orderedLinks = [...links].sort((a, b) =>
+    Number(Boolean(b.pinned)) - Number(Boolean(a.pinned))
+    || (b.lastOpenedAt ?? '').localeCompare(a.lastOpenedAt ?? ''),
+  );
 
   useEffect(() => {
     if (widget && (widget.referenceTitle === undefined || widget.referenceBody === undefined || widget.referenceLinks === undefined)) {
@@ -83,14 +92,74 @@ function QuickReference({ id }: QuickReferenceProps) {
         <p className="tool-empty-state">Optional source links keep outside material one click away.</p>
       ) : (
         <ul className="reference-links">
-          {links.map((link) => (
+          {orderedLinks.map((link) => (
             <li key={link.id}>
-              <a href={link.url} target="_blank" rel="noreferrer">{link.label}</a>
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => updateWidget(id, {
+                  referenceLinks: links.map((item) => item.id === link.id
+                    ? { ...item, lastOpenedAt: new Date().toISOString() }
+                    : item),
+                })}
+              >
+                {link.pinned ? '★ ' : ''}{link.label}
+              </a>
+              <button
+                type="button"
+                aria-label={`${link.pinned ? 'Unpin' : 'Pin'} ${link.label}`}
+                onClick={() => updateWidget(id, {
+                  referenceLinks: links.map((item) => item.id === link.id ? { ...item, pinned: !item.pinned } : item),
+                })}
+              >
+                {link.pinned ? 'Unpin' : 'Pin'}
+              </button>
               <button type="button" aria-label={`Remove ${link.label}`} onClick={() => updateWidget(id, { referenceLinks: links.filter((item) => item.id !== link.id) })}>Remove</button>
             </li>
           ))}
         </ul>
       )}
+
+      <details className="reference-pack-library">
+        <summary>Reference packs ({referencePacks.length})</summary>
+        <div className="reference-pack-library__save">
+          <input value={packName} onChange={(event) => setPackName(event.target.value)} placeholder="Pack name" aria-label="Reference pack name" />
+          <button
+            type="button"
+            disabled={!links.length}
+            onClick={() => {
+              saveReferencePack(packName, links);
+              setPackName('');
+            }}
+          >
+            Save current links
+          </button>
+        </div>
+        {referencePacks.length === 0 ? (
+          <p className="tool-empty-state">Save reusable source lists for future screens.</p>
+        ) : (
+          <ul>
+            {referencePacks.map((pack) => (
+              <li key={pack.id}>
+                <span><strong>{pack.name}</strong> · {pack.links.length} links</span>
+                <button
+                  type="button"
+                  onClick={() => updateWidget(id, {
+                    referenceLinks: [
+                      ...links,
+                      ...pack.links.map((link) => ({ ...link, id: createLinkId(), lastOpenedAt: undefined })),
+                    ],
+                  })}
+                >
+                  Add pack
+                </button>
+                <button type="button" className="danger-text" onClick={() => deleteReferencePack(pack.id)}>Delete</button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </details>
     </div>
   );
 }

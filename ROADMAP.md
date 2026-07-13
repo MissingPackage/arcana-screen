@@ -1,8 +1,8 @@
 # ArcanaScreen — Product Roadmap
 
-Versione: 1.5-m3-hardening
+Versione: 1.6-m4-workspace-evolution
 Data: 13 luglio 2026
-Stato: Orizzonti 1–3 implementati e protetti da gate ripetibili. L'accettazione prodotto resta separata dall'implementazione: nessun orizzonte è accettato finché la matrice in `docs/specs/acceptance-matrix.md` contiene righe `missing`, `red`, `partial` o `blocked`.
+Stato: Orizzonti 1–4 implementati e protetti da gate ripetibili. L'accettazione prodotto resta separata dall'implementazione: nessun orizzonte è accettato finché la matrice in `docs/specs/acceptance-matrix.md` contiene righe `missing`, `red`, `partial` o `blocked`. In Orizzonte 4 cloud sync resta intenzionalmente disattivato e il wrapper mobile rimane una decisione documentata, non un binario fittizio.
 
 Fonti:
 
@@ -48,7 +48,7 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 | 1. Web foundation | Rendere possibile creare, riprendere e configurare uno screen affidabile | Implementato; ri-verifica in corso |
 | 2. Session-ready core | Portare note, riferimenti e utility al livello necessario per il live | Implementato; ri-verifica in corso |
 | 3. MVP hardening & release | Rendere il prodotto verificabile, accessibile e distribuibile sul web | Implementato; prima RC e gate WebKit in CI da eseguire |
-| 4. Workspace evolution | Espandere layout, distribuzione e organizzazione dopo l'MVP | Post-MVP |
+| 4. Workspace evolution | Espandere layout, distribuzione e organizzazione dopo l'MVP | Implementato; validazione d'uso post-MVP aperta |
 | 5. VTT integrations | Ridurre il doppio inserimento tramite adapter opzionali | Post-MVP |
 | 6. Ecosystem bets | Valutare SDK, community, AI e modelli avanzati | Future |
 
@@ -525,7 +525,11 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Obiettivo:** aumentare la flessibilità solo dopo aver validato il modello Screen e l'uso live.
 
+**Stato:** implementazione completata il 13 luglio 2026 su autorizzazione esplicita. Build, lint, 59 test, budget, audit dipendenze e gate E2E Chromium desktop/mobile e Firefox sono verdi; il gate WebKit locale resta non eseguibile per dipendenze di sistema già note. La validazione con DM reali resta un gate di accettazione prodotto distinto.
+
 ## W4.1 — Layout avanzato
+
+**Stato:** implementato e verificato nel browser a desktop e `390×844`, senza overflow globale.
 
 - Focus su singolo tool e ritorno alla posizione.
 - Sidecar dedicato.
@@ -538,6 +542,8 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 ## W4.2 — Organizzazione e template
 
+**Stato:** implementato con archivio, cartelle/tag, ricerca, template personali portabili e reference pack riutilizzabili.
+
 - Archiviazione, cartelle e ricerca screen.
 - Template personali e import/export template.
 - Template community senza codice.
@@ -547,6 +553,8 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 ## W4.3 — Tool evolution
 
+**Stato:** implementato con ricerca workspace, formattazione note estesa, promozione condivisa, preset, notifiche, tabelle CSV/template e Resource Counter.
+
 - Promozione inbox → note/reference.
 - Ricerca note e formattazione più ricca.
 - Dice preset, Timer notifications, tabelle avanzate e Counter evoluto.
@@ -555,6 +563,8 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 **Feature:** `CAP-05`, `NOT-04`, `DIC-05`, `TIM-05`, `TAB-02`–`TAB-04`, `CNT-02`, `LIB-09`.
 
 ## W4.4 — Distribuzione ed esperienza estesa
+
+**Stato:** PWA, cache offline, quota storage, densità, temi e shell EN/IT implementati. Capacitor è valutato in `arcana-screen/docs/MOBILE_WRAPPER.md`; cloud sync resta off fino all'approvazione del threat/conflict model pubblicato nell'app.
 
 - PWA installabile con cache offline completa.
 - Wrapper WebView mobile/tablet.
@@ -643,10 +653,8 @@ Queste opzioni non hanno una data e non devono influenzare l'architettura MVP ol
 
 # Sequenza immediata
 
-1. Chiudere tutte le righe `missing` e `partial` della matrice di recovery per Orizzonti 1 e 2.
-2. Chiudere le prove browser rimanenti di Dice vantaggio/svantaggio e Timer dopo sospensione lunga/background.
-3. Completare smoke browser ripetibili per first run, lifecycle, Prepare/Run, import/export e recovery.
-4. Eseguire sessioni simulate con DM reali e registrare task success e tempi di cattura/recupero.
-5. Solo dopo l'accettazione esplicita di Orizzonti 0–2, aprire `M3.1` e la release hardening.
-
-Orizzonte 3 non è una baseline valida finché il recupero precedente non è chiuso.
+1. Eseguire sessioni simulate con DM reali su Orizzonti 0–4 e registrare task success, ritrovamento, cattura e uso dei layout avanzati.
+2. Eseguire il gate WebKit nella CI Ubuntu predisposta e la prova Timer dopo sospensione lunga/background.
+3. Validare installazione e recovery offline della PWA su Android e iOS reali.
+4. Chiudere le righe non verdi della matrice di accettazione senza confondere implementazione e approvazione prodotto.
+5. Attivare un wrapper o un provider cloud solo se i dati d'uso superano i gate documentati di manutenzione, privacy e conflitto.

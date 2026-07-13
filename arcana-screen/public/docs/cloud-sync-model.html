@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ArcanaScreen cloud sync gate</title>
+    <style>body{max-width:52rem;margin:3rem auto;padding:0 1rem;font:16px/1.6 system-ui;color:#1c2541}h1,h2{line-height:1.2}code{background:#eef1f5;padding:.1rem .3rem}li{margin:.35rem 0}</style>
+  </head>
+  <body>
+    <h1>Optional cloud sync: threat and conflict model</h1>
+    <p>Status: design gate only. ArcanaScreen does not currently transmit workspace data.</p>
+    <h2>Threat model</h2>
+    <ul>
+      <li>Protected assets: screen content, campaign notes, identities, links, settings and recovery history.</li>
+      <li>Primary risks: token theft, accidental public sharing, malicious imports, provider compromise, rollback and metadata leakage.</li>
+      <li>Required controls: explicit opt-in, least-privilege provider scope, encrypted transport, revocable credentials, local export, deletion and a visible sync log.</li>
+      <li>Secrets must never be stored inside exported screen payloads or browser logs.</li>
+    </ul>
+    <h2>Conflict model</h2>
+    <ul>
+      <li>Every screen needs a stable id, schema version, revision id, device id and modification timestamp.</li>
+      <li>Disjoint tool changes may merge by tool id. Concurrent edits to the same tool create a recoverable copy; they are never silently overwritten.</li>
+      <li>Deletes use tombstones until every known device observes them. Clock time alone cannot determine causality.</li>
+      <li>Before upload, the user sees the provider, account, scope and exact data classes. Offline work remains fully supported.</li>
+    </ul>
+    <h2>Activation criteria</h2>
+    <p>A provider can be implemented only after privacy review, conflict tests across two devices, credential revocation tests, data deletion verification and an explicit product decision based on user demand.</p>
+  </body>
+</html>
