@@ -111,6 +111,13 @@ Direzione: **propagare il design system BUONO (`.arcana-session`/`session.css`) 
 
 ## Iteration log
 
+### Iterazione 14 — 2026-07-14 — Test: EvolutionSettings
+- Aggiunto `src/components/EvolutionSettings.test.tsx` — **5 test**: cambio densità, cambio lingua + localizzazione label (it), cambio accent theme, aggiornamento colore custom (`fireEvent` su input color), nota "Cloud sync is off". Seed `useEvolutionStore`.
+- **`test:ci` EXIT=0 → 25 file / 86 test** (era 81).
+- **Copertura test: 59 → 86** in 5 iterazioni (SimpleTable, WorkspaceSearch, DataManager UI, icon resolver, EvolutionSettings). Blind spot rimasti ora solo minori: OnboardingTour, theme toggle.
+- Commit+push su `origin/dev`.
+- **Fine scope autonomo:** i 3 problemi originali sono affrontati a fondo. Il residuo di valore alto (Prepare→Run) resta gated sullo steer prodotto. Prossimo giro = ultimo blind spot minore, poi raccomando pausa/steer.
+
 ### Iterazione 13 — 2026-07-14 — Test del resolver icone per-entità
 - Esportati `combatantIcon` + `NPC_ICONS` da `RunWorkspace.tsx`; nuovo `RunWorkspace.icons.test.ts` — **9 test**: mapping tipo→icona (undead→Skull prima di archer, spider→Bug, beast→PawPrint, caster→MagicWand, minion→Sword, elemental→Flame, ranged→Crosshair), fallback scudo per umanoidi/ignoti, NPC_ICONS distinte. Protegge la feature iter.12 da regressioni.
 - **`test:ci` EXIT=0 → 24 file / 81 test** (era 72). Budget invariato (test non nel bundle).
