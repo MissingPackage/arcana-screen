@@ -60,12 +60,12 @@ const COMBATANT_ICONS: Array<[RegExp, Icon]> = [
   [/dragon|drake|wyrm|flame|\bfire\b|elemental/, Flame],
   [/goblin|kobold|\borc\b|minion|grunt|bandit|soldier|melee|brute|thug/, Sword],
 ];
-const combatantIcon = (name: string, detail?: string): Icon => {
+export const combatantIcon = (name: string, detail?: string): Icon => {
   const haystack = `${name} ${detail ?? ''}`.toLowerCase();
   return COMBATANT_ICONS.find(([pattern]) => pattern.test(haystack))?.[1] ?? ShieldChevron;
 };
 // No portrait data available, so vary the NPC glyph deterministically by position.
-const NPC_ICONS: Icon[] = [UserCircle, User, UserFocus, UsersThree];
+export const NPC_ICONS: Icon[] = [UserCircle, User, UserFocus, UsersThree];
 
 const clockSegments = (value: number, total: number, label: string) => (
   <div className="segment-clock" role="img" aria-label={`${label}: ${value} of ${total}`}>
