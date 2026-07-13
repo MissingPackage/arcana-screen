@@ -111,6 +111,13 @@ Direzione: **propagare il design system BUONO (`.arcana-session`/`session.css`) 
 
 ## Iteration log
 
+### Iterazione 10 — 2026-07-13 — Profondità test: DataManager UI (trust-layer)
+- Aggiunto `src/components/DataManager/DataManager.test.tsx` — **4 test**: open/close dialog; backup incollato invalido rifiutato (alert, nessun import); preview + confirm import valido (import solo dopo conferma, verificato su `useScreenStore`); reset a due step. Riuso fixture backup dal test util. Nota: `userEvent.type` interpreta `{`/`[` → uso `user.paste` per il JSON.
+- **`test:ci` EXIT=0 → 23 file / 72 test** (era 68). Budget invariato.
+- Copertura: 59 → 64 → 68 → **72** (SimpleTable, WorkspaceSearch, DataManager UI). Blind spot rimasti: EvolutionSettings, OnboardingTour, theme toggle (minori).
+- Commit+push su `origin/dev` (protocollo per-iterazione).
+- **Next (iter. 11):** valutare checkpoint — design + test in buona forma; il grosso residuo è la chiarezza concettuale Prepare→Run (DM #1) che richiede il tuo steer di prodotto (CA / roster / demo-vs-vuoto). Se nessuno steer, coprire gli ultimi blind spot minori o rifinire.
+
 ### Iterazione 9 — 2026-07-13 — Chiarezza Prepare: tooltip controlli (DM #2)
 - Aggiunti `title` esplicativi (accurati al comportamento) a 8 controlli opachi: `ToolFrame.tsx` (Focus/Sidecar/Pop out/Configure), `Grid.tsx` (Grid/Canvas/Second monitor/Undo layout). Attacca "non si capisce come funziona" senza steer prodotto.
 - **`test:ci` EXIT=0** (68 test). ⚠️ **JS 498.2/500 KiB** (era 497.7) — margine 1.8 KiB, budget ora vincolo stringente: ulteriori aggiunte JS/stringhe da pesare (o alzare il limite = decisione Cristiano).
