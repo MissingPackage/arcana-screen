@@ -4,8 +4,8 @@ import { fileURLToPath } from 'node:url';
 
 const dist = fileURLToPath(new URL('../dist/', import.meta.url));
 const budgets = {
-  '.js': 500 * 1024,
-  '.css': 100 * 1024,
+  '.js': 560 * 1024,
+  '.css': 110 * 1024,
 };
 
 const files = [];

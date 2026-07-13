@@ -1,19 +1,30 @@
 import {
   ArrowRight,
   BookOpenText,
+  Bug,
   CaretLeft,
   CaretRight,
   Check,
   Compass,
+  Crosshair,
   Eye,
+  Flame,
   LinkSimple,
+  MagicWand,
   MapPin,
   Note,
+  PawPrint,
   PencilSimple,
   Plus,
   ShieldChevron,
+  Skull,
   Sparkle,
+  Sword,
+  User,
   UserCircle,
+  UserFocus,
+  UsersThree,
+  type Icon,
 } from '@phosphor-icons/react';
 import { useCallback, useState, type FormEvent } from 'react';
 import {
@@ -38,6 +49,23 @@ interface RunWorkspaceProps {
 
 const PACING_PHASES = ['Setup', 'Develop', 'Peak', 'Resolve'] as const;
 const pacingPhase = (pacing: number) => PACING_PHASES[Math.min(3, Math.max(0, pacing - 1))];
+
+// Per-entity icons: give each combatant/NPC a distinct glyph instead of one shared shield.
+const COMBATANT_ICONS: Array<[RegExp, Icon]> = [
+  [/spider|insect|swarm|vermin|beetle/, Bug],
+  [/undead|skelet|zombie|wraith|ghost|lich/, Skull],
+  [/wolf|worg|hound|\bdog\b|beast|bear|boar|feral|ferocious/, PawPrint],
+  [/shaman|mage|wizard|warlock|sorcer|spellcast|caster|cleric|priest|witch|druid/, MagicWand],
+  [/archer|ranged|\bbow\b|hunter|sniper/, Crosshair],
+  [/dragon|drake|wyrm|flame|\bfire\b|elemental/, Flame],
+  [/goblin|kobold|\borc\b|minion|grunt|bandit|soldier|melee|brute|thug/, Sword],
+];
+const combatantIcon = (name: string, detail?: string): Icon => {
+  const haystack = `${name} ${detail ?? ''}`.toLowerCase();
+  return COMBATANT_ICONS.find(([pattern]) => pattern.test(haystack))?.[1] ?? ShieldChevron;
+};
+// No portrait data available, so vary the NPC glyph deterministically by position.
+const NPC_ICONS: Icon[] = [UserCircle, User, UserFocus, UsersThree];
 
 const clockSegments = (value: number, total: number, label: string) => (
   <div className="segment-clock" role="img" aria-label={`${label}: ${value} of ${total}`}>
@@ -256,14 +284,17 @@ function SocialView({ workspace, onWorkspaceChange }: Pick<RunWorkspaceProps, 'w
         <section>
           <h3 className="section-label">People in the scene</h3>
           <div className="npc-list">
-            {social.npcs.map((npc) => (
+            {social.npcs.map((npc, index) => {
+              const NpcIcon = NPC_ICONS[index % NPC_ICONS.length];
+              return (
               <article key={npc.id}>
-                <div className="npc-avatar"><UserCircle size={25} /></div>
+                <div className="npc-avatar"><NpcIcon size={25} /></div>
                 <div><h3>{npc.name}</h3><p>{npc.role}</p></div>
                 <button type="button" onClick={() => cycleAttitude(npc.id)}>{npc.attitude}</button>
                 <dl><div><dt>Wants</dt><dd>{npc.motive}</dd></div><div><dt>Secret</dt><dd>{npc.secret}</dd></div></dl>
               </article>
-            ))}
+              );
+            })}
           </div>
         </section>
         <PinnedReference {...social.pinnedReference} />
@@ -389,10 +420,11 @@ function CombatView({
         <div className="combatant-list">
           {encounter.combatants.map((combatant, index) => {
             const isActive = index === activeIndex;
+            const CombatantIcon = combatantIcon(combatant.name, combatant.detail);
             return (
               <article key={combatant.id} className={isActive ? 'is-active' : ''}>
                 <strong className="initiative-score">{combatant.initiative}</strong>
-                <button type="button" className="combatant-identity" aria-label={`Manage ${combatant.name}`} aria-pressed={selectedId === combatant.id} onClick={() => setSelectedId(selectedId === combatant.id ? null : combatant.id)}><span><ShieldChevron size={23} /></span><p><strong>{combatant.name}</strong><small>{combatant.detail}</small></p>{isActive && <em>Active</em>}</button>
+                <button type="button" className="combatant-identity" aria-label={`Manage ${combatant.name}`} aria-pressed={selectedId === combatant.id} onClick={() => setSelectedId(selectedId === combatant.id ? null : combatant.id)}><span><CombatantIcon size={23} /></span><p><strong>{combatant.name}</strong><small>{combatant.detail}</small></p>{isActive && <em>Active</em>}</button>
                 <div className="combatant-hp"><span>{combatant.hp} / {combatant.maxHp}</span><i><b style={{ width: `${Math.round(combatant.hp / combatant.maxHp * 100)}%` }} /></i></div>
                 <div className="condition-chips">{combatant.conditions.map((condition) => <span key={condition}>{condition}</span>)}</div>
               </article>
