@@ -111,6 +111,12 @@ Direzione: **propagare il design system BUONO (`.arcana-session`/`session.css`) 
 
 ## Iteration log
 
+### Iterazione 13 — 2026-07-14 — Test del resolver icone per-entità
+- Esportati `combatantIcon` + `NPC_ICONS` da `RunWorkspace.tsx`; nuovo `RunWorkspace.icons.test.ts` — **9 test**: mapping tipo→icona (undead→Skull prima di archer, spider→Bug, beast→PawPrint, caster→MagicWand, minion→Sword, elemental→Flame, ranged→Crosshair), fallback scudo per umanoidi/ignoti, NPC_ICONS distinte. Protegge la feature iter.12 da regressioni.
+- **`test:ci` EXIT=0 → 24 file / 81 test** (era 72). Budget invariato (test non nel bundle).
+- Commit+push su `origin/dev`.
+- **Next (iter. 14):** progressi solidi su tutti e 3 i fronti (design/test/chiarezza). Residuo di alto valore ancora gated sullo steer prodotto Prepare→Run. Opzioni budget-safe: altri test (EvolutionSettings/theme) o rifiniture design minori. Considerare se il loop è a un punto di chiusura naturale.
+
 ### Iterazione 12 — 2026-07-14 — Icone per-entità (P0-2) + budget alzato (su richiesta utente)
 - **Budget alzato** (autorizzato): `scripts/check-performance-budget.mjs` JS 500→560 KiB, CSS 100→110 KiB.
 - **Icone per-entità** (`RunWorkspace.tsx`): resolver keyword→icona Phosphor per i combattenti (`combatantIcon`: spider→Bug, undead→Skull, wolf/beast→PawPrint, caster→MagicWand, archer→Crosshair, dragon→Flame, goblin/minion→Sword, default→ShieldChevron) e set di icone-persona variate per indice per gli NPC (`NPC_ICONS`, no ritratti disponibili). Sostituisce lo scudo/avatar identico segnalato da entrambi i giudici.
