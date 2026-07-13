@@ -111,6 +111,15 @@ Direzione: **propagare il design system BUONO (`.arcana-session`/`session.css`) 
 
 ## Iteration log
 
+### Iterazione 12 — 2026-07-14 — Icone per-entità (P0-2) + budget alzato (su richiesta utente)
+- **Budget alzato** (autorizzato): `scripts/check-performance-budget.mjs` JS 500→560 KiB, CSS 100→110 KiB.
+- **Icone per-entità** (`RunWorkspace.tsx`): resolver keyword→icona Phosphor per i combattenti (`combatantIcon`: spider→Bug, undead→Skull, wolf/beast→PawPrint, caster→MagicWand, archer→Crosshair, dragon→Flame, goblin/minion→Sword, default→ShieldChevron) e set di icone-persona variate per indice per gli NPC (`NPC_ICONS`, no ritratti disponibili). Sostituisce lo scudo/avatar identico segnalato da entrambi i giudici.
+- **Verificato a schermo:** Combat 7 combattenti con icone distinte coerenti col tipo; Social 3 NPC con icone diverse. Run per il resto invariato.
+- **`test:ci` EXIT=0** (72 test). **JS 528.9/560** (+30 per le icone Phosphor), CSS 96.3/110.
+- Fix in corso: `Spider` non esiste in questa versione Phosphor → `Bug`; `combatant.detail` opzionale → param `detail?`.
+- Commit+push su `origin/dev`.
+- **Next (iter. 13):** con margine budget ripristinato, altre win design possibili (list-row icons, Social table); o test residui; o steer prodotto Prepare→Run.
+
 ### Iterazione 11 — 2026-07-13 — Fedeltà Run: pacing stepper Narrative (designer P1)
 - Sostituito il generico `clockSegments` del pacing narrativo con uno **stepper etichettato** Setup/Develop/Peak/Resolve (cerchi numerati, corrente oro, precedenti done) + caption "You're in X" — fedele a `focus-narrative.png`. File: `session/RunWorkspace.tsx` (nuovo `PACING_PHASES`/`pacingPhase`), `session/session.css` (`.pacing-stepper` + varianti dark). Scoping: nomi classe unici a Run; `clockSegments` resta per i clock numerici Social/Exploration (N/8, N/5 già comunicano il valore).
 - **Verificato a schermo:** stepper identico al mockup; resto del Run invariato. **`test:ci` EXIT=0** (72 test). ⚠️ **JS 498.7/500** (margine 1.3 KiB), CSS 96.3/100 — budget sempre più stretto.
