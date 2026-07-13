@@ -382,6 +382,18 @@
 .segment-clock span.is-filled { border-color: #b7790e; background: var(--as-gold); }
 .clock-button { display: block !important; width: 100%; }
 .clock-button .segment-clock { width: 100%; }
+
+/* Narrative pacing: labeled Setup/Develop/Peak/Resolve stepper (source-of-truth mockup) */
+.pacing-stepper { display: flex; gap: 6px; width: 100%; margin: 8px 0 0; padding: 0; background: transparent; border: 0; cursor: pointer; }
+.pacing-step { display: flex; flex: 1; flex-direction: column; align-items: center; gap: 5px; }
+.pacing-step__num { display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid var(--as-line-strong); border-radius: 999px; color: var(--as-muted); background: #fffdf8; font-family: 'Cinzel', serif; font-size: 12px; font-weight: 600; }
+.pacing-step__label { color: var(--as-muted); font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.pacing-step.is-done .pacing-step__num { border-color: var(--as-gold); color: var(--as-ink); }
+.pacing-step.is-current .pacing-step__num { background: var(--as-gold); border-color: #b7790e; color: var(--as-navy); }
+.pacing-step.is-current .pacing-step__label { color: var(--as-ink); }
+.pacing-caption { margin: 8px 0 0; color: var(--as-muted); font-size: 11px; font-style: italic; text-align: center; }
+body.dark-theme .pacing-step__num { background: #102237; border-color: #6d7e8e; }
+body.dark-theme .pacing-step.is-current .pacing-step__num { background: var(--as-gold); color: var(--as-navy); }
 .clock-actions { display: flex; gap: 12px; }
 .clock-actions button { color: #31536f !important; font-size: 10px !important; font-weight: 700 !important; }
 

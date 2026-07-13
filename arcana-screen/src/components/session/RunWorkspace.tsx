@@ -36,6 +36,9 @@ interface RunWorkspaceProps {
   onWorkspaceChange: (workspace: FocusWorkspace) => void;
 }
 
+const PACING_PHASES = ['Setup', 'Develop', 'Peak', 'Resolve'] as const;
+const pacingPhase = (pacing: number) => PACING_PHASES[Math.min(3, Math.max(0, pacing - 1))];
+
 const clockSegments = (value: number, total: number, label: string) => (
   <div className="segment-clock" role="img" aria-label={`${label}: ${value} of ${total}`}>
     {Array.from({ length: total }, (_, index) => (
@@ -199,10 +202,18 @@ function NarrativeView({ workspace, onWorkspaceChange }: Pick<RunWorkspaceProps,
             <h3 className="section-label">Pacing</h3>
             <button
               type="button"
-              className="clock-button"
-              aria-label="Advance pacing"
+              className="pacing-stepper"
+              aria-label={`Pacing: ${pacingPhase(narrative.pacing)}, step ${narrative.pacing} of 4. Advance pacing.`}
               onClick={() => onWorkspaceChange({ ...workspace, contexts: { ...workspace.contexts, narrative: { ...narrative, pacing: narrative.pacing >= 4 ? 1 : narrative.pacing + 1 } } })}
-            >{clockSegments(narrative.pacing, 4, 'Pacing')}</button>
+            >
+              {PACING_PHASES.map((phase, index) => (
+                <span key={phase} className={`pacing-step${index + 1 === narrative.pacing ? ' is-current' : index + 1 < narrative.pacing ? ' is-done' : ''}`}>
+                  <span className="pacing-step__num" aria-hidden="true">{index + 1}</span>
+                  <span className="pacing-step__label">{phase}</span>
+                </span>
+              ))}
+            </button>
+            <p className="pacing-caption">You're in {pacingPhase(narrative.pacing)}</p>
           </section>
           <button type="button" className="primary-run-action" onClick={() => onWorkspaceChange(advanceNarrativeBeat(workspace))}>
             Move to next beat <ArrowRight size={19} />
