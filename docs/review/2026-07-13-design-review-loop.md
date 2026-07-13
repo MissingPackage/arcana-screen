@@ -3,6 +3,8 @@
 **Avviato:** 2026-07-13 · **Modalità:** `/loop` autonomo (~10 min/iterazione)
 **Owner umano:** Cristiano · **Esecutore:** Claude Code
 
+> **Protocollo git (autorizzato dall'utente):** committare e pushare su `origin/dev` alla fine di OGNI iterazione. Messaggi conventional-commit, **nessuna attribuzione AI**. (Hook `.githooks/` non attivi.) Baseline committata a fine iter.9: `8bd1a5f` (impl. Codex Orizzonti 0-4), `0b0bb6a` (design unification + fix create-screen), `53efb49` (test), `890920d` (ledger). `screenshot-baseline.mjs` resta non committato (tool QA).
+
 > Questo file è la fonte di verità del loop. Ad ogni iterazione: ri-ancorare da qui,
 > non dalla memoria conversazione. Aggiornare la sezione "Iteration log" in fondo.
 
