@@ -1,7 +1,8 @@
-import { useState, type ReactNode } from 'react';
+import { useState, type PointerEvent, type ReactNode } from 'react';
+import { DotsSixVertical } from '@phosphor-icons/react';
 import type { ScreenMode } from '../store/useScreenStore';
 import { useTrustStore } from '../store/trustStore';
-import type { WidgetDisplaySize } from '../store/useWidgetStore';
+import type { DeviceProfile, WidgetDisplaySize, WidgetGeometry } from '../store/useWidgetStore';
 import type { ToolDefinition } from './widgets/toolRegistry';
 import WidgetHelpButton from './WidgetHelpButton/WidgetHelpButton';
 
@@ -13,6 +14,18 @@ interface ToolFrameProps {
   displaySize: WidgetDisplaySize;
   onMove: (to: number) => void;
   onSizeChange: (size: WidgetDisplaySize) => void;
+  isFocused: boolean;
+  isSidecar: boolean;
+  onToggleFocus: () => void;
+  onToggleSidecar: () => void;
+  onPopout: () => void;
+  isCanvas: boolean;
+  deviceProfile: DeviceProfile;
+  geometry: WidgetGeometry;
+  onGeometryChange: (geometry: WidgetGeometry) => void;
+  zIndex: number;
+  onZIndexChange: (zIndex: number) => void;
+  onCanvasMoveStart: (event: PointerEvent<HTMLButtonElement>) => void;
   onRemove: () => void;
   children: ReactNode;
 }
@@ -25,6 +38,18 @@ export default function ToolFrame({
   displaySize,
   onMove,
   onSizeChange,
+  isFocused,
+  isSidecar,
+  onToggleFocus,
+  onToggleSidecar,
+  onPopout,
+  isCanvas,
+  deviceProfile,
+  geometry,
+  onGeometryChange,
+  zIndex,
+  onZIndexChange,
+  onCanvasMoveStart,
   onRemove,
   children,
 }: ToolFrameProps) {
@@ -43,12 +68,33 @@ export default function ToolFrame({
         </div>
         <span className="tool-chrome__state" aria-live="polite">{saveLabel}</span>
         <WidgetHelpButton helpText={definition.description} />
+        <div className="tool-view-actions" aria-label={`Views for ${definition.name}`}>
+          {isCanvas && (
+            <button
+              type="button"
+              className="canvas-move-handle"
+              onPointerDown={onCanvasMoveStart}
+              aria-label={`Drag to move ${definition.name}`}
+              title="Drag to move"
+            >
+              <DotsSixVertical size={18} weight="bold" aria-hidden="true" />
+            </button>
+          )}
+          <button type="button" aria-pressed={isFocused} onClick={onToggleFocus} title="Show only this tool and hide the rest; use Return to restore the layout">
+            {isFocused ? 'Return' : 'Focus'}
+          </button>
+          <button type="button" aria-pressed={isSidecar} onClick={onToggleSidecar} title="Pin this tool to a side panel that stays visible while you use the others">
+            {isSidecar ? 'Unpin' : 'Sidecar'}
+          </button>
+          <button type="button" onClick={onPopout} title="Open this tool in its own window — handy for a second monitor">Pop out</button>
+        </div>
         {isPrepare && (
           <button
             type="button"
             className="screen-action-button screen-action-button--quiet"
             aria-expanded={isConfigOpen}
             onClick={() => setIsConfigOpen((value) => !value)}
+            title="Resize, reorder or remove this tool"
           >
             Configure
           </button>
@@ -85,6 +131,30 @@ export default function ToolFrame({
               <option value="wide">Wide</option>
             </select>
           </label>
+          {isCanvas && (
+            <fieldset className="widget-geometry">
+              <legend>{deviceProfile} layout</legend>
+              {(['x', 'y', 'w', 'h'] as const).map((key) => (
+                <label key={key}>
+                  <span>{key.toUpperCase()}</span>
+                  <input
+                    type="number"
+                    min={key === 'w' ? 280 : key === 'h' ? 220 : 0}
+                    step={10}
+                    value={geometry[key]}
+                    onChange={(event) => onGeometryChange({
+                      ...geometry,
+                      [key]: Math.max(key === 'w' ? 280 : key === 'h' ? 220 : 0, Number(event.target.value) || 0),
+                    })}
+                  />
+                </label>
+              ))}
+              <label>
+                <span>Z</span>
+                <input type="number" min={0} value={zIndex} onChange={(event) => onZIndexChange(Math.max(0, Number(event.target.value) || 0))} />
+              </label>
+            </fieldset>
+          )}
           <button
             type="button"
             className="screen-action-button screen-action-button--danger"

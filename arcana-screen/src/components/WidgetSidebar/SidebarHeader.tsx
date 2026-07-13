@@ -1,21 +1,23 @@
+import { CaretLeft, CaretRight } from '@phosphor-icons/react';
+
 type SidebarHeaderProps = {
     isOpen: boolean;
     searchQuery: string;
     setSearchQuery: (query: string) => void;
     toggleSidebar: () => void;
   };
-  
+
   export default function SidebarHeader({ isOpen, searchQuery, setSearchQuery, toggleSidebar }: SidebarHeaderProps) {
     return (
       <div className="flex flex-col gap-2 mb-4">
         <div className="flex items-center justify-between">
-          <h2 className={`text-lg font-bold ${isOpen ? 'block' : 'hidden'}`}>Widgets</h2>
+          <h2 className={`widget-sidebar__title ${isOpen ? 'block' : 'hidden'}`}>Widgets</h2>
           <button
             onClick={toggleSidebar}
-            className="text-xl p-2"
+            className="widget-sidebar__toggle"
             aria-label={isOpen ? 'Collapse widget sidebar' : 'Expand widget sidebar'}
           >
-            {isOpen ? '⬅️' : '➡️'}
+            {isOpen ? <CaretLeft size={16} weight="bold" aria-hidden="true" /> : <CaretRight size={16} weight="bold" aria-hidden="true" />}
           </button>
         </div>
         {isOpen && (
@@ -25,7 +27,7 @@ type SidebarHeaderProps = {
             aria-label="Search widgets"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="p-2 border rounded w-full"
+            className="widget-sidebar__search"
           />
         )}
       </div>
