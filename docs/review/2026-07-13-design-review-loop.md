@@ -111,6 +111,13 @@ Direzione: **propagare il design system BUONO (`.arcana-session`/`session.css`) 
 
 ## Iteration log
 
+### Iterazione 11 — 2026-07-13 — Fedeltà Run: pacing stepper Narrative (designer P1)
+- Sostituito il generico `clockSegments` del pacing narrativo con uno **stepper etichettato** Setup/Develop/Peak/Resolve (cerchi numerati, corrente oro, precedenti done) + caption "You're in X" — fedele a `focus-narrative.png`. File: `session/RunWorkspace.tsx` (nuovo `PACING_PHASES`/`pacingPhase`), `session/session.css` (`.pacing-stepper` + varianti dark). Scoping: nomi classe unici a Run; `clockSegments` resta per i clock numerici Social/Exploration (N/8, N/5 già comunicano il valore).
+- **Verificato a schermo:** stepper identico al mockup; resto del Run invariato. **`test:ci` EXIT=0** (72 test). ⚠️ **JS 498.7/500** (margine 1.3 KiB), CSS 96.3/100 — budget sempre più stretto.
+- Prima modifica al Run finora tenuto intatto; giustificata da gap di fedeltà vs mockup approvato (fonte di verità) segnalato dai giudici.
+- Commit+push su `origin/dev`.
+- **Next (iter. 12):** budget quasi saturo → le prossime win design (icone per-entità) rischiano sforo: valutare code-splitting/dynamic import o alzare il limite (decisione Cristiano). Alternative senza rischio budget: ultimi test blind spot minori, o attendere steer prodotto per Prepare→Run.
+
 ### Iterazione 10 — 2026-07-13 — Profondità test: DataManager UI (trust-layer)
 - Aggiunto `src/components/DataManager/DataManager.test.tsx` — **4 test**: open/close dialog; backup incollato invalido rifiutato (alert, nessun import); preview + confirm import valido (import solo dopo conferma, verificato su `useScreenStore`); reset a due step. Riuso fixture backup dal test util. Nota: `userEvent.type` interpreta `{`/`[` → uso `user.paste` per il JSON.
 - **`test:ci` EXIT=0 → 23 file / 72 test** (era 68). Budget invariato.
