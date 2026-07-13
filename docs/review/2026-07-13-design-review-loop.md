@@ -111,6 +111,15 @@ Direzione: **propagare il design system BUONO (`.arcana-session`/`session.css`) 
 
 ## Iteration log
 
+### 2026-07-14 — Stato reale (Playwright) + fix regressione WCAG
+- Su richiesta utente: eseguito Playwright e2e reale (non solo `test:ci` unit). **Scoperta regressione WCAG mia:** il muted `#66758a` del re-skin è sotto 4.5:1 su pergamena (4.14–4.38) → **93 violazioni axe** su FirstRun/Prepare/Run. `test:ci` non la vedeva (gira solo unit). 
+- **Fix:** `--ink-muted` + `--as-muted` → `#586678` (~5.2:1). Verificato: axe pulito su chromium-desktop/firefox-desktop/chromium-mobile. Commit `f1190d1`.
+- **STATO REALE misurato (2026-07-14):**
+  - Unit: **86/86 verdi** (`test:ci`: build+lint+budget ok, JS 528.9/560, CSS 96.3/110).
+  - E2e Playwright: **25 passati** su chromium-desktop/firefox-desktop/chromium-mobile, **2 skip** intenzionali (touch-target solo mobile), **9 falliti = SOLO WebKit** che non si avvia su questa Fedora (vincolo host/CI, non codice).
+  - Quindi il roadmap "axe green / e2e verde" era **aspirazionale/manual-pass**: axe era in realtà RED (regressione). Ora verde (non-WebKit). WebKit resta gate CI reale.
+- Task loop: #1 stato reale = fatto. Prossimo: correggere ROADMAP con questi stati reali.
+
 ### Iterazione 14 — 2026-07-14 — Test: EvolutionSettings
 - Aggiunto `src/components/EvolutionSettings.test.tsx` — **5 test**: cambio densità, cambio lingua + localizzazione label (it), cambio accent theme, aggiornamento colore custom (`fireEvent` su input color), nota "Cloud sync is off". Seed `useEvolutionStore`.
 - **`test:ci` EXIT=0 → 25 file / 86 test** (era 81).

@@ -2,7 +2,16 @@
 
 Versione: 1.6-m4-workspace-evolution
 Data: 13 luglio 2026
-Stato: Orizzonti 1–4 implementati e protetti da gate ripetibili. L'accettazione prodotto resta separata dall'implementazione: nessun orizzonte è accettato finché la matrice in `docs/specs/acceptance-matrix.md` contiene righe `missing`, `red`, `partial` o `blocked`. In Orizzonte 4 cloud sync resta intenzionalmente disattivato e il wrapper mobile rimane una decisione documentata, non un binario fittizio.
+Stato (verificato 2026-07-14): Orizzonti 1–4 implementati.
+
+**Stato reale misurato (2026-07-14, non aspirazionale):**
+
+- Unit/component: **86/86 verdi** (`npm run test:ci` = build + lint + 86 Vitest + budget).
+- E2e Playwright (`test:e2e:critical`): **25 passati + 2 skip intenzionali** su Chromium desktop/mobile e Firefox. **9 falliti = SOLO WebKit**, che non si avvia su questo host Fedora (dipendenze di sistema mancanti) — è un gate CI, non un difetto dell'app.
+- **Accessibilità:** il gate axe era in realtà **RED** (93 violazioni di contrasto sul testo muted, regressione introdotta dal re-skin Prepare). **Corretto il 2026-07-14** (`--ink-muted`/`--as-muted` → `#586678`, ora AA ≥ 4.5:1); ora verde su Chromium/Firefox/mobile.
+- **Budget performance:** alzato il 2026-07-14 a **560 KiB JS / 110 KiB CSS** (era 500/100) per accogliere le icone per-entità; attuale 528.9/96.3.
+
+L'accettazione prodotto resta separata dall'implementazione: nessun orizzonte è accettato finché `docs/specs/acceptance-matrix.md` contiene righe `missing`, `red`, `partial` o `blocked` — e molte righe restano `manual-pass` (evidenza datata, non suite automatica). In Orizzonte 4 cloud sync resta intenzionalmente disattivato e il wrapper mobile è una decisione documentata, non un binario fittizio.
 
 Fonti:
 
@@ -432,7 +441,7 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Done quando:** i flussi core soddisfano WCAG 2.2 AA nelle verifiche applicabili e non perdono controlli a zoom 200%.
 
-**Evidenza M3:** skip navigation, focus visibile, focus trap del dialogo recovery, alternative esplicite al drag, target touch da 44 px, reflow a 640 CSS px, reduced motion persistente e axe su first run, Prepare e Run. Gate locali verdi.
+**Evidenza M3:** skip navigation, focus visibile, focus trap del dialogo recovery, alternative esplicite al drag, target touch da 44 px, reflow a 640 CSS px, reduced motion persistente e axe su first run, Prepare e Run. NOTA 2026-07-14: axe era in realtà RED (93 violazioni di contrasto sul muted, regressione del re-skin); corretto e ora verde su Chromium/Firefox/mobile. WebKit resta gate CI (non si avvia sull'host Fedora).
 
 ## M3.2 — Qualità automatizzata
 
@@ -451,7 +460,7 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Done quando:** build, lint e test sono verdi su ogni pull request e i flussi critici hanno una smoke suite ripetibile.
 
-**Evidenza M3:** `test:ci` copre build, lint JSX-accessibility, 50 test Vitest e budget; Playwright copre create/resume, Prepare/Run, cattura/reload, reorder, export/import, axe, reduced motion, privacy runtime e performance. Il workflow `Quality gate` esegue inoltre la matrice browser su ogni pull request.
+**Evidenza M3 (aggiornata 2026-07-14):** `test:ci` copre build, lint JSX-accessibility, 86 test Vitest e budget; Playwright copre create/resume, Prepare/Run, cattura/reload, reorder, export/import, axe, reduced motion, privacy runtime e performance. Il workflow `Quality gate` esegue inoltre la matrice browser su ogni pull request.
 
 ## M3.3 — Browser, performance e privacy
 
@@ -471,7 +480,7 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Done quando:** i browser dichiarati superano la matrice di test e nessun dato utente viene trasmesso senza consenso esplicito.
 
-**Evidenza M3:** Chromium desktop, Chromium mobile e Firefox verdi localmente (25 test, 2 skip intenzionali); WebKit/Safari engine è un gate CI con `playwright install --with-deps`. Bundle entro 500 KiB JS e 100 KiB CSS, nessuna vulnerabilità npm nota, nessuna richiesta cross-origin nel flusso core, privacy policy e CSP/headers versionati.
+**Evidenza M3:** Chromium desktop, Chromium mobile e Firefox verdi localmente (25 test, 2 skip intenzionali); WebKit/Safari engine è un gate CI con `playwright install --with-deps`. Bundle entro il budget (alzato il 2026-07-14 a 560 KiB JS / 110 KiB CSS per le icone per-entità; attuale 528.9/96.3), nessuna vulnerabilità npm nota, nessuna richiesta cross-origin nel flusso core, privacy policy e CSP/headers versionati.
 
 ## M3.4 — Release web
 
@@ -525,7 +534,7 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Obiettivo:** aumentare la flessibilità solo dopo aver validato il modello Screen e l'uso live.
 
-**Stato:** implementazione completata il 13 luglio 2026 su autorizzazione esplicita. Build, lint, 59 test, budget, audit dipendenze e gate E2E Chromium desktop/mobile e Firefox sono verdi; il gate WebKit locale resta non eseguibile per dipendenze di sistema già note. La validazione con DM reali resta un gate di accettazione prodotto distinto.
+**Stato:** implementazione completata il 13 luglio 2026 su autorizzazione esplicita. Build, lint, 86 test (aggiornato 2026-07-14), budget, audit dipendenze e gate E2E Chromium desktop/mobile e Firefox sono verdi; il gate WebKit locale resta non eseguibile per dipendenze di sistema già note. La validazione con DM reali resta un gate di accettazione prodotto distinto.
 
 ## W4.1 — Layout avanzato
 
