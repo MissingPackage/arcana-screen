@@ -7,6 +7,18 @@
 
 ---
 
+## Decisions taken (2026-07-14, product owner)
+
+1. **Prepare/Run → DELETE the mode boundary.** Target: one always-live surface with inline editing + a single lock toggle (open-quill ↔ closed-lock). The widget-marketplace grid and the Prepare/Run segmented control are retired. (Enables reactive Focus later.)
+2. **Focuses → KEEP 4** (Narrative / Social / Exploration / Combat) — matches the validated model + mockups.
+3. **Party surface → prototype BOTH** (always-visible bar AND collapsible glance-badge) as visual mockups for a side-by-side decision. *Owner will choose from the sketches — do not pick unilaterally.*
+4. **Present mode → INCLUDE, LOW priority.** Ship as a local read-only presenter (2nd window); COL-01 relaxed to "present the current moment on this device," not a multiplayer/synced client.
+
+### Real-state update — WebKit (2026-07-14)
+Dockerization works (podman + official Playwright image `v1.61.1-noble`). **WebKit now *launches*** — it is no longer a host-dependency block. But **8 of 9 critical tests fail on WebKit** with `element(s) not found` / `toBeVisible failed`, a systematic boot/render failure — i.e. a **real cross-browser (Safari) bug, previously masked** because WebKit never ran on the Fedora host. → **New workstream: WebKit/Safari compatibility triage** (now unblocked; run e2e in the podman Playwright image). Non-WebKit browsers remain green (25 pass) after the WCAG fix.
+
+---
+
 ## 0. Foundational architecture — build once, unlocks everything
 
 Every persona converged here independently. **This is the single highest-leverage decision.**

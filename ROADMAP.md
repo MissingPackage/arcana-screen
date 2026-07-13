@@ -7,7 +7,7 @@ Stato (verificato 2026-07-14): Orizzonti 1–4 implementati.
 **Stato reale misurato (2026-07-14, non aspirazionale):**
 
 - Unit/component: **86/86 verdi** (`npm run test:ci` = build + lint + 86 Vitest + budget).
-- E2e Playwright (`test:e2e:critical`): **25 passati + 2 skip intenzionali** su Chromium desktop/mobile e Firefox. **9 falliti = SOLO WebKit**, che non si avvia su questo host Fedora (dipendenze di sistema mancanti) — è un gate CI, non un difetto dell'app.
+- E2e Playwright (`test:e2e:critical`): **25 passati + 2 skip intenzionali** su Chromium desktop/mobile e Firefox. **WebKit:** sull'host Fedora non si avvia (dipendenze); ma nel container Playwright (podman, immagine `v1.61.1-noble`) **parte e fallisce 8/9 con `element not found`** → **bug reale cross-browser (Safari)**, finora mascherato perché WebKit non girava mai. Workstream aperto: triage compat WebKit (girare l'e2e nel container).
 - **Accessibilità:** il gate axe era in realtà **RED** (93 violazioni di contrasto sul testo muted, regressione introdotta dal re-skin Prepare). **Corretto il 2026-07-14** (`--ink-muted`/`--as-muted` → `#586678`, ora AA ≥ 4.5:1); ora verde su Chromium/Firefox/mobile.
 - **Budget performance:** alzato il 2026-07-14 a **560 KiB JS / 110 KiB CSS** (era 500/100) per accogliere le icone per-entità; attuale 528.9/96.3.
 
