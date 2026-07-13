@@ -1,287 +1,130 @@
-# CLAUDE.md - AI Assistant Guide for ArcanaScreen
+# CLAUDE.md — AI Assistant Guide for ArcanaScreen
 
-This document provides comprehensive guidance for AI assistants working on the ArcanaScreen codebase.
+Guidance for AI assistants working on ArcanaScreen. Last verified: 2026-07-14.
 
 ## Project Overview
 
-**ArcanaScreen** is a fully customizable virtual Dungeon Master (DM) screen built with React, TypeScript, and Vite. It provides Game Masters with a flexible interface to organize session resources, manage encounters, track players, and customize their screen layout through drag-and-drop widgets.
+**ArcanaScreen** is a customizable, client-side virtual Dungeon Master screen (React + TypeScript + Vite). It keeps a DM's prepared info, live capture and current session action in one glanceable workspace. No backend; state lives in browser localStorage.
 
-**Key Characteristics:**
-- Client-side only (no backend required)
-- Browser localStorage for data persistence
-- Widget-based modular architecture
-- Drag-and-drop layout customization
+**Core model (read this first):**
+- A **Screen** is the durable workspace (name, template, mode, current Focus, notebook, captures, references, universal dice/timer, per-Focus contextual state, schema version).
+- **Mode** is either `Prepare` (configure/layout) or `Run` (protected live play).
+- **Focus** is temporary session context: `narrative`, `social`, `exploration`, `combat`. Switching Focus changes the contextual tools but never touches notebook/capture/references/universal state.
+- Design source of truth: `docs/specs/` and the reference mockups in `.codex/product-design/horizon-0-prototype/reference/`.
 
-## Repository Structure
+**Architecture note (important):** the app currently runs two UI systems:
+- **Run** mode → `src/components/session/RunWorkspace.tsx` + `session.css` (`.arcana-session`), the polished Screen/Focus cockpit.
+- **Prepare** mode (and pop-out) → the legacy widget grid: `src/components/Grid.tsx` + `ToolFrame.tsx` + `WidgetSidebar/` + `src/components/widgets/*` (react-dnd).
+`src/App.tsx` branches on the active screen's mode; `FirstRun` renders when no screens exist. Reconciling these two into one model is an open product decision.
+
+## Directory layout
+
+Repo root: `/…/arcana-screen`. The app lives one level down in `arcana-screen/` (same name). **Run all commands from the app dir** (`cd arcana-screen` from the repo root).
 
 ```
-/arcana-screen/
-├── .github/
-│   └── worklows/               # GitHub Actions (project board automation)
-├── .githooks/                  # Git hooks for commit validation
-│   ├── pre-commit              # Branch name validation
-│   └── commit-msg              # Commit message validation
-├── arcana-screen/              # Main application directory
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── Grid.tsx                    # Main grid layout with drag-drop
-│   │   │   ├── widgets/                    # Widget components
-│   │   │   │   ├── DiceRoller.tsx          # D&D dice rolling
-│   │   │   │   ├── InitiativeTracker.tsx   # Combat turn tracking
-│   │   │   │   ├── CountdownTimer.tsx      # Timer widget
-│   │   │   │   ├── SimpleTable.tsx         # Editable table widget
-│   │   │   │   ├── QuickNotes.tsx          # Text notes widget
-│   │   │   │   ├── DiceIcons.tsx           # SVG dice icons
-│   │   │   │   ├── WidgetConfig.tsx        # Widget metadata registry
-│   │   │   │   └── WidgetComponents.ts     # Shared widget utilities
-│   │   │   ├── WidgetSidebar/              # Left sidebar components
-│   │   │   │   ├── WidgetSidebar.tsx
-│   │   │   │   ├── SidebarHeader.tsx
-│   │   │   │   ├── WidgetList.tsx
-│   │   │   │   ├── WidgetItem.tsx
-│   │   │   │   └── types.ts
-│   │   │   └── ProfileManager/             # Profile save/load system
-│   │   │       ├── ProfileManager.tsx
-│   │   │       └── ProfileManagerPanel.tsx
-│   │   ├── store/                          # Zustand state management
-│   │   │   ├── useWidgetStore.ts           # Widget layout and data
-│   │   │   ├── useProfileStore.ts          # Profile management
-│   │   │   ├── themeStore.ts               # Theme state (light/dark)
-│   │   │   └── appStore.ts                 # Global app state
-│   │   ├── utils/
-│   │   │   └── localStorageManager.tsx     # localStorage utilities
-│   │   ├── assets/                         # Static assets
-│   │   ├── App.tsx                         # Main App component
-│   │   ├── main.tsx                        # React entry point
-│   │   ├── index.css                       # Global styles & theme vars
-│   │   └── App.css                         # App-specific styles
-│   ├── public/                             # Static files
-│   ├── package.json
-│   ├── vite.config.ts
-│   ├── tsconfig.app.json
-│   ├── eslint.config.js
-│   └── tailwind.config.js
-├── README.md
-├── LICENSE
-└── CLAUDE.md                               # This file
+arcana-screen/                      # repo root (README, LICENSE, ROADMAP.md, CHANGELOG.md, docs/, .codex/, .githooks/)
+├── docs/                           # specs, verification, user guide, review ledger
+│   ├── specs/                      # 00-product-model, 01-shell-and-design, focus-flows, acceptance-matrix
+│   ├── verification/               # dated verification evidence
+│   └── review/                     # design-review loop ledger
+├── .codex/product-design/          # audits + horizon-0 prototype + reference mockups (design source of truth)
+├── .githooks/                      # pre-commit (branch name) + commit-msg (conventional) — NOT active by default
+└── arcana-screen/                  # the Vite app (run commands here)
+    ├── e2e/critical-flows.spec.ts  # Playwright critical @critical suite (incl. axe accessibility)
+    ├── playwright.config.ts        # projects: chromium-desktop, firefox-desktop, webkit-desktop, chromium-mobile
+    ├── scripts/check-performance-budget.mjs
+    ├── src/
+    │   ├── App.tsx                 # shell: Prepare↔Run branch, header, FirstRun/presenter/popout
+    │   ├── main.tsx                # entry (+ sw.js registration in PROD)
+    │   ├── index.css               # shell + Prepare styles/tokens
+    │   ├── components/
+    │   │   ├── session/            # RunWorkspace, FocusSelector, QuickCaptureBar, UtilityDock, session.css
+    │   │   ├── ScreenManager/      # screen switcher, create/manage panel, Prepare/Run toggle
+    │   │   ├── DataManager/        # export/import/recovery dialog (trust layer)
+    │   │   ├── FirstRun/           # empty-state screen creation
+    │   │   ├── OnboardingTour/, WidgetSidebar/, WidgetHelpButton/, ProfileManager/ (legacy)
+    │   │   ├── Grid.tsx, ToolFrame.tsx, WorkspaceSearch.tsx, EvolutionSettings.tsx
+    │   │   └── widgets/            # DiceRoller, CountdownTimer, InitiativeTracker, QuickNotes,
+    │   │                           # QuickCapture, QuickReference, SimpleTable, Counter, toolRegistry.tsx
+    │   ├── store/                  # Zustand stores (see below)
+    │   ├── domain/                 # focusModel, encounterModel, timerModel (pure logic + tests)
+    │   └── utils/                  # dataPortability, safeStorage, deviceProfile, diceFormulaParser (+ tests)
+    └── public/                     # manifest.webmanifest, sw.js, docs/, textures
 ```
 
-## Tech Stack
+## Tech stack
 
-| Category | Technology | Version |
-|----------|-----------|---------|
+| Category | Tech | Version |
+|----------|------|---------|
 | Framework | React | ^19.0.0 |
 | Language | TypeScript | ~5.7.2 |
-| Build Tool | Vite | ^6.3.1 |
-| State Management | Zustand | ^5.0.3 |
-| CSS Framework | TailwindCSS | ^4.1.4 |
-| Drag & Drop | React DnD | ^16.0.1 |
-| Toast Notifications | react-hot-toast | ^2.5.2 |
-| Linting | ESLint + typescript-eslint | ^9.25.1 |
-| Code Formatting | Prettier | ^3.5.3 |
+| Build | Vite | ^6.3.1 |
+| State | Zustand | ^5.0.3 |
+| CSS | TailwindCSS (v4) | ^4.1.4 |
+| Icons | @phosphor-icons/react | ^2.1.10 |
+| Fonts | @fontsource (Cinzel, Inter) | ^5.x |
+| Drag & drop | react-dnd | ^16.0.1 (legacy Prepare grid only) |
+| Toasts | react-hot-toast | ^2.5.2 |
+| Unit/component tests | Vitest + Testing Library | ^4.1.10 |
+| E2E / a11y | @playwright/test + @axe-core/playwright | ^1.61 / ^4.12 |
 
-## Development Commands
-
-All commands should be run from the `arcana-screen/arcana-screen/` directory:
+## Development commands (run from the app dir)
 
 ```bash
-npm run dev      # Start Vite dev server with HMR (port 5173)
-npm run build    # Type-check (tsc) + Vite production build
-npm run lint     # Run ESLint on project
-npm run preview  # Preview production build locally
+npm run dev               # Vite dev server (HMR)
+npm run build             # tsc -b && vite build
+npm run lint              # eslint
+npm test                  # vitest run (unit/component) — currently 86 tests
+npm run test:ci           # build + lint + test + check:budget   ← does NOT run e2e
+npm run test:e2e:critical # Playwright @critical suite (browsers + axe)  ← run this for browser/a11y
+npm run check:budget      # asset budget: 560 KiB JS / 110 KiB CSS
+npm run preview           # serve the production build (used by Playwright webServer on :4173)
 ```
 
-## Git Conventions
+**Testing reality (verified 2026-07-14):** `test:ci` runs unit only. Browser flows, responsive, and **axe accessibility/contrast** are only covered by `test:e2e:critical`. Always run the Playwright suite after visual/CSS changes — unit tests will not catch contrast/a11y regressions. Real state: 86/86 unit green; e2e 25 pass + 2 skip on Chromium desktop/mobile + Firefox; the 9 WebKit failures are only because WebKit cannot launch on the Fedora dev host (a CI gate, not an app defect).
 
-### Branch Naming
+## State management (Zustand, localStorage-persisted)
 
-Branches must follow the pattern: `{type}/{issue-number}-{description}`
+| Store | File | Key | Purpose |
+|-------|------|-----|---------|
+| Screens | `store/useScreenStore.ts` | `arcana_screens` | Screen lifecycle, mode, Focus, workspace |
+| Widgets (legacy) | `store/useWidgetStore.ts` | `arcanaScreenLayout` | Prepare grid widgets + layout |
+| Evolution | `store/useEvolutionStore.ts` | `arcana_evolution` | density, locale (EN/IT), accent theme, templates, reference packs |
+| Theme | `store/themeStore.ts` | `arcana_theme` | light/dark, reduced motion |
+| Trust | `store/trustStore.ts` | (autosave status) | save/health status surfaced in UI |
+| Tour | `store/tourStore.ts` | `arcana_tour` | onboarding tour |
+| App | `store/appStore.ts` | `arcana_app_state` | favorites/global |
+| Profiles (legacy) | `store/useProfileStore.ts` | `arcana_profiles` | older profile system |
 
-**Types:** `feature`, `fix`, `chore`, `refactor`
+`store/screenTemplates.ts` holds the General/Combat/Blank template catalog.
 
-**Examples:**
-- `feature/23-initiative-tracker`
-- `fix/45-dice-roller-bug`
-- `refactor/12-store-cleanup`
+## Design system
 
-### Commit Messages
+The intended language (both modes should share it): deep-navy header/dock (`#061f36`), warm parchment plane (`#fbf7ee`), muted gold (`#e5ad32`) reserved for active/primary state, **Cinzel** for headings + **Inter** for body (bundled via `@fontsource`, CSP-safe), Phosphor outline icons (no emoji), thin borders, ~8px radii, minimal shadow, state signalled by text/shape/position not only colour. Tokens: `session.css` (`--as-*`, `.arcana-session`) is the reference; `index.css` (`--ink`, `--ink-muted`, `--line`, …) mirrors it for the shell/Prepare. **Muted text is `#586678`** (do not lighten below WCAG AA 4.5:1 on parchment).
 
-Commits must follow Conventional Commits format with issue reference:
+## Adding a tool/widget
 
-```
-{type}[({scope})]: {description} #{issue-number}
-```
+Legacy widgets are registered in `src/components/widgets/toolRegistry.tsx` (typed defaults + schema/migration). Run-mode Focus tools live in `session/RunWorkspace.tsx`. Persist widget state via the widget store; persist Screen state via `useScreenStore`.
 
-**Types:** `feat`, `fix`, `chore`, `refactor`, `docs`, `style`, `test`, `perf`, `ci`, `build`
+## Git conventions
 
-**Examples:**
-- `feat: add initiative tracker widget #23`
-- `fix(dice-roller): correct advantage calculation #45`
-- `docs: update README installation steps #12`
+- **Commit + push to `origin/dev` at the end of each unit of work.** Conventional Commits (`feat|fix|chore|refactor|docs|style|test|perf|ci|build: …`).
+- **Never** add AI attribution (no `Co-Authored-By`, no "Generated with") to commits/PRs.
+- Hooks in `.githooks/` validate branch names (`{type}/{issue}-{desc}`) and commit-msg (`type: desc #issue`) **but are not active** unless `git config core.hooksPath .githooks` is set. Current work commits directly on `dev`.
 
-### Git Hooks
+## Do / Don't
 
-The repository includes git hooks in `.githooks/`:
-- **pre-commit**: Validates branch name convention
-- **commit-msg**: Validates commit message format
+**Do:** run `npm run test:ci` **and** `npm run test:e2e:critical` before claiming done; keep the two modes visually coherent with the session design system; use Phosphor icons; keep new widgets self-contained; watch the asset budget (560/110 KiB).
+**Don't:** add a backend; ship emoji glyphs; lighten muted text below AA; change a localStorage key without updating all references; claim "green" from unit tests alone (they miss browser/a11y).
 
-To enable hooks: `git config core.hooksPath .githooks`
+## Key file references
 
-## Code Patterns & Conventions
-
-### Component Structure
-
-All components are functional React components using hooks:
-
-```typescript
-interface WidgetProps {
-  id: string;
-  updateWidget: (id: string, updates: Partial<Widget>) => void;
-  removeWidget?: (id: string) => void;
-}
-
-const MyWidget: React.FC<WidgetProps> = ({ id }) => {
-  const widget = useWidgetStore(state => state.widgets.find(w => w.id === id));
-  const updateWidget = useWidgetStore(state => state.updateWidget);
-  const [localState, setLocalState] = useState(...);
-
-  // Component logic and JSX
-};
-```
-
-### State Management (Zustand)
-
-Stores are organized by feature with persist middleware for localStorage:
-
-```typescript
-// Store pattern
-export const useWidgetStore = create<WidgetStore>()(
-  persist(
-    (set, get) => ({
-      widgets: [],
-      addWidget: (widget) => set({ widgets: [...get().widgets, widget] }),
-      updateWidget: (id, updates) =>
-        set({
-          widgets: get().widgets.map((w) =>
-            w.id === id ? { ...w, ...updates } : w
-          ),
-        }),
-      // ...
-    }),
-    { name: 'arcanaScreenLayout' }
-  )
-);
-```
-
-**Store Files:**
-- `useWidgetStore.ts` - Widget layout and data (key: `arcanaScreenLayout`)
-- `useProfileStore.ts` - Profile management (key: `arcana_profiles`)
-- `themeStore.ts` - Theme state (key: `theme`)
-- `appStore.ts` - App state including favorites (key: `arcana_favorites`)
-
-### Styling
-
-- **Primary:** TailwindCSS utility classes
-- **Secondary:** Inline styles for dynamic values
-- **Theming:** Class-based dark mode using `dark-theme` and `light-theme` classes
-- **Global CSS:** CSS variables defined in `index.css`
-
-### Naming Conventions
-
-- **Components:** PascalCase (e.g., `DiceRoller`, `InitiativeTracker`)
-- **Files:** Match component name (e.g., `DiceRoller.tsx`)
-- **Functions/variables:** camelCase
-- **Types/Interfaces:** PascalCase (e.g., `WidgetProps`, `TableColumn`)
-
-### Drag & Drop (React DnD)
-
-Item types used in the application:
-- `'WIDGET'` - Widget cards from sidebar
-- `'ROW'` / `'COLUMN'` - Table row/column reordering
-
-## Widget System
-
-### Available Widgets
-
-| Widget | ID | Purpose |
-|--------|-----|---------|
-| Countdown Timer | `countdown-timer` | Time tracking for encounters |
-| Dice Roller | `dice-roller` | D2-D100 rolling with advantage/disadvantage |
-| Initiative Tracker | `initiative-tracker` | Combat turn order management |
-| Quick Notes | `quick-notes` | Text note taking |
-| Simple Table | `simple-table` | Editable data tables |
-
-### Adding a New Widget
-
-1. Create component in `src/components/widgets/NewWidget.tsx`
-2. Add metadata to `WidgetConfig.tsx`:
-   ```typescript
-   {
-     id: 'new-widget',
-     name: 'New Widget',
-     tags: ['tag1', 'tag2'],
-     isFavorite: false
-   }
-   ```
-3. Add widget case to `Grid.tsx` render logic
-4. Define widget-specific properties in `Widget` interface (`useWidgetStore.ts`)
-
-### Widget Props Pattern
-
-Widgets receive:
-- `id` - Unique widget instance identifier
-- Access store directly via `useWidgetStore`
-- Update state via `updateWidget(id, { ...updates })`
-
-## Testing
-
-**Current State:** No formal test suite configured.
-
-Validation relies on:
-- TypeScript strict mode type checking
-- ESLint static analysis
-- Manual browser testing
-
-## Important Notes for AI Assistants
-
-### Do's
-
-- Always run `npm run build` to verify TypeScript compilation
-- Follow the established patterns for components and stores
-- Use TailwindCSS for styling when possible
-- Keep widget components self-contained
-- Persist important state to localStorage via Zustand middleware
-- Reference issue numbers in commits
-
-### Don'ts
-
-- Don't add backend dependencies (client-side only)
-- Don't bypass git hooks without explicit permission
-- Don't modify localStorage keys without updating all references
-- Don't introduce dependencies without clear justification
-
-### Code Quality Checklist
-
-Before submitting changes:
-1. [ ] TypeScript compiles without errors (`npm run build`)
-2. [ ] ESLint passes (`npm run lint`)
-3. [ ] Branch name follows convention
-4. [ ] Commit messages follow Conventional Commits with issue reference
-5. [ ] No `any` types without justification
-6. [ ] New widgets registered in `WidgetConfig.tsx`
-7. [ ] State properly persisted if needed
-
-### Known Legacy Issues
-
-- Some code comments are in Italian (migrating to English)
-- Some debugging console.log statements may exist
-- Type safety could be improved in some store definitions
-
-## Useful File References
-
-- **Main entry:** `arcana-screen/src/main.tsx`
-- **App component:** `arcana-screen/src/App.tsx`
-- **Widget registry:** `arcana-screen/src/components/widgets/WidgetConfig.tsx`
-- **Widget store:** `arcana-screen/src/store/useWidgetStore.ts`
-- **Grid layout:** `arcana-screen/src/components/Grid.tsx`
-- **Theme variables:** `arcana-screen/src/index.css`
+- Shell/branch: `src/App.tsx` · Entry: `src/main.tsx`
+- Run cockpit: `src/components/session/RunWorkspace.tsx` (+ `session.css`)
+- Prepare grid: `src/components/Grid.tsx`, `ToolFrame.tsx`, `WidgetSidebar/`
+- Screen lifecycle: `src/store/useScreenStore.ts` · Screen mgmt UI: `src/components/ScreenManager/`
+- Tool registry: `src/components/widgets/toolRegistry.tsx`
+- Trust layer: `src/utils/dataPortability.ts`, `src/components/DataManager/`
+- E2E/a11y: `arcana-screen/e2e/critical-flows.spec.ts`
+- Design specs: `docs/specs/` · Reference mockups: `.codex/product-design/horizon-0-prototype/reference/`
+- Review ledger: `docs/review/2026-07-13-design-review-loop.md`
