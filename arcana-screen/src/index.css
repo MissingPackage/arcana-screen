@@ -894,6 +894,49 @@
      background: #f4e8cb;
    }
 
+   /* === PARTY SETUP (roster) === */
+   .header-party { position: relative; }
+   .header-party > summary { list-style: none; }
+   .header-party > summary::-webkit-details-marker { display: none; }
+   .party-setup__panel {
+     position: absolute;
+     z-index: 45;
+     top: calc(100% + 0.5rem);
+     right: 0;
+     display: grid;
+     gap: 0.75rem;
+     width: min(42rem, calc(100vw - 2rem));
+     max-height: min(34rem, calc(100vh - 6rem));
+     padding: 1rem;
+     overflow: auto;
+     color: var(--ink);
+     background: var(--surface);
+     border: 1px solid var(--line);
+     border-radius: 10px;
+     box-shadow: 0 14px 34px rgba(18, 43, 73, 0.18);
+   }
+   .party-setup__head h2 { margin: 0; font-family: 'Cinzel', Georgia, serif; font-size: 1.05rem; font-weight: 600; }
+   .party-setup__head p { margin: 0.2rem 0 0; color: var(--ink-muted); font-size: 0.82rem; }
+   .party-setup__list { display: grid; gap: 0.6rem; margin: 0; padding: 0; list-style: none; }
+   .party-member {
+     display: grid;
+     gap: 0.5rem;
+     padding: 0.7rem;
+     border: 1px solid var(--line);
+     border-radius: 8px;
+     background: var(--paper-deep, var(--surface));
+   }
+   .party-member__stats { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.4rem; }
+   .party-member label { display: grid; gap: 0.2rem; }
+   .party-member label > span { color: var(--ink-muted); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+   .party-member input { width: 100%; min-width: 0; }
+   .party-member__remove { justify-self: end; min-height: 2rem; padding: 0.3rem 0.6rem; font-size: 0.78rem; }
+   .party-setup__add { justify-self: start; }
+   @media (max-width: 700px) {
+     .party-setup__panel { position: fixed; inset: 1rem; width: auto; }
+     .party-member__stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+   }
+
    @media (max-width: 1280px) {
      .arcana-header { grid-template-columns: auto minmax(22rem, 1fr) auto; gap: 0.65rem; }
      .arcana-header .app-header__brand h1 { display: none; }

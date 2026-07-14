@@ -17,6 +17,7 @@ import FirstRun from './components/FirstRun/FirstRun';
 import RunWorkspace from './components/session/RunWorkspace';
 import { CompassRose, LockKey, MoonStars, Question, Sun } from '@phosphor-icons/react';
 import WorkspaceSearch from './components/WorkspaceSearch';
+import PartySetup from './components/PartySetup/PartySetup';
 import EvolutionSettings from './components/EvolutionSettings';
 import { useEvolutionStore } from './store/useEvolutionStore';
 
@@ -149,6 +150,7 @@ function App() {
             <ScreenManager />
             <div className="app-header__utilities">
               <WorkspaceSearch />
+              <PartySetup />
               <button
                 type="button"
                 className="screen-action-button"
