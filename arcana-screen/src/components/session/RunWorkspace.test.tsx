@@ -59,6 +59,23 @@ describe('RunWorkspace', () => {
     expect(screen.getByRole('link', { name: /Monster Manual/ })).toHaveAttribute('href', 'https://www.dndbeyond.com/sources/dnd/free-rules');
   });
 
+  it('starts the session clock and advances the spine beat from the rail', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'narrative';
+    render(<StatefulRun initial={workspace} />);
+
+    const spine = screen.getByRole('group', { name: 'Session spine' });
+    expect(within(spine).getByText('Hook')).toBeVisible();
+    expect(within(spine).getByText('Climax')).toBeVisible();
+
+    await user.click(within(spine).getByRole('button', { name: /Start session clock/ }));
+    expect(within(spine).getByText(/min in · beat 1\/4/)).toBeVisible();
+
+    await user.click(within(spine).getByRole('button', { name: /Next beat/ }));
+    expect(within(spine).getByText(/beat 2\/4/)).toBeVisible();
+  });
+
   it('mints a role-pinned NPC to the top of the scene and confirms removal', async () => {
     const user = userEvent.setup();
     const workspace = createDefaultFocusWorkspace();

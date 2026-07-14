@@ -1,5 +1,6 @@
 import type { EncounterState } from './encounterModel';
 import type { TimerState } from './timerModel';
+import { createDefaultSpine, type SessionSpine } from './spineModel';
 
 export type FocusId = 'narrative' | 'social' | 'exploration' | 'combat';
 
@@ -85,6 +86,7 @@ export interface UniversalState {
     error: string;
   };
   timer: TimerState;
+  spine: SessionSpine;
 }
 
 export interface FocusWorkspace {
@@ -127,6 +129,7 @@ export const createDefaultFocusWorkspace = (): FocusWorkspace => ({
     ],
     dice: { die: 20, modifier: 1, result: 19, formula: '', mode: 'normal', results: [18], breakdown: ['1d20[18]', '+1'], error: '' },
     timer: { durationSeconds: 3600, remainingSeconds: 3600, endAt: null, running: false },
+    spine: createDefaultSpine(),
   },
   contexts: {
     narrative: {
@@ -193,6 +196,7 @@ export const migrateFocusWorkspace = (workspace?: Partial<FocusWorkspace>): Focu
       references: universal?.references ?? defaults.universal.references,
       dice: { ...defaults.universal.dice, ...universal?.dice },
       timer: { ...defaults.universal.timer, ...universal?.timer },
+      spine: universal?.spine ? { ...defaults.universal.spine, ...universal.spine } : defaults.universal.spine,
     },
     contexts: {
       narrative: { ...defaults.contexts.narrative, ...contexts?.narrative },
