@@ -99,7 +99,7 @@ Local-first, no backend · WCAG **AA enforced by the Playwright axe suite** (uni
 Decisions are taken (see top). Run the goal-loop per feature → build → **browser verification in the podman Playwright container (all browsers incl. WebKit) + axe** → unit/component tests → product-designer + DM judgment → commit+push to `dev` (no AI attribution). Reminder: `test:ci` runs unit only.
 
 ### Horizon A — build steps (loop-sized)
-1. **Entity + party store.** Define the PC `Entity` (`id`, `kind:'pc'`, `name`, `ac`, `hp`/`maxHp`, `initMod`, `passivePerception`, `passiveInsight`, `saveNotes`, `reveal`, `origin:'mine'`) and a persisted party store (portable JSON, not IndexedDB). Unit tests: add/edit/remove PC.
+1. **Entity + party store.** ✅ done 2026-07-14 — `src/domain/partyModel.ts` (PC `Entity`: id/kind/name/ac/hp/maxHp/initMod/passivePerception/passiveInsight/notes/reveal/origin, with `createPartyMember` validating+clamping) + `src/store/usePartyStore.ts` (persisted `arcana_party`, add/update/remove/reorder/setMembers/clear) + 10 unit tests. `test:ci` 96 green.
 2. **Backup integration.** Include the party in export/import with a schema-version bump + migration; round-trip test.
 3. **Party/table setup UI.** Inline add/edit PC rows (light, sane defaults, tab-through); non-blocking entry nudge when a Focus needs the party and it's empty.
 4. **Tracker integration (Combat).** AC inline on combatant rows; add-PC becomes a roster chip-picker (auto-fills name/AC/init, no re-keying); HP edits write the shared Entity.
