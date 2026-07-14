@@ -169,23 +169,40 @@ describe('RunWorkspace', () => {
     expect(screen.getByRole('button', { name: 'Social' })).toHaveAttribute('aria-pressed', 'true');
   });
 
-  it('edits the read-aloud prose and presents it large for the table', async () => {
+  it('edits per-moment read-aloud (static by default) and presents it, closable by Escape', async () => {
     const user = userEvent.setup();
     const workspace = createDefaultFocusWorkspace();
     workspace.currentFocus = 'exploration';
     render(<StatefulRun initial={workspace} />);
 
+    // Static prose by default — no editable field until Edit is tapped (no accidental edits)
+    expect(screen.getByText(/Cold blue light pools/)).toBeVisible();
+    expect(screen.queryByLabelText('Read-aloud text')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /Edit/ }));
     const field = screen.getByLabelText('Read-aloud text');
     await user.clear(field);
     await user.type(field, 'The vault hums with a low, waiting sound.');
+    await user.click(screen.getByRole('button', { name: /Done/ }));
 
-    expect(screen.queryByRole('dialog', { name: 'Read-aloud presenter' })).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /Present/ }));
     const presenter = screen.getByRole('dialog', { name: 'Read-aloud presenter' });
     expect(within(presenter).getByText('The vault hums with a low, waiting sound.')).toBeVisible();
 
-    await user.click(within(presenter).getByRole('button', { name: 'Close' }));
+    await user.keyboard('{Escape}'); // modal closes on Escape
     expect(screen.queryByRole('dialog', { name: 'Read-aloud presenter' })).not.toBeInTheDocument();
+  });
+
+  it('swaps the read-aloud box to the selected moment', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'exploration';
+    render(<StatefulRun initial={workspace} />);
+
+    expect(screen.getByText(/Cold blue light pools/)).toBeVisible(); // active moment's prose
+    await user.click(screen.getByRole('button', { name: /The Sunken Archive/ }));
+    expect(screen.getByText(/Ten thousand drowned books/)).toBeVisible();
+    expect(screen.queryByText(/Cold blue light pools/)).not.toBeInTheDocument();
   });
 
   it('completes Exploration and advances the persistent counter', async () => {

@@ -55,6 +55,7 @@ export interface ExplorationMoment {
   id: string;
   title: string;
   status: 'active' | 'completed' | 'prepared';
+  readAloud?: string; // boxed prose for this room, presentable large + clean
 }
 
 export interface ExplorationFocusState {
@@ -65,7 +66,6 @@ export interface ExplorationFocusState {
   clues: string[];
   changes: string[];
   liveLog: Array<{ time: string; text: string }>;
-  readAloud: string; // boxed prose the DM reads to players; presentable large + clean
 }
 
 export interface UniversalState {
@@ -162,9 +162,9 @@ export const createDefaultFocusWorkspace = (): FocusWorkspace => ({
     exploration: {
       currentMomentId: 'galleries',
       moments: [
-        { id: 'galleries', title: 'Echoing Galleries', status: 'active' },
+        { id: 'galleries', title: 'Echoing Galleries', status: 'active', readAloud: "Cold blue light pools between the arches. Every footstep returns as a whisper in someone else's voice." },
         { id: 'gate', title: 'The Sealed Gate', status: 'completed' },
-        { id: 'archive', title: 'The Sunken Archive', status: 'prepared' },
+        { id: 'archive', title: 'The Sunken Archive', status: 'prepared', readAloud: 'Dust hangs in the dead air. Ten thousand drowned books wait behind a door that has not opened in an age.' },
       ],
       discoveryClock: 3,
       counter: 3,
@@ -175,7 +175,6 @@ export const createDefaultFocusWorkspace = (): FocusWorkspace => ({
         { time: '7:14 PM', text: 'Elia heard distant water at the northern arch.' },
         { time: '7:18 PM', text: 'Discovered carved name: Vhalen.' },
       ],
-      readAloud: "Cold blue light pools between the arches. Every footstep returns as a whisper in someone else's voice.",
     },
     combat: { round: 3, currentIndex: 0, combatants },
   },

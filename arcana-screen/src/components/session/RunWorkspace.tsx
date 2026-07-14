@@ -401,7 +401,20 @@ function ExplorationView({ workspace, onWorkspaceChange }: Pick<RunWorkspaceProp
   const [clueDraft, setClueDraft] = useState('');
   const [logDraft, setLogDraft] = useState('');
   const [presentOpen, setPresentOpen] = useState(false);
-  const setReadAloud = (readAloud: string) => onWorkspaceChange({ ...workspace, contexts: { ...workspace.contexts, exploration: { ...exploration, readAloud } } });
+  const [editingReadAloud, setEditingReadAloud] = useState(false);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const presentTriggerRef = useRef<HTMLButtonElement>(null);
+  const readAloudText = active?.readAloud ?? '';
+  // Read-aloud is per-moment so a dungeon's rooms don't clobber one shared box.
+  const setReadAloud = (readAloud: string) => onWorkspaceChange({ ...workspace, contexts: { ...workspace.contexts, exploration: { ...exploration, moments: exploration.moments.map((moment) => moment.id === exploration.currentMomentId ? { ...moment, readAloud } : moment) } } });
+  useEffect(() => {
+    if (!presentOpen) return;
+    const trigger = presentTriggerRef.current;
+    closeButtonRef.current?.focus(); // move focus into the modal so aria-modal is honest
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') setPresentOpen(false); };
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('keydown', onKey); trigger?.focus(); }; // restore focus on close
+  }, [presentOpen]);
   const addMoment = (event: FormEvent) => {
     event.preventDefault();
     const title = momentDraft.trim();
@@ -439,8 +452,14 @@ function ExplorationView({ workspace, onWorkspaceChange }: Pick<RunWorkspaceProp
       <article className="session-ledger">
         <header className="panel-title"><div><span className="eyebrow">Current location</span><h2>Session Ledger</h2></div><span className="saved-note"><MapPin size={15} /> {active?.title}</span></header>
         <section className="read-aloud">
-          <div className="read-aloud__head"><span>Read aloud</span><button type="button" className="read-aloud__present" disabled={!exploration.readAloud.trim()} onClick={() => setPresentOpen(true)}><Eye size={13} /> Present</button></div>
-          <textarea aria-label="Read-aloud text" value={exploration.readAloud} onChange={(event) => setReadAloud(event.target.value)} placeholder="Write the boxed text you read to the players…" />
+          <div className="read-aloud__head">
+            <span>Read aloud</span>
+            <button type="button" className="read-aloud__edit" aria-pressed={editingReadAloud} onClick={() => setEditingReadAloud((open) => !open)}><PencilSimple size={13} /> {editingReadAloud ? 'Done' : 'Edit'}</button>
+            <button ref={presentTriggerRef} type="button" className="read-aloud__present" disabled={!readAloudText.trim()} onClick={() => setPresentOpen(true)}><Eye size={13} /> Present</button>
+          </div>
+          {editingReadAloud
+            ? <textarea aria-label="Read-aloud text" value={readAloudText} onChange={(event) => setReadAloud(event.target.value)} placeholder="Write the boxed text you read to the players…" />
+            : readAloudText ? <p>{readAloudText}</p> : <p className="read-aloud__empty">No boxed text for this moment yet — tap Edit to add it.</p>}
         </section>
         <div className="ledger-columns">
           <section><h3>Clues discovered</h3><ul>{exploration.clues.map((clue) => <li key={clue}><Sparkle size={15} /> {clue}</li>)}</ul><form className="ledger-add-form" onSubmit={addClue}><input aria-label="New clue" value={clueDraft} onChange={(event) => setClueDraft(event.target.value)} placeholder="Add clue" /><button type="submit" aria-label="Add clue"><Plus size={14} /></button></form></section>
@@ -456,8 +475,8 @@ function ExplorationView({ workspace, onWorkspaceChange }: Pick<RunWorkspaceProp
       </aside>
       {presentOpen && (
         <div className="read-aloud-present" role="dialog" aria-modal="true" aria-label="Read-aloud presenter">
-          <p>{exploration.readAloud}</p>
-          <button type="button" onClick={() => setPresentOpen(false)}>Close</button>
+          <p>{readAloudText}</p>
+          <button ref={closeButtonRef} type="button" onClick={() => setPresentOpen(false)}>Close</button>
         </div>
       )}
     </div>

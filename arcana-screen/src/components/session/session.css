@@ -479,7 +479,12 @@ body.dark-theme .pacing-step.is-current .pacing-step__num { background: var(--as
 .session-ledger { min-width: 0; padding: 18px 23px; overflow: auto; background: #fffdf8; }
 .read-aloud { margin: 15px 0; padding: 15px; background: #f5efe4; border-left: 3px solid #be8520; }
 .read-aloud span { color: #8f6518; font-size: 9px; font-weight: 700; text-transform: uppercase; }
-.read-aloud__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.read-aloud__head { display: flex; align-items: center; gap: 8px; }
+.read-aloud__head > span:first-child { margin-right: auto; }
+.read-aloud p { margin: 7px 0 0; color: #344e65; font-family: 'Cinzel', serif; font-size: 13px; line-height: 1.55; }
+.read-aloud__empty { color: var(--as-muted) !important; font-style: italic; }
+.arcana-session .read-aloud__edit { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; color: #6b533a; background: transparent; border: 1px solid var(--as-line-strong); border-radius: 5px; font-size: 10px; font-weight: 700; cursor: pointer; }
+.arcana-session .read-aloud__edit[aria-pressed="true"] { color: #8f6518; border-color: #d8c07f; }
 .arcana-session .read-aloud__present { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; color: #8f6518; background: transparent; border: 1px solid #d8c07f; border-radius: 5px; font-size: 10px; font-weight: 700; cursor: pointer; }
 .arcana-session .read-aloud__present:disabled { color: var(--as-muted); border-color: var(--as-line); cursor: default; }
 .arcana-session .read-aloud textarea { width: 100%; margin: 6px 0 0; padding: 0; min-height: 46px; resize: vertical; color: #344e65; background: transparent; border: none; font-family: 'Cinzel', serif; font-size: 13px; line-height: 1.55; }
