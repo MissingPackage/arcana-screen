@@ -254,3 +254,16 @@ Direzione: **propagare il design system BUONO (`.arcana-session`/`session.css`) 
 - Roster PG riutilizzabile (feature nuova, molto richiesta dal DM).
 - Autenticità dati: i Focus mostrano lore hardcoded (es. `RunWorkspace.tsx:404` encounter notes) invece dei dati utente; + "start vuoto vs demo".
 - Debito: logica combat duplicata (`domain/encounterModel` id-string in Run vs `widgets/InitiativeTracker.tsx` id-numerico in Prepare).
+
+---
+
+## Loop forward-roadmap — Orizzonte A (2026-07-14)
+
+Ri-ancorato da `docs/roadmap/2026-07-14-forward-roadmap.md` (build-steps in quel doc, con stato ✅ per step). Le decisioni di prodotto qui sopra sono state **risolte**: CA nel modello combat = **fatta** (4a); roster PG riutilizzabile = **fatto** (party store + PartySetup + roster-picker, step 1–3b, 4b).
+
+### Iter. 4c — Tracker polish + giudizio designer/DM — commit `83995e8` + `ae29995`
+- **Fatto:** editing INIT in-place (click sul numero → input → auto-resort), CA sempre presente (dash "—" se assente), hint scopribilità editor HP. 2 test componente + suite `test:ci` **107 verdi**; verifica browser (container/chromium) + **axe 0 violazioni** sulla superficie Combat.
+- **Giudizio designer (P0):** l'affordance di editing era invisibile al tocco (solo hover). **Risolto:** il numero è un bottone con **sottolineatura tratteggiata + glifo matita**, target ≥30px (WCAG 2.5.8), solido su hover/focus. P1 crowding CA↔HP **risolto** (`margin-right`). P2 hint verboso → rinviato.
+- **Giudizio DM (2×P0):** (1) i PG aggiunti dal roster cadevano a init 0 indistinguibile da un 0 tirato → **risolto** con flag `initiativeUnset` + render "—" + test. (2) manca un flusso di **inserimento batch** delle iniziative a inizio round → aperto come **step 4d** (Tab-to-next / "enter all, sort once"). P1 tie non visibili/modificabili → 4d. P2 CA utile, accettato.
+- **Next (iter. 4d):** batch initiative entry + visibilità/override dei tie, poi step 5 (superficie party non-combat: badge→overlay in Narrative/Social/Exploration, con passive Insight/Perception in Social).
+- **Aperti (invariati):** ritiro del boundary Prepare/Run (deciso); triage compat WebKit (8/9 critical falliti in WebKit); HP modificati nel tracker non riscrivono sull'Entità roster.

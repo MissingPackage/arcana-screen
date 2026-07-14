@@ -108,10 +108,16 @@ Decisions are taken (see top). Run the goal-loop per feature → build → **bro
 4. **Tracker integration (Combat).**
    - 4a ✅ done 2026-07-14 — **AC inline on every combatant row** (gold chip in the identity cell, AA-safe, no grid change); `ac?` added to the encounter model + demo seed. `test:ci` 101 green; browser+axe 0 violations. (Fixed a CSS collision where the icon-circle rule also styled the AC span.)
    - 4b ✅ done 2026-07-14 — **roster chip-picker** ("Add from party" chips under the tracker; click adds a PC as a combatant with name/AC/HP/init auto-filled from the entity, dedup-disables the chip). `addCombatant` + `combatantFromMember` mappers, 3 integration tests; `test:ci` 104 green; browser+axe verified (chips 2, combatants 7→8, chip disables). Follow-up: set the *rolled* initiative in-Run (currently seeds from the init modifier); HP edited in the tracker doesn't yet write back to the roster entity (encounter holds its own copy).
-4c. **Tracker polish (from designer + DM judgment, 2026-07-14) — do before step 5.**
-   - *Designer P1:* AC chip should **always render** (muted "AC —" when unset) so present/absent AC doesn't leave a ragged edge beside HP.
-   - *DM #1:* **in-place INIT editing** — click a combatant's initiative to type the rolled value and auto-resort (added PCs currently sit at init 0; that's the tell). Biggest "run the fight" gap.
-   - *DM:* the HP live editor (−5/−1/+1/+5, temp, conditions) only appears after selecting a combatant and is undiscoverable — surface it (make HP/the row obviously editable). Later: downed / death saves / concentration.
+4c. **Tracker polish (from designer + DM judgment, 2026-07-14).** ✅ done 2026-07-14 — commits `83995e8` (base) + `ae29995` (polish); `test:ci` 107 green; browser+axe 0 violations on the Combat surface.
+   - *Designer P1:* AC chip **always renders** (dashed "AC —" when unset) — no ragged edge; AC chip given `margin-right` so it no longer crowds the HP number (designer P1 crowding).
+   - *DM #1 / Designer P0:* **in-place INIT editing** — click a combatant's initiative to type the rolled value; blur/Enter commits and auto-resorts. Made discoverable per designer P0: the number is a real button with a **dashed underline + pencil glyph** (hover was invisible on touch) and a ≥30px hit target (WCAG 2.5.8), solid on hover/focus.
+   - *DM P0 (silent-0 trap):* roster PCs with no stored init modifier are flagged `initiativeUnset` and render as a dashed **"—"**, never a rolled 0; setting a value clears the flag. `EncounterCombatant.initiativeUnset?`, unit test in `partyCombat.test.ts`.
+   - *DM:* HP live editor discoverability — added a hint line ("Tap a combatant to adjust HP…") shown until a combatant is selected. Later: downed / death saves / concentration.
+
+4d. **Combat start throughput (from DM judgment, 2026-07-14) — do before step 5.** The single-row edit doesn't scale to the top of round 1.
+   - *DM P0:* **batch initiative entry** — rolling 4–8 monsters one-tap-at-a-time (tap → type → blur → list reflows → hunt for the next row) is slower than index cards. Need a Tab-to-next-row flow and/or an "enter all, sort once" mode so the reflow doesn't move the row you're about to edit.
+   - *DM P1:* **tie visibility** — `sortCombatants` breaks ties by `tieBreaker` then name, but `tieBreaker` is never surfaced or editable; expose it (or a manual up/down nudge) so a DM can honor a house tie rule ("PCs win ties").
+   - *DM P2 (accepted, no action):* AC chip is a real glance-need mid-scrum, not noise.
 
 5. **Non-combat party surface.** Collapsible badge → ephemeral overlay (real button, `aria-expanded`, AA/keyboard) in Narrative/Social/Exploration; Social shows passive Insight/Perception.
 6. **Verify + judge each step** (container Playwright + axe + unit + designer/DM), commit+push.
