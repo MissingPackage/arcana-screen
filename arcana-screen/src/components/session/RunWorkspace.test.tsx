@@ -49,7 +49,9 @@ describe('RunWorkspace', () => {
 
     expect(screen.getByRole('heading', { name: 'Initiative Tracker' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Next Turn' })).toBeVisible();
-    expect(screen.queryByText('Add combatant')).not.toBeInTheDocument();
+    // The add-combatant on-ramp is a collapsed toggle — the setup form stays out of the live view until asked for.
+    expect(screen.getByRole('button', { name: 'Add combatant' })).toBeVisible();
+    expect(screen.queryByLabelText('New combatant name')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Remove' })).not.toBeInTheDocument();
     expect(screen.getByText('Charmed')).toBeVisible();
     expect(screen.getByText('Frightened')).toBeVisible();
@@ -215,6 +217,26 @@ describe('RunWorkspace', () => {
     await user.click(screen.getByRole('button', { name: 'Apply order' }));
     expect(order()[0]).toBe(lastName);
     expect(screen.queryByRole('button', { name: 'Apply order' })).not.toBeInTheDocument();
+  });
+
+  it('adds an ad-hoc monster to the encounter, including a group by quantity', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'combat';
+    render(<StatefulRun initial={workspace} />);
+
+    await user.click(screen.getByRole('button', { name: 'Add combatant' }));
+    await user.type(screen.getByLabelText('New combatant name'), 'Bugbear');
+    await user.clear(screen.getByLabelText('How many combatants'));
+    await user.type(screen.getByLabelText('How many combatants'), '2');
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+
+    expect(screen.getByRole('button', { name: 'Manage Bugbear 1' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Manage Bugbear 2' })).toBeVisible();
+    // Added with no initiative → flagged unset, editable in place
+    expect(screen.getByRole('button', { name: 'Set rolled initiative for Bugbear 1' })).toBeVisible();
+    // The add form closes after submitting
+    expect(screen.queryByLabelText('New combatant name')).not.toBeInTheDocument();
   });
 
   it('surfaces the HP editor discoverability hint until a combatant is selected', async () => {

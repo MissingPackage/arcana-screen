@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { adjustTemporaryHp, advanceTurn, applyDamage, sortCombatants, type EncounterState } from './encounterModel';
+import { adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, sortCombatants, type EncounterState } from './encounterModel';
 
 const encounter = (): EncounterState => ({
   round: 3,
@@ -41,5 +41,17 @@ describe('Encounter model', () => {
     const initial = encounter();
     expect(adjustTemporaryHp(initial, 'kael', 3).combatants[0].tempHp).toBe(3);
     expect(adjustTemporaryHp(initial, 'kael', -1).combatants[0].tempHp).toBe(0);
+  });
+
+  it('builds an ad-hoc combatant, flagging an omitted initiative as unset', () => {
+    const bugbear = createCombatant('npc-bugbear', { name: 'Bugbear', ac: 16, hp: 27, initiative: 12 });
+    expect(bugbear).toMatchObject({ id: 'npc-bugbear', name: 'Bugbear', ac: 16, hp: 27, maxHp: 27, initiative: 12, tempHp: 0, conditions: [] });
+    expect(bugbear.initiativeUnset).toBeUndefined();
+
+    const blank = createCombatant('npc-thug', { name: 'Thug' });
+    expect(blank.initiativeUnset).toBe(true);
+    expect(blank.hp).toBe(10);
+    expect(blank.maxHp).toBe(10);
+    expect(blank.ac).toBeUndefined();
   });
 });

@@ -36,7 +36,7 @@ import {
   type FocusId,
   type FocusWorkspace,
 } from '../../domain/focusModel';
-import { addCombatant, adjustTemporaryHp, advanceTurn, applyDamage, healCombatant, sortCombatants, type EncounterCombatant, type EncounterState } from '../../domain/encounterModel';
+import { addCombatant, adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, healCombatant, sortCombatants, type EncounterCombatant, type EncounterState } from '../../domain/encounterModel';
 import { usePartyStore } from '../../store/usePartyStore';
 import type { PartyMember } from '../../domain/partyModel';
 import FocusSelector from './FocusSelector';
@@ -454,6 +454,32 @@ function CombatView({
   const closeBatch = () => { setBatchOpen(false); setBatchDraft({}); };
   const firstBatchField = useRef<HTMLInputElement | null>(null);
   useEffect(() => { if (batchOpen) { firstBatchField.current?.focus(); firstBatchField.current?.select(); } }, [batchOpen]);
+  // Add an ad-hoc NPC/monster to the encounter (the missing on-ramp in Run mode).
+  const [addOpen, setAddOpen] = useState(false);
+  const [addDraft, setAddDraft] = useState({ name: '', ac: '', hp: '', init: '', qty: '1' });
+  const addNameField = useRef<HTMLInputElement | null>(null);
+  useEffect(() => { if (addOpen) addNameField.current?.focus(); }, [addOpen]);
+  const resetAdd = () => { setAddDraft({ name: '', ac: '', hp: '', init: '', qty: '1' }); setAddOpen(false); };
+  const optNum = (value: string) => (value.trim() === '' ? undefined : Number(value));
+  const submitAdd = () => {
+    const name = addDraft.name.trim();
+    if (!name) return;
+    const qty = Math.max(1, Math.min(20, Math.floor(Number(addDraft.qty) || 1)));
+    const ac = optNum(addDraft.ac);
+    const hp = optNum(addDraft.hp);
+    const initiative = optNum(addDraft.init);
+    setUndo(encounter);
+    const taken = new Set(encounter.combatants.map((combatant) => combatant.id));
+    const makeId = (base: string) => { let id = base; let n = 1; while (taken.has(id)) id = `${base}-${n++}`; taken.add(id); return id; };
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'npc';
+    let updated = encounter;
+    for (let index = 0; index < qty; index += 1) {
+      const label = qty > 1 ? `${name} ${index + 1}` : name;
+      updated = addCombatant(updated, createCombatant(makeId(`npc-${slug}`), { name: label, ac, hp, initiative }));
+    }
+    updateEncounter(updated);
+    resetAdd();
+  };
   const applyBatch = () => {
     setUndo(encounter);
     const combatants = encounter.combatants.map((combatant) => {
@@ -539,6 +565,23 @@ function CombatView({
                 </button>
               );
             })}
+          </div>
+        )}
+        {!batchOpen && (
+          <div className="encounter-add">
+            {addOpen ? (
+              <form className="encounter-add__form" role="group" aria-label="Add a combatant" onSubmit={(event) => { event.preventDefault(); submitAdd(); }}>
+                <input ref={addNameField} aria-label="New combatant name" placeholder="Name" value={addDraft.name} onChange={(event) => setAddDraft((draft) => ({ ...draft, name: event.target.value }))} />
+                <input type="number" aria-label="New combatant AC" placeholder="AC" value={addDraft.ac} onChange={(event) => setAddDraft((draft) => ({ ...draft, ac: event.target.value }))} />
+                <input type="number" aria-label="New combatant HP" placeholder="HP" value={addDraft.hp} onChange={(event) => setAddDraft((draft) => ({ ...draft, hp: event.target.value }))} />
+                <input type="number" aria-label="New combatant initiative" placeholder="Init" value={addDraft.init} onChange={(event) => setAddDraft((draft) => ({ ...draft, init: event.target.value }))} />
+                <input type="number" min="1" max="20" aria-label="How many combatants" placeholder="×1" value={addDraft.qty} onChange={(event) => setAddDraft((draft) => ({ ...draft, qty: event.target.value }))} />
+                <button type="submit">Add</button>
+                <button type="button" onClick={resetAdd}>Cancel</button>
+              </form>
+            ) : (
+              <button type="button" className="encounter-add__toggle" onClick={() => setAddOpen(true)}><Plus size={13} /> Add combatant</button>
+            )}
           </div>
         )}
         <footer className="initiative-footer">
