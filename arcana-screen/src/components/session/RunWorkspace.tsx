@@ -41,6 +41,7 @@ import { addCombatant, adjustTemporaryHp, advanceTurn, applyDamage, createCombat
 import { usePartyStore } from '../../store/usePartyStore';
 import type { PartyMember } from '../../domain/partyModel';
 import FocusSelector from './FocusSelector';
+import PartyGlance from './PartyGlance';
 import QuickCaptureBar from './QuickCaptureBar';
 import UtilityDock from './UtilityDock';
 import './session.css';
@@ -675,7 +676,7 @@ export default function RunWorkspace({ workspace, onFocusChange, onWorkspaceChan
         {workspace.currentFocus === 'combat' && <CombatView workspace={workspace} onWorkspaceChange={onWorkspaceChange} onCapture={capture} recentCapture={recentCapture} onReviewCaptures={() => setCapturesOpen(true)} />}
         {workspace.currentFocus === null && <GeneralView workspace={workspace} />}
       </div>
-      {workspace.currentFocus !== 'combat' && <div className="run-capture"><QuickCaptureBar onCapture={capture} recentCapture={recentCapture} captureCount={workspace.universal.captures.length} onReview={() => setCapturesOpen(true)} /></div>}
+      {workspace.currentFocus !== 'combat' && <div className="run-capture"><QuickCaptureBar onCapture={capture} recentCapture={recentCapture} captureCount={workspace.universal.captures.length} onReview={() => setCapturesOpen(true)} /><PartyGlance focus={workspace.currentFocus} /></div>}
       {capturesOpen && (
         <section className="capture-review" role="dialog" aria-modal="false" aria-labelledby="capture-review-title">
           <header><div><span className="eyebrow">Session inbox</span><h2 id="capture-review-title">Review captures</h2></div><button type="button" aria-label="Close capture review" onClick={() => setCapturesOpen(false)}>Close</button></header>
