@@ -17,7 +17,10 @@ import { executeFormula, parseDiceFormula } from '../../utils/diceFormulaParser'
 interface UtilityDockProps {
   workspace: FocusWorkspace;
   onChange: (workspace: FocusWorkspace) => void;
+  onCapture: (text: string) => void;
 }
+
+const LIKELIHOOD_LABEL: Record<Likelihood, string> = { unlikely: 'Unlikely', even: '50/50', likely: 'Likely' };
 
 const formatTime = (seconds: number) => {
   const minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -25,12 +28,14 @@ const formatTime = (seconds: number) => {
   return `${minutes}:${remainder}`;
 };
 
-export default function UtilityDock({ workspace, onChange }: UtilityDockProps) {
+export default function UtilityDock({ workspace, onChange, onCapture }: UtilityDockProps) {
   const [now, setNow] = useState(() => Date.now());
   const [advancedDiceOpen, setAdvancedDiceOpen] = useState(false);
   const [timerOptionsOpen, setTimerOptionsOpen] = useState(false);
+  const [oracleOpen, setOracleOpen] = useState(false);
   const [oracleLikelihood, setOracleLikelihood] = useState<Likelihood>('even');
   const [oracleAnswer, setOracleAnswer] = useState<OracleAnswer | null>(null);
+  const askOracle = (likelihood: Likelihood) => { setOracleLikelihood(likelihood); setOracleAnswer(rollOracle(likelihood)); };
   const timer = workspace.universal.timer;
   const exploration = workspace.contexts.exploration;
   const dice = workspace.universal.dice;
@@ -136,14 +141,29 @@ export default function UtilityDock({ workspace, onChange }: UtilityDockProps) {
       </section>
 
       <section className="dock-tool oracle-tool" aria-label="Oracle">
-        <span className="dock-tool__name"><Sparkle size={22} aria-hidden="true" /> Oracle</span>
-        <select aria-label="Oracle likelihood" value={oracleLikelihood} onChange={(event) => setOracleLikelihood(event.target.value as Likelihood)}>
-          <option value="unlikely">Unlikely</option>
-          <option value="even">50/50</option>
-          <option value="likely">Likely</option>
-        </select>
-        <output className="dock-result oracle-result" aria-label="Oracle answer" aria-live="polite">{oracleAnswer ? oracleAnswer.result : '—'}</output>
-        <button type="button" className="dock-action" onClick={() => setOracleAnswer(rollOracle(oracleLikelihood))}>Ask</button>
+        <button type="button" className="dock-tool__name oracle-trigger" aria-expanded={oracleOpen} onClick={() => setOracleOpen((open) => !open)}>
+          <Sparkle size={22} aria-hidden="true" /> Oracle
+          {oracleAnswer && <span className={`oracle-glyph oracle-glyph--${oracleAnswer.result.startsWith('Yes') ? 'yes' : 'no'}`}>{oracleAnswer.result}</span>}
+        </button>
+        {oracleOpen && (
+          <div className="oracle-options" role="group" aria-label="Oracle">
+            <div className="oracle-likelihoods" aria-label="Ask a question by likelihood">
+              {(['unlikely', 'even', 'likely'] as const).map((likelihood) => (
+                <button key={likelihood} type="button" aria-pressed={oracleLikelihood === likelihood} onClick={() => askOracle(likelihood)}>{LIKELIHOOD_LABEL[likelihood]}</button>
+              ))}
+            </div>
+            <p className="oracle-answer" aria-live="polite">
+              {oracleAnswer ? (
+                <>
+                  <strong className={oracleAnswer.result.startsWith('Yes') ? 'is-yes' : 'is-no'}>{oracleAnswer.result.startsWith('Yes') ? 'Yes' : 'No'}</strong>
+                  {oracleAnswer.result.includes(', ') && <em>, {oracleAnswer.result.split(', ')[1]}</em>}
+                  <span className="oracle-roll">d20 {oracleAnswer.roll}</span>
+                  <button type="button" className="oracle-log" onClick={() => onCapture(`Oracle (${LIKELIHOOD_LABEL[oracleAnswer.likelihood]}): ${oracleAnswer.result}`)}>Log</button>
+                </>
+              ) : <span className="oracle-hint">Tap a likelihood to ask.</span>}
+            </p>
+          </div>
+        )}
       </section>
 
       {workspace.currentFocus === 'exploration' && (

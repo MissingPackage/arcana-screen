@@ -337,18 +337,25 @@ describe('RunWorkspace', () => {
     expect(screen.getByLabelText('Scene Clock: 0 of 8')).toBeVisible();
   });
 
-  it('answers an oracle question from the universal dock and shifts odds by likelihood', async () => {
+  it('answers an oracle question by likelihood and logs it to captures', async () => {
     const user = userEvent.setup();
     vi.spyOn(Math, 'random').mockReturnValue(0.45); // roll 10
     render(<StatefulRun initial={createDefaultFocusWorkspace()} />);
 
-    expect(screen.getByLabelText('Oracle answer')).toHaveTextContent('—');
-    await user.click(screen.getByRole('button', { name: 'Ask' }));
-    expect(screen.getByLabelText('Oracle answer').textContent).toBe('No, but'); // even, total 10
+    await user.click(screen.getByRole('button', { name: /Oracle/ }));
+    const oracle = screen.getByRole('group', { name: 'Oracle' });
 
-    await user.selectOptions(screen.getByLabelText('Oracle likelihood'), 'likely');
-    await user.click(screen.getByRole('button', { name: 'Ask' }));
-    expect(screen.getByLabelText('Oracle answer').textContent).toBe('Yes'); // total 14
+    await user.click(within(oracle).getByRole('button', { name: '50/50' }));
+    expect(within(oracle).getByText('No', { exact: true })).toHaveClass('is-no'); // total 10
+    expect(within(oracle).getByText('d20 10')).toBeVisible();
+
+    await user.click(within(oracle).getByRole('button', { name: 'Likely' }));
+    expect(within(oracle).getByText('Yes', { exact: true })).toHaveClass('is-yes'); // total 14
+
+    // Log routes the answer into the capture pipe so a reload can't lose it
+    await user.click(within(oracle).getByRole('button', { name: 'Log' }));
+    await user.click(screen.getByRole('button', { name: 'Review captures' }));
+    expect(screen.getByDisplayValue('Oracle (Likely): Yes')).toBeVisible();
   });
 
   it('sets the Timer duration from the Run dock without entering Prepare', async () => {

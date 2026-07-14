@@ -301,17 +301,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 25px;
   min-width: 0;
-  padding: 16px 24px;
-  overflow-x: auto;
+  padding: 18px 28px;
   color: white;
   background: var(--as-navy);
   border-top: 1px solid #936b21;
 }
 .utility-dock button, .utility-dock .dock-tool__name { white-space: nowrap; }
 
-.dock-tool { display: flex; flex-shrink: 0; align-items: center; gap: 12px; min-width: 0; }
+.dock-tool { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .dice-tool { position: relative; }
 .dock-tool + .dock-tool { padding-left: 25px; border-left: 1px solid #607487; }
 .dock-tool__name { display: flex; align-items: center; gap: 8px; color: #f7ead0; font-size: 12px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
@@ -332,7 +331,24 @@
 .dock-stepper button { height: 100%; color: white !important; border-right: 1px solid #56718a !important; }
 .dock-stepper button:last-child { border-right: 0 !important; border-left: 1px solid #56718a !important; }
 .dock-result { display: grid; min-width: 55px; place-items: center; font-size: 18px; }
-.oracle-result { min-width: 92px; padding: 0 8px; font-size: 13px; white-space: nowrap; }
+.oracle-tool { position: relative; }
+.arcana-session .oracle-trigger { padding: 0 !important; background: transparent !important; border: none !important; cursor: pointer; }
+.arcana-session .oracle-trigger[aria-expanded='true'] { color: #fff; }
+.oracle-glyph { margin-left: 8px; font-size: 11px; font-weight: 700; text-transform: none; letter-spacing: 0; }
+.oracle-glyph--yes { color: #8fdca8; }
+.oracle-glyph--no { color: #eaa9a2; }
+.oracle-options { position: absolute; left: 0; bottom: calc(100% + 30px); z-index: 20; display: grid; width: min(300px, 88vw); gap: 11px; padding: 14px; color: var(--as-ink); background: #fffdf8; border: 1px solid var(--as-line-strong); border-radius: 7px; box-shadow: 0 12px 32px rgba(4,20,34,.28); }
+.oracle-likelihoods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.arcana-session .oracle-likelihoods button { min-height: 34px !important; color: #40566c !important; background: #fff !important; border: 1px solid var(--as-line-strong) !important; border-radius: 4px !important; font-size: 11px !important; font-weight: 700; cursor: pointer; }
+.arcana-session .oracle-likelihoods button[aria-pressed='true'] { color: #fff !important; background: var(--as-navy-soft) !important; border-color: var(--as-navy-soft) !important; }
+.oracle-answer { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 14px; }
+.oracle-answer strong { font-family: 'Cinzel', serif; font-size: 19px; }
+.oracle-answer strong.is-yes { color: #146c33; }
+.oracle-answer strong.is-no { color: #8a3d38; }
+.oracle-answer em { color: var(--as-ink); font-size: 13px; }
+.oracle-roll { margin-left: auto; color: var(--as-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.arcana-session .oracle-log { padding: 5px 11px !important; color: var(--as-ink) !important; background: transparent !important; border: 1px solid var(--as-line-strong) !important; border-radius: 5px !important; font-size: 11px !important; font-weight: 700; cursor: pointer; }
+.oracle-hint { color: var(--as-muted); font-size: 11px; font-style: italic; }
 .dock-action { display: inline-flex !important; min-width: 86px; align-items: center; justify-content: center; gap: 7px; padding: 0 16px !important; font-weight: 700 !important; }
 .dock-action--gold { color: #102b49 !important; background: #f1bd4d !important; border-color: #d8971d !important; }
 .dock-reset { display: inline-flex !important; align-items: center; gap: 6px; color: #d9e2e9 !important; font-size: 11px !important; }

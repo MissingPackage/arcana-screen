@@ -694,7 +694,7 @@ export default function RunWorkspace({ workspace, onFocusChange, onWorkspaceChan
           )}
         </section>
       )}
-      <UtilityDock workspace={workspace} onChange={onWorkspaceChange} />
+      <UtilityDock workspace={workspace} onChange={onWorkspaceChange} onCapture={capture} />
     </main>
   );
 }
