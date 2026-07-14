@@ -27,7 +27,7 @@ import {
   UsersThree,
   type Icon,
 } from '@phosphor-icons/react';
-import { useCallback, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import {
   advanceNarrativeBeat,
   advanceSocialClock,
@@ -436,6 +436,7 @@ function CombatView({
   const selected = encounter.combatants.find((combatant) => combatant.id === selectedId);
   const party = usePartyStore((state) => state.members);
   const encounterIds = new Set(encounter.combatants.map((combatant) => combatant.id));
+  const anyUnset = encounter.combatants.some((combatant) => combatant.initiativeUnset);
   const addFromRoster = (member: PartyMember) => { setUndo(encounter); updateEncounter(addCombatant(encounter, combatantFromMember(member))); };
   const setInitiative = (id: string, value: number) => {
     setUndo(encounter);
@@ -451,6 +452,8 @@ function CombatView({
     setBatchOpen(true);
   };
   const closeBatch = () => { setBatchOpen(false); setBatchDraft({}); };
+  const firstBatchField = useRef<HTMLInputElement | null>(null);
+  useEffect(() => { if (batchOpen) { firstBatchField.current?.focus(); firstBatchField.current?.select(); } }, [batchOpen]);
   const applyBatch = () => {
     setUndo(encounter);
     const combatants = encounter.combatants.map((combatant) => {
@@ -489,30 +492,15 @@ function CombatView({
   return (
     <div className="focus-layout combat-layout">
       <section className="initiative-panel">
-        <header className="panel-title"><h2>Initiative Tracker</h2><div className="tracker-tools">{encounter.combatants.length > 1 && <button type="button" className="batch-init-toggle" aria-expanded={batchOpen} onClick={() => (batchOpen ? closeBatch() : openBatch())}><ListNumbers size={15} /> Set initiative</button>}<strong>Round {encounter.round}</strong></div></header>
-        <div className="initiative-head" aria-hidden="true"><span>Init</span><span>Combatant</span><span>HP</span><span>Status</span></div>
-        <div className="combatant-list">
-          {encounter.combatants.map((combatant, index) => {
-            const isActive = index === activeIndex;
-            const CombatantIcon = combatantIcon(combatant.name, combatant.detail);
-            return (
-              <article key={combatant.id} className={isActive ? 'is-active' : ''}>
-                <InitiativeCell value={combatant.initiative} unset={combatant.initiativeUnset} ariaLabel={combatant.initiativeUnset ? `Set rolled initiative for ${combatant.name}` : `Initiative for ${combatant.name}`} onCommit={(value) => setInitiative(combatant.id, value)} />
-                <button type="button" className="combatant-identity" aria-label={`Manage ${combatant.name}`} aria-pressed={selectedId === combatant.id} onClick={() => setSelectedId(selectedId === combatant.id ? null : combatant.id)}><span><CombatantIcon size={23} /></span><p><strong>{combatant.name}</strong><small>{combatant.detail}</small></p><span className={`combatant-ac${combatant.ac === undefined ? ' combatant-ac--unset' : ''}`} aria-label={combatant.ac !== undefined ? `Armor Class ${combatant.ac}` : `Armor Class not set for ${combatant.name}`}>AC {combatant.ac ?? '—'}</span>{isActive && <em>Active</em>}</button>
-                <div className="combatant-hp"><span>{combatant.hp} / {combatant.maxHp}</span><i><b style={{ width: `${Math.round(combatant.hp / combatant.maxHp * 100)}%` }} /></i></div>
-                <div className="condition-chips">{combatant.conditions.map((condition) => <span key={condition}>{condition}</span>)}</div>
-              </article>
-            );
-          })}
-        </div>
-        {batchOpen && encounter.combatants.length > 0 && (
+        <header className="panel-title"><h2>Initiative Tracker</h2><div className="tracker-tools">{encounter.combatants.length > 1 && <button type="button" className={`batch-init-toggle${anyUnset ? ' batch-init-toggle--urgent' : ''}`} aria-expanded={batchOpen} onClick={() => (batchOpen ? closeBatch() : openBatch())}><ListNumbers size={15} /> Set initiative</button>}<strong>Round {encounter.round}</strong></div></header>
+        {batchOpen && encounter.combatants.length > 0 ? (
           <form className="batch-init" role="region" aria-label="Set initiative order" onSubmit={(event) => { event.preventDefault(); applyBatch(); }}>
             <p className="batch-init__hint">Type each roll, then apply once — the list won’t reorder while you enter them.</p>
-            <div className="batch-init__rows">
-              {encounter.combatants.map((combatant) => (
+            <div className="batch-init__rows" style={{ gridTemplateRows: `repeat(${Math.ceil(encounter.combatants.length / 2)}, auto)` }}>
+              {encounter.combatants.map((combatant, index) => (
                 <label key={combatant.id}>
                   <span>{combatant.name}</span>
-                  <input type="number" aria-label={`Set ${combatant.name} initiative`} placeholder="—" value={batchDraft[combatant.id] ?? ''} onChange={(event) => setBatchDraft((draft) => ({ ...draft, [combatant.id]: event.target.value }))} />
+                  <input type="number" ref={index === 0 ? firstBatchField : undefined} aria-label={`Set ${combatant.name} initiative`} placeholder="—" value={batchDraft[combatant.id] ?? ''} onChange={(event) => setBatchDraft((draft) => ({ ...draft, [combatant.id]: event.target.value }))} />
                 </label>
               ))}
             </div>
@@ -521,6 +509,24 @@ function CombatView({
               <button type="button" onClick={closeBatch}>Cancel</button>
             </div>
           </form>
+        ) : (
+          <>
+            <div className="initiative-head" aria-hidden="true"><span>Init</span><span>Combatant</span><span>HP</span><span>Status</span></div>
+            <div className="combatant-list">
+              {encounter.combatants.map((combatant, index) => {
+                const isActive = index === activeIndex;
+                const CombatantIcon = combatantIcon(combatant.name, combatant.detail);
+                return (
+                  <article key={combatant.id} className={isActive ? 'is-active' : ''}>
+                    <InitiativeCell value={combatant.initiative} unset={combatant.initiativeUnset} ariaLabel={combatant.initiativeUnset ? `Set rolled initiative for ${combatant.name}` : `Initiative for ${combatant.name}`} onCommit={(value) => setInitiative(combatant.id, value)} />
+                    <button type="button" className="combatant-identity" aria-label={`Manage ${combatant.name}`} aria-pressed={selectedId === combatant.id} onClick={() => setSelectedId(selectedId === combatant.id ? null : combatant.id)}><span><CombatantIcon size={23} /></span><p><strong>{combatant.name}</strong><small>{combatant.detail}</small></p><span className={`combatant-ac${combatant.ac === undefined ? ' combatant-ac--unset' : ''}`} aria-label={combatant.ac !== undefined ? `Armor Class ${combatant.ac}` : `Armor Class not set for ${combatant.name}`}>AC {combatant.ac ?? '—'}</span>{isActive && <em>Active</em>}</button>
+                    <div className="combatant-hp"><span>{combatant.hp} / {combatant.maxHp}</span><i><b style={{ width: `${Math.round(combatant.hp / combatant.maxHp * 100)}%` }} /></i></div>
+                    <div className="condition-chips">{combatant.conditions.map((condition) => <span key={condition}>{condition}</span>)}</div>
+                  </article>
+                );
+              })}
+            </div>
+          </>
         )}
         {party.length > 0 && (
           <div className="roster-picker" role="group" aria-label="Add party members to the encounter">

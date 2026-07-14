@@ -466,11 +466,12 @@ body.dark-theme .pacing-step.is-current .pacing-step__num { background: var(--as
 .tracker-hint { margin: 0; padding: 6px 13px; color: var(--as-muted); font-size: 11px; font-style: italic; }
 .tracker-tools { display: flex; align-items: center; gap: 14px; }
 .arcana-session .batch-init-toggle { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 4px 11px; color: var(--as-ink); background: transparent; border: 1px solid var(--as-line-strong); border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; }
+.arcana-session .batch-init-toggle--urgent { color: #1a1206; background: var(--as-gold); border-color: #c68a15; }
 .arcana-session .batch-init-toggle:hover { border-color: #c68a15; }
 .arcana-session .batch-init-toggle[aria-expanded="true"] { color: #7b540d; border-color: #c68a15; background: #fff8e7; }
-.batch-init { margin: 6px 13px 0; padding: 12px 14px; background: var(--as-paper-deep); border: 1px solid var(--as-line-strong); border-radius: 8px; }
-.batch-init__hint { margin: 0 0 10px; color: var(--as-muted); font-size: 11px; font-style: italic; }
-.batch-init__rows { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px 14px; }
+.batch-init { flex: 1 1 auto; min-height: 0; overflow: auto; margin: 6px 13px 0; padding: 12px 14px; background: var(--as-paper-deep); border: 1px solid var(--as-line-strong); border-radius: 8px; }
+.batch-init__hint { margin: 0 0 12px; color: var(--as-muted); font-size: 11px; font-style: italic; }
+.batch-init__rows { display: grid; grid-auto-flow: column; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 26px; }
 .batch-init__rows label { display: grid; grid-template-columns: 1fr 58px; align-items: center; gap: 8px; font-size: 12px; color: var(--as-ink); }
 .arcana-session .batch-init__rows input { padding: 3px 6px; color: var(--as-ink); background: #fff; border: 1px solid var(--as-line-strong); border-radius: 5px; font-family: 'Cinzel', serif; font-size: 15px; text-align: center; }
 .batch-init__actions { display: flex; gap: 8px; margin-top: 13px; }
@@ -639,5 +640,6 @@ body.dark-theme .segment-clock span.is-filled { background: var(--as-gold); bord
   .combatant-identity > span { display: none; }
   .combatant-hp { padding-right: 5px; }
   .initiative-footer { grid-template-columns: 1fr; padding-left: 0; }
+  .batch-init__rows { grid-auto-flow: row; grid-template-columns: 1fr; grid-template-rows: auto !important; }
   .flow-moment { width: 100%; }
 }

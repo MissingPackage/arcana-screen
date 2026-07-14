@@ -203,12 +203,15 @@ describe('RunWorkspace', () => {
     if (!lastName) throw new Error('expected seeded combatants');
 
     await user.click(screen.getByRole('button', { name: /Set initiative/ }));
-    // Raising the bottom combatant does NOT reorder the batch rows while typing
+    // The batch panel swaps in for the list, so no row can reflow under the DM mid-entry
+    expect(screen.getByRole('region', { name: 'Set initiative order' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: `Manage ${lastName}` })).not.toBeInTheDocument();
+
     const field = screen.getByRole('spinbutton', { name: `Set ${lastName} initiative` });
     await user.clear(field);
     await user.type(field, '99');
-    expect(order()).toEqual(before);
 
+    // Only on apply does the list return, sorted once with the bumped combatant on top
     await user.click(screen.getByRole('button', { name: 'Apply order' }));
     expect(order()[0]).toBe(lastName);
     expect(screen.queryByRole('button', { name: 'Apply order' })).not.toBeInTheDocument();
