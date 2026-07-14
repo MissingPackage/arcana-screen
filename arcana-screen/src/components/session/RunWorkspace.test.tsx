@@ -367,6 +367,20 @@ describe('RunWorkspace', () => {
     expect(screen.queryByText(/Tap a combatant to adjust HP/)).not.toBeInTheDocument();
   });
 
+  it('offers read-aloud prose in the Narrative Focus too, presentable and Escape-closable', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'narrative';
+    render(<StatefulRun initial={workspace} />);
+
+    expect(screen.getByText(/The festival roars around you/)).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Present' }));
+    const presenter = screen.getByRole('dialog', { name: 'Read-aloud presenter' });
+    expect(within(presenter).getByText(/The festival roars around you/)).toBeVisible();
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog', { name: 'Read-aloud presenter' })).not.toBeInTheDocument();
+  });
+
   it('advances the Narrative beat in the context drawer', async () => {
     const user = userEvent.setup();
     const workspace = createDefaultFocusWorkspace();

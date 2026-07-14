@@ -33,6 +33,7 @@ export interface NarrativeFocusState {
   beats: NarrativeBeat[];
   openThreads: Array<{ title: string; detail: string }>;
   drawerOpen: boolean;
+  readAloud: string; // boxed cold-open / scene prose, presentable large + clean
 }
 
 export interface SocialNpc {
@@ -148,6 +149,7 @@ export const createDefaultFocusWorkspace = (): FocusWorkspace => ({
         { title: 'Unknown Observer', detail: 'Motives and identity.' },
         { title: "Emberwrights' tension", detail: 'Something is fractured.' },
       ],
+      readAloud: 'The festival roars around you — drums, ash on the wind, a thousand painted faces. Then, beneath it all, the smell of something burning that should not be.',
     },
     social: {
       sceneTitle: 'The Sealed Gate',
