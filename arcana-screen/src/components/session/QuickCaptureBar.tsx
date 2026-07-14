@@ -1,14 +1,16 @@
-import { ArrowElbowDownLeft, NotePencil } from '@phosphor-icons/react';
+import { ArrowElbowDownLeft, NotePencil, Star } from '@phosphor-icons/react';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 
 interface QuickCaptureBarProps {
   onCapture: (text: string) => void;
   recentCapture?: string;
+  recentStarred?: boolean;
+  onStarRecent?: () => void;
   captureCount?: number;
   onReview?: () => void;
 }
 
-export default function QuickCaptureBar({ onCapture, recentCapture, captureCount = 0, onReview }: QuickCaptureBarProps) {
+export default function QuickCaptureBar({ onCapture, recentCapture, recentStarred, onStarRecent, captureCount = 0, onReview }: QuickCaptureBarProps) {
   const [draft, setDraft] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -54,7 +56,7 @@ export default function QuickCaptureBar({ onCapture, recentCapture, captureCount
           <ArrowElbowDownLeft size={19} aria-hidden="true" />
         </button>
       </form>
-      {recentCapture && <p className="recent-capture"><strong>Recent capture</strong> <span>{recentCapture}</span>{onReview && <button type="button" aria-label="Review captures" onClick={onReview}>Review captures <b aria-hidden="true">{captureCount}</b></button>}</p>}
+      {recentCapture && <p className="recent-capture"><strong>Recent capture</strong> <span>{recentCapture}</span>{onStarRecent && <button type="button" className="recent-star" aria-pressed={Boolean(recentStarred)} aria-label={recentStarred ? 'Unstar recent capture for recap' : 'Star recent capture for recap'} onClick={onStarRecent}><Star size={14} weight={recentStarred ? 'fill' : 'regular'} /></button>}{onReview && <button type="button" aria-label="Review captures" onClick={onReview}>Review captures <b aria-hidden="true">{captureCount}</b></button>}</p>}
     </div>
   );
 }

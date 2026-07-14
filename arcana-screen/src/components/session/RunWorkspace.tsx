@@ -661,6 +661,7 @@ function GeneralView({ workspace }: { workspace: FocusWorkspace }) {
 
 export default function RunWorkspace({ workspace, onFocusChange, onWorkspaceChange }: RunWorkspaceProps) {
   const [capturesOpen, setCapturesOpen] = useState(false);
+  const [recapDismissed, setRecapDismissed] = useState(false);
   const capture = useCallback((text: string) => {
     onWorkspaceChange({
       ...workspace,
@@ -698,8 +699,21 @@ export default function RunWorkspace({ workspace, onFocusChange, onWorkspaceChan
     });
   };
 
+  // Keep only the last few starred captures so the "Previously on…" cold-open stays terse, not a campaign-long wall.
+  const starredCaptures = workspace.universal.captures.filter((captureItem) => captureItem.starred).slice(-6);
+  const starRecent = () => {
+    const last = workspace.universal.captures.at(-1);
+    if (last) updateCapture(last.id, { starred: !last.starred });
+  };
+
   return (
     <main id="main-content" tabIndex={-1} className={`arcana-session run-workspace run-workspace--${workspace.currentFocus ?? 'general'}`}>
+      {!recapDismissed && starredCaptures.length > 0 && (
+        <aside className="session-recap" role="region" aria-label="Previously on">
+          <div className="session-recap__head"><h2>Previously on…</h2><button type="button" onClick={() => setRecapDismissed(true)}>Dismiss</button></div>
+          <ol>{starredCaptures.map((captureItem) => <li key={captureItem.id}>{captureItem.text}</li>)}</ol>
+        </aside>
+      )}
       <FocusSelector currentFocus={workspace.currentFocus} onChange={onFocusChange} />
       <div className="run-workspace__body">
         {workspace.currentFocus === 'narrative' && <NarrativeView workspace={workspace} onWorkspaceChange={onWorkspaceChange} />}
@@ -708,16 +722,10 @@ export default function RunWorkspace({ workspace, onFocusChange, onWorkspaceChan
         {workspace.currentFocus === 'combat' && <CombatView workspace={workspace} onWorkspaceChange={onWorkspaceChange} onCapture={capture} recentCapture={recentCapture} onReviewCaptures={() => setCapturesOpen(true)} />}
         {workspace.currentFocus === null && <GeneralView workspace={workspace} />}
       </div>
-      {workspace.currentFocus !== 'combat' && <div className="run-capture"><QuickCaptureBar onCapture={capture} recentCapture={recentCapture} captureCount={workspace.universal.captures.length} onReview={() => setCapturesOpen(true)} /><PartyGlance focus={workspace.currentFocus} /></div>}
+      {workspace.currentFocus !== 'combat' && <div className="run-capture"><QuickCaptureBar onCapture={capture} recentCapture={recentCapture} recentStarred={workspace.universal.captures.at(-1)?.starred} onStarRecent={starRecent} captureCount={workspace.universal.captures.length} onReview={() => setCapturesOpen(true)} /><PartyGlance focus={workspace.currentFocus} /></div>}
       {capturesOpen && (
         <section className="capture-review" role="dialog" aria-modal="false" aria-labelledby="capture-review-title">
           <header><div><span className="eyebrow">Session inbox</span><h2 id="capture-review-title">Review captures</h2></div><button type="button" aria-label="Close capture review" onClick={() => setCapturesOpen(false)}>Close</button></header>
-          {workspace.universal.captures.some((captureItem) => captureItem.starred) && (
-            <section className="capture-recap" aria-label="Previously on">
-              <h3>Previously on…</h3>
-              <ol>{workspace.universal.captures.filter((captureItem) => captureItem.starred).map((captureItem) => <li key={captureItem.id}>{captureItem.text}</li>)}</ol>
-            </section>
-          )}
           {workspace.universal.captures.length === 0 ? <p>No captures waiting for review.</p> : (
             <div className="capture-review__list">
               {workspace.universal.captures.map((captureItem) => (
