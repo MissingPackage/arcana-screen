@@ -530,23 +530,32 @@ body.dark-theme .pacing-step.is-current .pacing-step__num { background: var(--as
 .arcana-session .roster-chip:hover:not(:disabled) { border-color: var(--as-gold); background: color-mix(in srgb, var(--as-gold) 12%, var(--as-paper-deep)); }
 .arcana-session .roster-chip:disabled { color: var(--as-muted); cursor: default; }
 .combatant-ac--unset { color: var(--as-muted); background: transparent; border-style: dashed; }
-/* "ink-settle": focus content drifts up and fades in when you switch Focus. No fill-mode, so no lingering
-   transform remains to trap the position:fixed read-aloud presenter. Auto-disabled by reduce-motion. */
-@keyframes ink-settle { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
-.arcana-session .focus-layout { animation: ink-settle 380ms cubic-bezier(.22, .68, .34, 1); }
+/* "ink-settle": focus content drifts up into place when you switch Focus. Transform-only — no opacity
+   fade — because a mid-fade layout composites every muted text color below WCAG AA (axe scans the resting
+   *and* transitional frame). No fill-mode, so no lingering transform traps the position:fixed read-aloud
+   presenter. Auto-disabled by reduce-motion. */
+@keyframes ink-settle { from { transform: translateY(8px); } to { transform: translateY(0); } }
+.arcana-session .focus-layout { animation: ink-settle 360ms cubic-bezier(.22, .68, .34, 1); }
 
 /* Screen/Desk density — compact tightens the live cockpit for arm's-length glancing under pressure.
    (Previously only the legacy Prepare grid honoured data-density; the Run cockpit ignored it.) */
 body[data-density='compact'] .arcana-session .panel-title { min-height: 46px; }
 body[data-density='compact'] .arcana-session .focus-context { padding: 13px 15px; }
-body[data-density='compact'] .arcana-session .combatant-list article { min-height: 44px; padding-top: 3px; padding-bottom: 3px; }
 body[data-density='compact'] .arcana-session .npc-list article { padding: 6px; }
+/* Combat compact goes further than padding — hide the detail subtitle, drop the HP bar (the number stays),
+   shrink the avatar — so a real 8-combatant order fits at arm's length, not just 5. */
+body[data-density='compact'] .arcana-session .combatant-list article { min-height: 38px; padding-top: 2px; padding-bottom: 2px; }
+body[data-density='compact'] .arcana-session .combatant-identity p small { display: none; }
+body[data-density='compact'] .arcana-session .combatant-hp i { display: none; }
+body[data-density='compact'] .arcana-session .combatant-identity > span:first-child { width: 28px; height: 28px; }
 
-.init-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
-.tie-reorder { display: inline-flex; gap: 3px; }
-.arcana-session .tie-reorder button { padding: 1px 4px; color: var(--as-muted); background: transparent; border: 1px solid var(--as-line-strong); border-radius: 3px; cursor: pointer; }
-.arcana-session .tie-reorder button:hover:not(:disabled) { color: #7b540d; border-color: #c68a15; }
-.arcana-session .tie-reorder button:disabled { opacity: .4; cursor: default; }
+/* Marker sits *beside* the initiative (row, not stacked) so a tied row never grows past the compact
+   height budget. A tie is *signalled* here (non-interactive), but *resolved* in the live editor where
+   full-size, well-spaced buttons fit — the cramped in-row carets were a target-size (WCAG 2.5.8) trap. */
+.init-cell { display: flex; flex-direction: row; align-items: center; gap: 4px; }
+.tie-flag { display: inline-flex; align-items: center; justify-content: center; width: 19px; height: 19px; flex: none; color: var(--as-ink); background: var(--as-paper-deep); border: 1px solid var(--as-line-strong); border-radius: 4px; }
+.combat-live-editor .tie-move { display: inline-flex; gap: 6px; padding-left: 8px; border-left: 1px solid #c9b892; }
+.combat-live-editor .tie-move button { min-height: 28px; background: #16385c !important; }
 .arcana-session button.initiative-score { display: inline-flex; align-items: center; gap: 5px; min-width: 46px; min-height: 30px; padding: 2px 6px; background: transparent; border: none; border-bottom: 1px dashed var(--as-line-strong); border-radius: 4px; cursor: pointer; text-align: left; }
 .arcana-session button.initiative-score svg { flex: none; color: var(--as-muted); }
 .arcana-session button.initiative-score:hover, .arcana-session button.initiative-score:focus-visible { color: #7b540d; border-bottom-color: #7b540d; border-bottom-style: solid; }
@@ -583,6 +592,10 @@ body[data-density='compact'] .arcana-session .npc-list article { padding: 6px; }
 .combatant-hp > span { font-size: 10px; font-weight: 600; }
 .combatant-hp i { display: block; height: 6px; margin-top: 5px; overflow: hidden; background: #e2e4dc; border-radius: 999px; }
 .combatant-hp b { display: block; height: 100%; background: var(--as-green); }
+/* Bloodied cue (hp < half). Colours the number so "who's hurt" stays a glance in compact — where the
+   bar is hidden — and reddens the bar at full density (which was otherwise flat green regardless of hp). */
+.combatant-hp--bloodied > span { color: #9a5a0f; font-weight: 800; }
+.combatant-hp--bloodied b { background: #b5651d; }
 .condition-chips { display: flex; flex-wrap: wrap; gap: 4px; }
 .condition-chips span { padding: 3px 5px; color: #40566c; border: 1px solid #b6ab97; border-radius: 4px; font-size: 8px; }
 .initiative-footer { display: grid; grid-template-columns: 1fr minmax(220px, .9fr); align-items: center; gap: 20px; padding: 10px 10px 0 72px; border-top: 1px solid var(--as-line); }
@@ -591,7 +604,7 @@ body[data-density='compact'] .arcana-session .npc-list article { padding: 6px; }
 .combat-live-editor { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 7px 10px; color: #425971; background: #fff8e7; border: 1px solid #c68a15; border-radius: 5px; font-size: 10px; }
 .combat-live-editor strong { color: var(--as-ink); }
 .combat-live-editor span { margin-right: auto; }
-.combat-live-editor button { padding: 5px 7px !important; color: #fff !important; background: var(--as-navy-soft) !important; border-radius: 4px !important; font-size: 9px !important; }
+.combat-live-editor button { min-height: 24px; padding: 5px 7px !important; color: #fff !important; background: var(--as-navy-soft) !important; border-radius: 4px !important; font-size: 9px !important; }
 .combat-live-editor label { display: flex; flex: 1 1 12rem; align-items: center; gap: 6px; color: #314c64; font-size: 9px; font-weight: 700; text-transform: uppercase; }
 .combat-live-editor input { min-width: 7rem; height: 29px; flex: 1; padding: 0 6px; color: var(--as-ink); background: #fffdf8; border: 1px solid var(--as-line-strong); border-radius: 4px; font-size: 10px; }
 .combat-context { min-width: 0; min-height: 0; padding: 18px 20px; overflow: auto; background: #fcf8ef; }
@@ -629,6 +642,7 @@ body.dark-theme .arcana-session h3,
 body.dark-theme .arcana-session h4,
 body.dark-theme .arcana-session strong,
 body.dark-theme .arcana-session .initiative-score { color: var(--as-ink); }
+body.dark-theme .arcana-session .combatant-hp--bloodied > span { color: #e6a84e; }
 
 body.dark-theme .notebook-panel,
 body.dark-theme .narrative-notebook,

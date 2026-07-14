@@ -368,7 +368,7 @@ describe('RunWorkspace', () => {
     expect(screen.getByRole('button', { name: 'Manage Ser Kael' })).toBeVisible();
   });
 
-  it('surfaces tie-break controls only for tied combatants and reorders them', async () => {
+  it('flags tied combatants in the row and resolves the tie from the live editor', async () => {
     const user = userEvent.setup();
     const workspace = createDefaultFocusWorkspace();
     workspace.currentFocus = 'combat';
@@ -382,9 +382,13 @@ describe('RunWorkspace', () => {
     const order = () => Array.from(container.querySelectorAll('.combatant-identity strong')).map((el) => el.textContent);
     expect(order()).toEqual(['Cyra', 'Alda', 'Bram']); // the 15s tie by name
 
-    expect(screen.queryByRole('button', { name: /Move Cyra up in the tie/ })).not.toBeInTheDocument(); // untied → no controls
+    // The row signals the tie in the identity label; untied combatants don't.
+    expect(screen.getByRole('button', { name: 'Manage Cyra' })).toBeInTheDocument(); // untied → no ", initiative tied"
+    expect(screen.getByRole('button', { name: 'Manage Bram, initiative tied' })).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Move Bram up in the tie' }));
+    // Reorder is resolved from the live editor (full-size, well-spaced controls), not cramped in-row carets.
+    await user.click(screen.getByRole('button', { name: 'Manage Bram, initiative tied' }));
+    await user.click(screen.getByRole('button', { name: 'Move Bram earlier in the initiative tie' }));
     expect(order()).toEqual(['Cyra', 'Bram', 'Alda']);
   });
 
