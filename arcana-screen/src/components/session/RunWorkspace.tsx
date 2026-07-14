@@ -314,6 +314,9 @@ function NarrativeView({ workspace, onWorkspaceChange }: Pick<RunWorkspaceProps,
 function SocialView({ workspace, onWorkspaceChange }: Pick<RunWorkspaceProps, 'workspace' | 'onWorkspaceChange'>) {
   const social = workspace.contexts.social;
   const [confirmClockReset, setConfirmClockReset] = useState(false);
+  const [roleDraft, setRoleDraft] = useState('');
+  const [lastMintedId, setLastMintedId] = useState<string | null>(null);
+  const [pendingRemove, setPendingRemove] = useState<string | null>(null);
   const attitudes = ['Guarded', 'Friendly', 'Neutral'] as const;
   const setNpcs = (npcs: typeof social.npcs) => onWorkspaceChange({
     ...workspace,
@@ -322,8 +325,17 @@ function SocialView({ workspace, onWorkspaceChange }: Pick<RunWorkspaceProps, 'w
   const cycleAttitude = (npcId: string) => setNpcs(social.npcs.map((npc) => npc.id === npcId
     ? { ...npc, attitude: attitudes[(attitudes.indexOf(npc.attitude) + 1) % attitudes.length] }
     : npc));
-  const mintNpcIntoScene = () => setNpcs([...social.npcs, { id: `npc-${globalThis.crypto?.randomUUID?.() ?? Date.now()}`, ...mintNpc() }]);
-  const removeNpc = (npcId: string) => setNpcs(social.npcs.filter((npc) => npc.id !== npcId));
+  const mintNpcIntoScene = () => {
+    const npc = { id: `npc-${globalThis.crypto?.randomUUID?.() ?? Date.now()}`, ...mintNpc(roleDraft) };
+    setNpcs([npc, ...social.npcs]); // newest first so a tap is always visible
+    setLastMintedId(npc.id);
+    setRoleDraft('');
+  };
+  const removeNpc = (npcId: string) => {
+    if (pendingRemove !== npcId) { setPendingRemove(npcId); return; } // confirm — the ✕ sits next to a cycle button
+    setNpcs(social.npcs.filter((npc) => npc.id !== npcId));
+    setPendingRemove(null);
+  };
   return (
     <div className="focus-layout social-layout">
       <SocialNotebook workspace={workspace} onWorkspaceChange={onWorkspaceChange} />
@@ -333,18 +345,21 @@ function SocialView({ workspace, onWorkspaceChange }: Pick<RunWorkspaceProps, 'w
         <section>
           <div className="section-head">
             <h3 className="section-label">People in the scene</h3>
-            <button type="button" className="mint-npc" onClick={mintNpcIntoScene}><Sparkle size={13} /> Mint NPC</button>
+            <form className="mint-npc-form" onSubmit={(event) => { event.preventDefault(); mintNpcIntoScene(); }}>
+              <input aria-label="Role for a new NPC" placeholder="Role (optional)" value={roleDraft} onChange={(event) => setRoleDraft(event.target.value)} />
+              <button type="submit" className="mint-npc"><Sparkle size={13} /> Mint NPC</button>
+            </form>
           </div>
           <div className="npc-list">
             {social.npcs.map((npc, index) => {
               const NpcIcon = NPC_ICONS[index % NPC_ICONS.length];
               return (
-              <article key={npc.id}>
+              <article key={npc.id} className={npc.id === lastMintedId ? 'just-minted' : undefined}>
                 <div className="npc-avatar"><NpcIcon size={25} /></div>
                 <div><h3>{npc.name}</h3><p>{npc.role}</p></div>
                 <div className="npc-actions">
                   <button type="button" onClick={() => cycleAttitude(npc.id)}>{npc.attitude}</button>
-                  <button type="button" className="npc-remove" aria-label={`Remove ${npc.name} from the scene`} onClick={() => removeNpc(npc.id)}><X size={13} /></button>
+                  <button type="button" className="npc-remove" aria-label={pendingRemove === npc.id ? `Confirm removing ${npc.name}` : `Remove ${npc.name} from the scene`} onClick={() => removeNpc(npc.id)}>{pendingRemove === npc.id ? 'Remove?' : <X size={13} />}</button>
                 </div>
                 <dl><div><dt>Wants</dt><dd>{npc.motive}</dd></div><div><dt>Secret</dt><dd>{npc.secret}</dd></div></dl>
               </article>

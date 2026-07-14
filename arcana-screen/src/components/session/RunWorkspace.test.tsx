@@ -59,20 +59,26 @@ describe('RunWorkspace', () => {
     expect(screen.getByRole('link', { name: /Monster Manual/ })).toHaveAttribute('href', 'https://www.dndbeyond.com/sources/dnd/free-rules');
   });
 
-  it('mints an improv NPC into the Social scene and can remove one', async () => {
+  it('mints a role-pinned NPC to the top of the scene and confirms removal', async () => {
     const user = userEvent.setup();
     const workspace = createDefaultFocusWorkspace();
     workspace.currentFocus = 'social';
-    render(<StatefulRun initial={workspace} />);
+    const { container } = render(<StatefulRun initial={workspace} />);
 
-    const peopleCount = () => screen.getAllByRole('button', { name: /Remove .* from the scene/ }).length;
-    expect(peopleCount()).toBe(3); // three seeded NPCs
+    const npcNames = () => Array.from(container.querySelectorAll('.npc-list article h3')).map((el) => el.textContent);
+    expect(npcNames()).toHaveLength(3); // three seeded NPCs
 
+    await user.type(screen.getByLabelText('Role for a new NPC'), 'Bartender');
     await user.click(screen.getByRole('button', { name: 'Mint NPC' }));
-    expect(peopleCount()).toBe(4);
+    expect(npcNames()).toHaveLength(4);
+    // Prepended (newest first) with the role the DM pinned
+    expect(container.querySelector('.npc-list article p')?.textContent).toBe('Bartender');
 
-    await user.click(screen.getAllByRole('button', { name: /Remove .* from the scene/ })[0]);
-    expect(peopleCount()).toBe(3);
+    // Removal needs a confirming second tap — the ✕ sits beside the attitude toggle
+    await user.click(screen.getAllByRole('button', { name: /Remove .+ from the scene/ })[0]);
+    expect(npcNames()).toHaveLength(4); // armed, not yet gone
+    await user.click(screen.getByRole('button', { name: /Confirm removing/ }));
+    expect(npcNames()).toHaveLength(3);
   });
 
   it('captures once and retains the result while changing Focus', async () => {
