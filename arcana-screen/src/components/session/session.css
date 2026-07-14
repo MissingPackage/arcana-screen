@@ -293,6 +293,12 @@
 .capture-review__list article > div { display: flex; grid-column: 1 / -1; gap: 7px; }
 .capture-review__list article > div button { border: 1px solid var(--as-line-strong); border-radius: 5px; background: var(--as-paper); color: var(--as-ink); padding: 6px 9px; font-size: 11px; font-weight: 700; }
 .capture-review__list article > div .is-danger { margin-left: auto; color: #8b2e34; }
+.capture-review__list .capture-star { display: inline-flex; align-items: center; gap: 5px; }
+.capture-review__list .capture-star[aria-pressed="true"] { color: #7b540d; border-color: #c68a15 !important; background: #fff8e7 !important; }
+.capture-recap { margin: 12px 0 4px; padding: 12px 14px; background: #fff8e7; border: 1px solid #c9a23a; border-radius: 8px; }
+.capture-recap h3 { margin: 0 0 8px; font-family: var(--as-display); font-size: 15px; color: var(--as-ink); }
+.capture-recap ol { display: grid; gap: 5px; margin: 0; padding-left: 18px; }
+.capture-recap li { color: var(--as-ink); font-size: 12px; line-height: 1.4; }
 .recent-capture { margin: 5px 0 0; color: var(--as-muted); font-size: 10px; }
 .recent-capture strong { margin-right: 8px; color: #425870; text-transform: uppercase; }
 

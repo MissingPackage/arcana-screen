@@ -137,6 +137,26 @@ describe('RunWorkspace', () => {
     expect(screen.queryByLabelText('Capture text')).not.toBeInTheDocument();
   });
 
+  it('stars a capture into the "Previously on" recap and unstars it', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'narrative';
+    render(<StatefulRun initial={workspace} />);
+
+    await user.type(screen.getByLabelText('Quick capture'), 'The vault door was left open');
+    await user.click(screen.getByRole('button', { name: 'Save capture' }));
+    await user.click(screen.getByRole('button', { name: 'Review captures' }));
+
+    expect(screen.queryByRole('region', { name: 'Previously on' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /Star for recap/ }));
+    const recap = screen.getByRole('region', { name: 'Previously on' });
+    expect(within(recap).getByText('The vault door was left open')).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: /Unstar for recap/ }));
+    expect(screen.queryByRole('region', { name: 'Previously on' })).not.toBeInTheDocument();
+  });
+
   it('advances the Social scene clock without changing Focus', async () => {
     const user = userEvent.setup();
     const workspace = createDefaultFocusWorkspace();

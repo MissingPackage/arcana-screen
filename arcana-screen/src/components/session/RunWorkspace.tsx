@@ -21,6 +21,7 @@ import {
   ShieldChevron,
   Skull,
   Sparkle,
+  Star,
   Sword,
   Trash,
   User,
@@ -711,6 +712,12 @@ export default function RunWorkspace({ workspace, onFocusChange, onWorkspaceChan
       {capturesOpen && (
         <section className="capture-review" role="dialog" aria-modal="false" aria-labelledby="capture-review-title">
           <header><div><span className="eyebrow">Session inbox</span><h2 id="capture-review-title">Review captures</h2></div><button type="button" aria-label="Close capture review" onClick={() => setCapturesOpen(false)}>Close</button></header>
+          {workspace.universal.captures.some((captureItem) => captureItem.starred) && (
+            <section className="capture-recap" aria-label="Previously on">
+              <h3>Previously on…</h3>
+              <ol>{workspace.universal.captures.filter((captureItem) => captureItem.starred).map((captureItem) => <li key={captureItem.id}>{captureItem.text}</li>)}</ol>
+            </section>
+          )}
           {workspace.universal.captures.length === 0 ? <p>No captures waiting for review.</p> : (
             <div className="capture-review__list">
               {workspace.universal.captures.map((captureItem) => (
@@ -718,7 +725,7 @@ export default function RunWorkspace({ workspace, onFocusChange, onWorkspaceChan
                   <label>Capture text<input aria-label="Capture text" value={captureItem.text} onChange={(event) => updateCapture(captureItem.id, { text: event.target.value })} /></label>
                   <time dateTime={captureItem.createdAt}>{new Date(captureItem.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</time>
                   <span className={`capture-status capture-status--${captureItem.status ?? 'inbox'}`}>{captureItem.status === 'promoted' ? 'Promoted' : captureItem.status === 'kept' ? 'Kept' : 'Inbox'}</span>
-                  <div><button type="button" onClick={() => updateCapture(captureItem.id, { status: 'kept' })}>Keep capture</button><button type="button" onClick={() => promoteCapture(captureItem.id)}>Promote capture</button><button type="button" className="is-danger" onClick={() => deleteCapture(captureItem.id)}>Delete capture</button></div>
+                  <div><button type="button" className="capture-star" aria-pressed={Boolean(captureItem.starred)} aria-label={captureItem.starred ? `Unstar for recap: ${captureItem.text}` : `Star for recap: ${captureItem.text}`} onClick={() => updateCapture(captureItem.id, { starred: !captureItem.starred })}><Star size={13} weight={captureItem.starred ? 'fill' : 'regular'} /> {captureItem.starred ? 'Starred' : 'Star'}</button><button type="button" onClick={() => updateCapture(captureItem.id, { status: 'kept' })}>Keep capture</button><button type="button" onClick={() => promoteCapture(captureItem.id)}>Promote capture</button><button type="button" className="is-danger" onClick={() => deleteCapture(captureItem.id)}>Delete capture</button></div>
                 </article>
               ))}
             </div>

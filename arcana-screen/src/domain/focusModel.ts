@@ -8,6 +8,7 @@ export interface UniversalCapture {
   text: string;
   createdAt: string;
   status?: 'inbox' | 'kept' | 'promoted';
+  starred?: boolean; // marked for the start-of-session "Previously on…" recap
 }
 
 export interface NotebookSection {
