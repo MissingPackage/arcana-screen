@@ -597,7 +597,9 @@ body[data-density='compact'] .arcana-session .combatant-identity > span:first-ch
 .combatant-hp--bloodied > span { color: #9a5a0f; font-weight: 800; }
 .combatant-hp--bloodied b { background: #b5651d; }
 .condition-chips { display: flex; flex-wrap: wrap; gap: 4px; }
-.condition-chips span { padding: 3px 5px; color: #40566c; border: 1px solid #b6ab97; border-radius: 4px; font-size: 8px; }
+.condition-chips:empty { display: none; }
+.condition-chips span { padding: 3px 6px; color: #40566c; border: 1px solid #b6ab97; border-radius: 4px; font-size: 10px; }
+body[data-density='compact'] .arcana-session .condition-chips span { padding: 2px 5px; font-size: 9px; }
 .initiative-footer { display: grid; grid-template-columns: 1fr minmax(220px, .9fr); align-items: center; gap: 20px; padding: 10px 10px 0 72px; border-top: 1px solid var(--as-line); }
 .initiative-footer p { margin: 0; color: #526779; font-size: 12px; }
 .initiative-footer button { display: flex !important; min-height: 48px; align-items: center; justify-content: center; gap: 18px; color: #102b49 !important; background: #efb844 !important; border: 1px solid #c58d1a !important; border-radius: 6px !important; font-family: 'Cinzel', serif !important; font-size: 16px !important; }
@@ -643,6 +645,7 @@ body.dark-theme .arcana-session h4,
 body.dark-theme .arcana-session strong,
 body.dark-theme .arcana-session .initiative-score { color: var(--as-ink); }
 body.dark-theme .arcana-session .combatant-hp--bloodied > span { color: #e6a84e; }
+body.dark-theme .arcana-session .condition-chips span { color: #c2cfdc; border-color: #4c6178; }
 
 body.dark-theme .notebook-panel,
 body.dark-theme .narrative-notebook,
@@ -701,8 +704,12 @@ body.dark-theme .segment-clock span.is-filled { background: var(--as-gold); bord
   .combat-layout { grid-template-columns: minmax(560px, 1.45fr) minmax(280px, .75fr); }
   .combatant-list article,
   .initiative-head { grid-template-columns: 58px minmax(200px, 1.4fr) 110px; }
-  .combatant-list article > :last-child,
   .initiative-head > :last-child { display: none; }
+  /* No room for a conditions column at tablet/phone width — but a combat tracker can't hide who's
+     prone/poisoned. Wrap the chips to a full-width second row (starting at the combatant cell, past the
+     init column), instead of the old display:none. Empty chip sets collapse (rule below) so untouched
+     combatants stay one row. */
+  .combatant-list article > .condition-chips { grid-column: 2 / -1; padding-top: 3px; }
   .utility-dock { gap: 14px; padding-inline: 18px; }
   .dock-tool { gap: 8px; }
   .dock-tool + .dock-tool { padding-left: 14px; }
