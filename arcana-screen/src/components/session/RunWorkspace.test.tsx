@@ -81,6 +81,27 @@ describe('RunWorkspace', () => {
     expect(npcNames()).toHaveLength(3);
   });
 
+  it('re-rolls an improvised NPC identity in place while keeping its role', async () => {
+    const user = userEvent.setup();
+    const rnd = vi.spyOn(Math, 'random').mockReturnValue(0);
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'social';
+    const { container } = render(<StatefulRun initial={workspace} />);
+
+    await user.type(screen.getByLabelText('Role for a new NPC'), 'Smuggler');
+    await user.click(screen.getByRole('button', { name: 'Mint NPC' }));
+    const first = () => container.querySelector('.npc-list article') as HTMLElement;
+    expect(first().querySelector('h3')?.textContent).toBe('Bram');
+
+    rnd.mockReturnValue(0.99);
+    await user.click(screen.getByRole('button', { name: 'Re-roll Bram' }));
+    expect(first().querySelector('h3')?.textContent).toBe('Rook'); // identity changed
+    expect(first().querySelector('p')?.textContent).toContain('Smuggler'); // role kept
+
+    // Only the improvised NPC exposes re-roll; the three prepped seeds do not
+    expect(screen.getAllByRole('button', { name: /Re-roll/ })).toHaveLength(1);
+  });
+
   it('captures once and retains the result while changing Focus', async () => {
     const user = userEvent.setup();
     const workspace = createDefaultFocusWorkspace();

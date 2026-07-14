@@ -1,5 +1,6 @@
 import {
   ArrowRight,
+  ArrowsClockwise,
   BookOpenText,
   Bug,
   CaretLeft,
@@ -336,6 +337,13 @@ function SocialView({ workspace, onWorkspaceChange }: Pick<RunWorkspaceProps, 'w
     setNpcs(social.npcs.filter((npc) => npc.id !== npcId));
     setPendingRemove(null);
   };
+  // Re-roll an improvised NPC's identity in place, keeping its pinned role (like the attitude toggle, but for the person).
+  const rerollNpc = (npcId: string) => {
+    const target = social.npcs.find((npc) => npc.id === npcId);
+    if (!target) return;
+    setNpcs(social.npcs.map((npc) => (npc.id === npcId ? { ...npc, ...mintNpc(target.role) } : npc)));
+    setLastMintedId(npcId);
+  };
   return (
     <div className="focus-layout social-layout">
       <SocialNotebook workspace={workspace} onWorkspaceChange={onWorkspaceChange} />
@@ -356,7 +364,10 @@ function SocialView({ workspace, onWorkspaceChange }: Pick<RunWorkspaceProps, 'w
               return (
               <article key={npc.id} className={npc.id === lastMintedId ? 'just-minted' : undefined}>
                 <div className="npc-avatar"><NpcIcon size={25} /></div>
-                <div><h3>{npc.name}</h3><p>{npc.role}</p></div>
+                <div className="npc-identity">
+                  <h3>{npc.name}</h3>
+                  <p>{npc.role}{npc.id.startsWith('npc-') && <button type="button" className="npc-reroll" aria-label={`Re-roll ${npc.name}`} title="Re-roll this improvised NPC" onClick={() => rerollNpc(npc.id)}><ArrowsClockwise size={11} /></button>}</p>
+                </div>
                 <div className="npc-actions">
                   <button type="button" onClick={() => cycleAttitude(npc.id)}>{npc.attitude}</button>
                   <button type="button" className="npc-remove" aria-label={pendingRemove === npc.id ? `Confirm removing ${npc.name}` : `Remove ${npc.name} from the scene`} onClick={() => removeNpc(npc.id)}>{pendingRemove === npc.id ? 'Remove?' : <X size={13} />}</button>

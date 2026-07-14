@@ -418,6 +418,9 @@
 .arcana-session .npc-list .npc-remove { padding: 4px 6px !important; color: var(--as-muted) !important; background: transparent !important; border: 1px solid transparent !important; border-radius: 4px !important; font-size: 9px !important; }
 .arcana-session .npc-list .npc-remove:hover { color: #8a3d38 !important; border-color: #d8b4b0 !important; }
 .npc-list article.just-minted { border-color: #c68a15 !important; box-shadow: 0 0 0 1px rgba(229,173,50,.55); }
+.npc-identity p { display: flex; align-items: center; gap: 6px; }
+.arcana-session .npc-list .npc-reroll { padding: 2px !important; color: var(--as-muted) !important; background: transparent !important; border: none !important; border-radius: 4px !important; }
+.arcana-session .npc-list .npc-reroll:hover { color: #7b540d !important; }
 .npc-list dl { grid-column: 2 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0; }
 .npc-list dl div { display: flex; flex-direction: column; }
 .npc-list dt { color: var(--as-muted); font-size: 8px; text-transform: uppercase; }
