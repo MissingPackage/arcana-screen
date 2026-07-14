@@ -451,6 +451,11 @@ body.dark-theme .pacing-step.is-current .pacing-step__num { background: var(--as
 .combatant-identity em { padding: 3px 6px; color: #6d4a05; background: #f6d783; border-radius: 4px; font-size: 8px; font-style: normal; font-weight: 800; text-transform: uppercase; }
 .combatant-identity > span.combatant-ac { width: auto; height: auto; margin-left: auto; padding: 2px 7px; color: var(--as-ink); background: color-mix(in srgb, var(--as-gold) 16%, transparent); border: 1px solid #c9a23a; border-radius: 4px; font-size: 11px; font-weight: 800; white-space: nowrap; }
 .combatant-ac + em { margin-left: 6px; }
+.roster-picker { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 13px; border-top: 1px solid var(--as-line); }
+.roster-picker > span { margin-right: 4px; color: var(--as-muted); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.arcana-session .roster-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; color: var(--as-ink); background: var(--as-paper-deep); border: 1px solid var(--as-line-strong); border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.arcana-session .roster-chip:hover:not(:disabled) { border-color: var(--as-gold); background: color-mix(in srgb, var(--as-gold) 12%, var(--as-paper-deep)); }
+.arcana-session .roster-chip:disabled { color: var(--as-muted); cursor: default; }
 .combatant-hp { padding-right: 25px; }
 .combatant-hp > span { font-size: 10px; font-weight: 600; }
 .combatant-hp i { display: block; height: 6px; margin-top: 5px; overflow: hidden; background: #e2e4dc; border-radius: 999px; }

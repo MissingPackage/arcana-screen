@@ -35,7 +35,9 @@ import {
   type FocusId,
   type FocusWorkspace,
 } from '../../domain/focusModel';
-import { adjustTemporaryHp, advanceTurn, applyDamage, healCombatant, type EncounterState } from '../../domain/encounterModel';
+import { addCombatant, adjustTemporaryHp, advanceTurn, applyDamage, healCombatant, type EncounterCombatant, type EncounterState } from '../../domain/encounterModel';
+import { usePartyStore } from '../../store/usePartyStore';
+import type { PartyMember } from '../../domain/partyModel';
 import FocusSelector from './FocusSelector';
 import QuickCaptureBar from './QuickCaptureBar';
 import UtilityDock from './UtilityDock';
@@ -66,6 +68,24 @@ export const combatantIcon = (name: string, detail?: string): Icon => {
 };
 // No portrait data available, so vary the NPC glyph deterministically by position.
 export const NPC_ICONS: Icon[] = [UserCircle, User, UserFocus, UsersThree];
+
+// Map a roster PC to an encounter combatant so the party auto-populates Combat (no re-keying).
+export const combatantIdForMember = (memberId: string): string => `pc-${memberId}`;
+export const combatantFromMember = (member: PartyMember): EncounterCombatant => {
+  const maxHp = member.maxHp ?? member.hp ?? 10;
+  return {
+    id: combatantIdForMember(member.id),
+    name: member.name,
+    detail: member.playerName ?? 'Player character',
+    initiative: member.initMod ?? 0,
+    tieBreaker: member.initMod ?? 0,
+    hp: member.hp ?? maxHp,
+    maxHp,
+    tempHp: 0,
+    conditions: [],
+    ac: member.ac,
+  };
+};
 
 const clockSegments = (value: number, total: number, label: string) => (
   <div className="segment-clock" role="img" aria-label={`${label}: ${value} of ${total}`}>
@@ -386,6 +406,9 @@ function CombatView({
   const [confirmReset, setConfirmReset] = useState(false);
   const updateEncounter = (combat: EncounterState) => onWorkspaceChange({ ...workspace, contexts: { ...workspace.contexts, combat } });
   const selected = encounter.combatants.find((combatant) => combatant.id === selectedId);
+  const party = usePartyStore((state) => state.members);
+  const encounterIds = new Set(encounter.combatants.map((combatant) => combatant.id));
+  const addFromRoster = (member: PartyMember) => { setUndo(encounter); updateEncounter(addCombatant(encounter, combatantFromMember(member))); };
   const changeHp = (amount: number) => {
     if (!selected) return;
     setUndo(encounter);
@@ -431,6 +454,19 @@ function CombatView({
             );
           })}
         </div>
+        {party.length > 0 && (
+          <div className="roster-picker" role="group" aria-label="Add party members to the encounter">
+            <span>Add from party</span>
+            {party.map((member) => {
+              const added = encounterIds.has(combatantIdForMember(member.id));
+              return (
+                <button key={member.id} type="button" className="roster-chip" disabled={added} aria-label={added ? `${member.name} is already in the encounter` : `Add ${member.name} to the encounter`} onClick={() => addFromRoster(member)}>
+                  {added ? <Check size={13} /> : <Plus size={13} />} {member.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
         <footer className="initiative-footer">
           <p>Up next: <strong>{next?.name ?? '—'}</strong> {next ? `(${next.initiative})` : ''}</p>
           <button type="button" onClick={() => updateEncounter(advanceTurn(encounter))}>Next Turn <ArrowRight size={22} /></button>

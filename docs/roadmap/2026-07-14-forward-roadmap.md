@@ -107,6 +107,6 @@ Decisions are taken (see top). Run the goal-loop per feature → build → **bro
 
 4. **Tracker integration (Combat).**
    - 4a ✅ done 2026-07-14 — **AC inline on every combatant row** (gold chip in the identity cell, AA-safe, no grid change); `ac?` added to the encounter model + demo seed. `test:ci` 101 green; browser+axe 0 violations. (Fixed a CSS collision where the icon-circle rule also styled the AC span.)
-   - 4b pending — add-PC **roster chip-picker** (auto-fills name/AC/init from the party, no re-keying); HP edits write the shared PC Entity.
+   - 4b ✅ done 2026-07-14 — **roster chip-picker** ("Add from party" chips under the tracker; click adds a PC as a combatant with name/AC/HP/init auto-filled from the entity, dedup-disables the chip). `addCombatant` + `combatantFromMember` mappers, 3 integration tests; `test:ci` 104 green; browser+axe verified (chips 2, combatants 7→8, chip disables). Follow-up: set the *rolled* initiative in-Run (currently seeds from the init modifier); HP edited in the tracker doesn't yet write back to the roster entity (encounter holds its own copy).
 5. **Non-combat party surface.** Collapsible badge → ephemeral overlay (real button, `aria-expanded`, AA/keyboard) in Narrative/Social/Exploration; Social shows passive Insight/Perception.
 6. **Verify + judge each step** (container Playwright + axe + unit + designer/DM), commit+push.

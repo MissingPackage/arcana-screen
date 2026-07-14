@@ -24,6 +24,14 @@ export const sortCombatants = (combatants: EncounterCombatant[]) =>
     left.name.localeCompare(right.name),
   );
 
+export const addCombatant = (
+  encounter: EncounterState,
+  combatant: EncounterCombatant,
+): EncounterState => ({
+  ...encounter,
+  combatants: sortCombatants([...encounter.combatants, combatant]),
+});
+
 export const advanceTurn = (encounter: EncounterState): EncounterState => {
   if (encounter.combatants.length === 0) return { ...encounter, currentIndex: null };
   if (encounter.currentIndex === null) return { ...encounter, currentIndex: 0 };
