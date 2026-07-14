@@ -301,15 +301,17 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 25px;
+  gap: 20px;
   min-width: 0;
-  padding: 18px 28px;
+  padding: 16px 24px;
+  overflow-x: auto;
   color: white;
   background: var(--as-navy);
   border-top: 1px solid #936b21;
 }
+.utility-dock button, .utility-dock .dock-tool__name { white-space: nowrap; }
 
-.dock-tool { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.dock-tool { display: flex; flex-shrink: 0; align-items: center; gap: 12px; min-width: 0; }
 .dice-tool { position: relative; }
 .dock-tool + .dock-tool { padding-left: 25px; border-left: 1px solid #607487; }
 .dock-tool__name { display: flex; align-items: center; gap: 8px; color: #f7ead0; font-size: 12px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
@@ -330,6 +332,7 @@
 .dock-stepper button { height: 100%; color: white !important; border-right: 1px solid #56718a !important; }
 .dock-stepper button:last-child { border-right: 0 !important; border-left: 1px solid #56718a !important; }
 .dock-result { display: grid; min-width: 55px; place-items: center; font-size: 18px; }
+.oracle-result { min-width: 92px; padding: 0 8px; font-size: 13px; white-space: nowrap; }
 .dock-action { display: inline-flex !important; min-width: 86px; align-items: center; justify-content: center; gap: 7px; padding: 0 16px !important; font-weight: 700 !important; }
 .dock-action--gold { color: #102b49 !important; background: #f1bd4d !important; border-color: #d8971d !important; }
 .dock-reset { display: inline-flex !important; align-items: center; gap: 6px; color: #d9e2e9 !important; font-size: 11px !important; }

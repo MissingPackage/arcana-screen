@@ -5,11 +5,13 @@ import {
   Pause,
   Play,
   Plus,
+  Sparkle,
   Timer,
 } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
 import type { FocusWorkspace } from '../../domain/focusModel';
 import { pauseTimer, remainingSeconds, resetTimer, startTimer } from '../../domain/timerModel';
+import { rollOracle, type Likelihood, type OracleAnswer } from '../../domain/oracleModel';
 import { executeFormula, parseDiceFormula } from '../../utils/diceFormulaParser';
 
 interface UtilityDockProps {
@@ -27,6 +29,8 @@ export default function UtilityDock({ workspace, onChange }: UtilityDockProps) {
   const [now, setNow] = useState(() => Date.now());
   const [advancedDiceOpen, setAdvancedDiceOpen] = useState(false);
   const [timerOptionsOpen, setTimerOptionsOpen] = useState(false);
+  const [oracleLikelihood, setOracleLikelihood] = useState<Likelihood>('even');
+  const [oracleAnswer, setOracleAnswer] = useState<OracleAnswer | null>(null);
   const timer = workspace.universal.timer;
   const exploration = workspace.contexts.exploration;
   const dice = workspace.universal.dice;
@@ -129,6 +133,17 @@ export default function UtilityDock({ workspace, onChange }: UtilityDockProps) {
             {dice.breakdown?.length > 0 && <p className="dice-breakdown">{dice.breakdown.filter(Boolean).join(' · ')}{dice.results?.length ? ` · raw ${dice.results.join(', ')}` : ''}</p>}
           </div>
         )}
+      </section>
+
+      <section className="dock-tool oracle-tool" aria-label="Oracle">
+        <span className="dock-tool__name"><Sparkle size={22} aria-hidden="true" /> Oracle</span>
+        <select aria-label="Oracle likelihood" value={oracleLikelihood} onChange={(event) => setOracleLikelihood(event.target.value as Likelihood)}>
+          <option value="unlikely">Unlikely</option>
+          <option value="even">50/50</option>
+          <option value="likely">Likely</option>
+        </select>
+        <output className="dock-result oracle-result" aria-label="Oracle answer" aria-live="polite">{oracleAnswer ? oracleAnswer.result : '—'}</output>
+        <button type="button" className="dock-action" onClick={() => setOracleAnswer(rollOracle(oracleLikelihood))}>Ask</button>
       </section>
 
       {workspace.currentFocus === 'exploration' && (

@@ -337,6 +337,20 @@ describe('RunWorkspace', () => {
     expect(screen.getByLabelText('Scene Clock: 0 of 8')).toBeVisible();
   });
 
+  it('answers an oracle question from the universal dock and shifts odds by likelihood', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValue(0.45); // roll 10
+    render(<StatefulRun initial={createDefaultFocusWorkspace()} />);
+
+    expect(screen.getByLabelText('Oracle answer')).toHaveTextContent('—');
+    await user.click(screen.getByRole('button', { name: 'Ask' }));
+    expect(screen.getByLabelText('Oracle answer').textContent).toBe('No, but'); // even, total 10
+
+    await user.selectOptions(screen.getByLabelText('Oracle likelihood'), 'likely');
+    await user.click(screen.getByRole('button', { name: 'Ask' }));
+    expect(screen.getByLabelText('Oracle answer').textContent).toBe('Yes'); // total 14
+  });
+
   it('sets the Timer duration from the Run dock without entering Prepare', async () => {
     const user = userEvent.setup();
     render(<StatefulRun initial={createDefaultFocusWorkspace()} />);
