@@ -24,6 +24,7 @@ import {
   Trash,
   User,
   UserCircle,
+  X,
   UserFocus,
   UsersThree,
   type Icon,
@@ -38,6 +39,7 @@ import {
   type FocusWorkspace,
 } from '../../domain/focusModel';
 import { addCombatant, adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, healCombatant, removeCombatant, sortCombatants, type EncounterCombatant, type EncounterState } from '../../domain/encounterModel';
+import { mintNpc } from '../../domain/npcModel';
 import { usePartyStore } from '../../store/usePartyStore';
 import type { PartyMember } from '../../domain/partyModel';
 import FocusSelector from './FocusSelector';
@@ -313,18 +315,15 @@ function SocialView({ workspace, onWorkspaceChange }: Pick<RunWorkspaceProps, 'w
   const social = workspace.contexts.social;
   const [confirmClockReset, setConfirmClockReset] = useState(false);
   const attitudes = ['Guarded', 'Friendly', 'Neutral'] as const;
-  const cycleAttitude = (npcId: string) => onWorkspaceChange({
+  const setNpcs = (npcs: typeof social.npcs) => onWorkspaceChange({
     ...workspace,
-    contexts: {
-      ...workspace.contexts,
-      social: {
-        ...social,
-        npcs: social.npcs.map((npc) => npc.id === npcId
-          ? { ...npc, attitude: attitudes[(attitudes.indexOf(npc.attitude) + 1) % attitudes.length] }
-          : npc),
-      },
-    },
+    contexts: { ...workspace.contexts, social: { ...social, npcs } },
   });
+  const cycleAttitude = (npcId: string) => setNpcs(social.npcs.map((npc) => npc.id === npcId
+    ? { ...npc, attitude: attitudes[(attitudes.indexOf(npc.attitude) + 1) % attitudes.length] }
+    : npc));
+  const mintNpcIntoScene = () => setNpcs([...social.npcs, { id: `npc-${globalThis.crypto?.randomUUID?.() ?? Date.now()}`, ...mintNpc() }]);
+  const removeNpc = (npcId: string) => setNpcs(social.npcs.filter((npc) => npc.id !== npcId));
   return (
     <div className="focus-layout social-layout">
       <SocialNotebook workspace={workspace} onWorkspaceChange={onWorkspaceChange} />
@@ -332,7 +331,10 @@ function SocialView({ workspace, onWorkspaceChange }: Pick<RunWorkspaceProps, 'w
         <header><div><span className="eyebrow">Current scene</span><h2>Social Focus</h2></div><UserCircle size={29} /></header>
         <div className="focus-scene-title"><span>The scene</span><strong>{social.sceneTitle}</strong></div>
         <section>
-          <h3 className="section-label">People in the scene</h3>
+          <div className="section-head">
+            <h3 className="section-label">People in the scene</h3>
+            <button type="button" className="mint-npc" onClick={mintNpcIntoScene}><Sparkle size={13} /> Mint NPC</button>
+          </div>
           <div className="npc-list">
             {social.npcs.map((npc, index) => {
               const NpcIcon = NPC_ICONS[index % NPC_ICONS.length];
@@ -340,7 +342,10 @@ function SocialView({ workspace, onWorkspaceChange }: Pick<RunWorkspaceProps, 'w
               <article key={npc.id}>
                 <div className="npc-avatar"><NpcIcon size={25} /></div>
                 <div><h3>{npc.name}</h3><p>{npc.role}</p></div>
-                <button type="button" onClick={() => cycleAttitude(npc.id)}>{npc.attitude}</button>
+                <div className="npc-actions">
+                  <button type="button" onClick={() => cycleAttitude(npc.id)}>{npc.attitude}</button>
+                  <button type="button" className="npc-remove" aria-label={`Remove ${npc.name} from the scene`} onClick={() => removeNpc(npc.id)}><X size={13} /></button>
+                </div>
                 <dl><div><dt>Wants</dt><dd>{npc.motive}</dd></div><div><dt>Secret</dt><dd>{npc.secret}</dd></div></dl>
               </article>
               );

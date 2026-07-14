@@ -59,6 +59,22 @@ describe('RunWorkspace', () => {
     expect(screen.getByRole('link', { name: /Monster Manual/ })).toHaveAttribute('href', 'https://www.dndbeyond.com/sources/dnd/free-rules');
   });
 
+  it('mints an improv NPC into the Social scene and can remove one', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'social';
+    render(<StatefulRun initial={workspace} />);
+
+    const peopleCount = () => screen.getAllByRole('button', { name: /Remove .* from the scene/ }).length;
+    expect(peopleCount()).toBe(3); // three seeded NPCs
+
+    await user.click(screen.getByRole('button', { name: 'Mint NPC' }));
+    expect(peopleCount()).toBe(4);
+
+    await user.click(screen.getAllByRole('button', { name: /Remove .* from the scene/ })[0]);
+    expect(peopleCount()).toBe(3);
+  });
+
   it('captures once and retains the result while changing Focus', async () => {
     const user = userEvent.setup();
     const workspace = createDefaultFocusWorkspace();

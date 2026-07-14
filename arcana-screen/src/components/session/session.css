@@ -409,6 +409,12 @@
 .npc-list h3 { margin: 0; font-size: 13px; }
 .npc-list p { margin: 2px 0 0; font-size: 10px; }
 .npc-list button { align-self: start; padding: 4px 7px !important; border: 1px solid #c6ad77 !important; border-radius: 4px !important; color: #79510b !important; background: #fff4d4 !important; font-size: 9px !important; }
+.section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.arcana-session .mint-npc { display: inline-flex; align-items: center; gap: 5px; min-height: 30px; padding: 4px 11px; color: var(--as-ink); background: transparent; border: 1px solid var(--as-line-strong); border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; }
+.arcana-session .mint-npc:hover { border-color: #c68a15; }
+.npc-actions { display: flex; align-items: start; gap: 6px; }
+.arcana-session .npc-list .npc-remove { padding: 4px !important; color: var(--as-muted) !important; background: transparent !important; border: 1px solid transparent !important; border-radius: 4px !important; }
+.arcana-session .npc-list .npc-remove:hover { color: #8a3d38 !important; border-color: #d8b4b0 !important; }
 .npc-list dl { grid-column: 2 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0; }
 .npc-list dl div { display: flex; flex-direction: column; }
 .npc-list dt { color: var(--as-muted); font-size: 8px; text-transform: uppercase; }
