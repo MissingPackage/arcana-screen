@@ -65,6 +65,7 @@ export interface ExplorationFocusState {
   clues: string[];
   changes: string[];
   liveLog: Array<{ time: string; text: string }>;
+  readAloud: string; // boxed prose the DM reads to players; presentable large + clean
 }
 
 export interface UniversalState {
@@ -174,6 +175,7 @@ export const createDefaultFocusWorkspace = (): FocusWorkspace => ({
         { time: '7:14 PM', text: 'Elia heard distant water at the northern arch.' },
         { time: '7:18 PM', text: 'Discovered carved name: Vhalen.' },
       ],
+      readAloud: "Cold blue light pools between the arches. Every footstep returns as a whisper in someone else's voice.",
     },
     combat: { round: 3, currentIndex: 0, combatants },
   },

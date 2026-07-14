@@ -468,7 +468,7 @@ body.dark-theme .pacing-step.is-current .pacing-step__num { background: var(--as
 .flow-moment strong { font-size: 11px; }
 .flow-moment small { color: var(--as-muted); font-size: 9px; text-transform: uppercase; }
 .flow-moment.is-active { border-left-color: var(--as-gold) !important; background: #fff8e8 !important; }
-.flow-moment.is-completed { opacity: .67; }
+.flow-moment.is-completed strong { color: var(--as-muted); text-decoration: line-through; }
 .complete-moment { display: flex !important; align-items: center; gap: 6px; margin: 16px 8px 0 !important; color: #31536f !important; font-size: 10px !important; font-weight: 700 !important; }
 .add-moment-form,
 .ledger-add-form { display: grid; grid-template-columns: minmax(0, 1fr) 30px; gap: 5px; margin-top: 11px; }
@@ -479,7 +479,13 @@ body.dark-theme .pacing-step.is-current .pacing-step__num { background: var(--as
 .session-ledger { min-width: 0; padding: 18px 23px; overflow: auto; background: #fffdf8; }
 .read-aloud { margin: 15px 0; padding: 15px; background: #f5efe4; border-left: 3px solid #be8520; }
 .read-aloud span { color: #8f6518; font-size: 9px; font-weight: 700; text-transform: uppercase; }
-.read-aloud p { margin: 5px 0 0; color: #344e65; font-family: 'Cinzel', serif; font-size: 13px; line-height: 1.55; }
+.read-aloud__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.arcana-session .read-aloud__present { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; color: #8f6518; background: transparent; border: 1px solid #d8c07f; border-radius: 5px; font-size: 10px; font-weight: 700; cursor: pointer; }
+.arcana-session .read-aloud__present:disabled { color: var(--as-muted); border-color: var(--as-line); cursor: default; }
+.arcana-session .read-aloud textarea { width: 100%; margin: 6px 0 0; padding: 0; min-height: 46px; resize: vertical; color: #344e65; background: transparent; border: none; font-family: 'Cinzel', serif; font-size: 13px; line-height: 1.55; }
+.read-aloud-present { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; gap: 34px; padding: 8vh 9vw; background: var(--as-navy); }
+.read-aloud-present p { max-width: min(900px, 82vw); margin: 0; color: var(--as-paper); font-family: 'Cinzel', serif; font-size: clamp(28px, 5vw, 50px); line-height: 1.4; text-align: center; }
+.arcana-session .read-aloud-present button { padding: 10px 24px; color: var(--as-paper); background: transparent; border: 1px solid #4a6178; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; }
 .ledger-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
 .ledger-columns section { padding: 12px 0; }
 .ledger-columns h3,

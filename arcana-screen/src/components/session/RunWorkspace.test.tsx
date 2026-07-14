@@ -169,6 +169,25 @@ describe('RunWorkspace', () => {
     expect(screen.getByRole('button', { name: 'Social' })).toHaveAttribute('aria-pressed', 'true');
   });
 
+  it('edits the read-aloud prose and presents it large for the table', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'exploration';
+    render(<StatefulRun initial={workspace} />);
+
+    const field = screen.getByLabelText('Read-aloud text');
+    await user.clear(field);
+    await user.type(field, 'The vault hums with a low, waiting sound.');
+
+    expect(screen.queryByRole('dialog', { name: 'Read-aloud presenter' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Present/ }));
+    const presenter = screen.getByRole('dialog', { name: 'Read-aloud presenter' });
+    expect(within(presenter).getByText('The vault hums with a low, waiting sound.')).toBeVisible();
+
+    await user.click(within(presenter).getByRole('button', { name: 'Close' }));
+    expect(screen.queryByRole('dialog', { name: 'Read-aloud presenter' })).not.toBeInTheDocument();
+  });
+
   it('completes Exploration and advances the persistent counter', async () => {
     const user = userEvent.setup();
     const workspace = createDefaultFocusWorkspace();
