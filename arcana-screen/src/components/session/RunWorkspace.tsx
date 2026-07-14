@@ -79,6 +79,8 @@ export const combatantFromMember = (member: PartyMember): EncounterCombatant => 
     detail: member.playerName ?? 'Player character',
     initiative: member.initMod ?? 0,
     tieBreaker: member.initMod ?? 0,
+    // No stored init modifier means the roll is unknown — flag it so the tracker shows "—" until the DM sets it.
+    initiativeUnset: member.initMod === undefined ? true : undefined,
     hp: member.hp ?? maxHp,
     maxHp,
     tempHp: 0,
@@ -88,7 +90,8 @@ export const combatantFromMember = (member: PartyMember): EncounterCombatant => 
 };
 
 // Click the initiative number to type the rolled value; commits on blur / Enter (caller re-sorts).
-function InitiativeCell({ value, ariaLabel, onCommit }: { value: number; ariaLabel: string; onCommit: (value: number) => void }) {
+// Unset (roster PC not yet rolled) renders as a dashed "—" so it never reads as a real 0.
+function InitiativeCell({ value, unset, ariaLabel, onCommit }: { value: number; unset?: boolean; ariaLabel: string; onCommit: (value: number) => void }) {
   const [editing, setEditing] = useState(false);
   if (editing) {
     return (
@@ -96,14 +99,19 @@ function InitiativeCell({ value, ariaLabel, onCommit }: { value: number; ariaLab
         type="number"
         className="initiative-input"
         ref={(el) => { if (el) { el.focus(); el.select(); } }}
-        defaultValue={value}
+        defaultValue={unset ? '' : value}
+        placeholder="—"
         aria-label={ariaLabel}
-        onBlur={(event) => { const raw = event.target.value.trim(); onCommit(raw === '' ? value : Number(raw)); setEditing(false); }}
+        onBlur={(event) => { const raw = event.target.value.trim(); if (raw !== '') onCommit(Number(raw)); setEditing(false); }}
         onKeyDown={(event) => { if (event.key === 'Enter') event.currentTarget.blur(); }}
       />
     );
   }
-  return <button type="button" className="initiative-score" aria-label={ariaLabel} onClick={() => setEditing(true)}>{value}</button>;
+  return (
+    <button type="button" className={`initiative-score${unset ? ' initiative-score--unset' : ''}`} aria-label={ariaLabel} onClick={() => setEditing(true)}>
+      {unset ? '—' : value}<PencilSimple size={11} aria-hidden="true" />
+    </button>
+  );
 }
 
 const clockSegments = (value: number, total: number, label: string) => (
@@ -430,7 +438,7 @@ function CombatView({
   const addFromRoster = (member: PartyMember) => { setUndo(encounter); updateEncounter(addCombatant(encounter, combatantFromMember(member))); };
   const setInitiative = (id: string, value: number) => {
     setUndo(encounter);
-    updateEncounter({ ...encounter, combatants: sortCombatants(encounter.combatants.map((combatant) => (combatant.id === id ? { ...combatant, initiative: value } : combatant))) });
+    updateEncounter({ ...encounter, combatants: sortCombatants(encounter.combatants.map((combatant) => (combatant.id === id ? { ...combatant, initiative: value, initiativeUnset: undefined } : combatant))) });
   };
   const changeHp = (amount: number) => {
     if (!selected) return;
@@ -469,7 +477,7 @@ function CombatView({
             const CombatantIcon = combatantIcon(combatant.name, combatant.detail);
             return (
               <article key={combatant.id} className={isActive ? 'is-active' : ''}>
-                <InitiativeCell value={combatant.initiative} ariaLabel={`Initiative for ${combatant.name}`} onCommit={(value) => setInitiative(combatant.id, value)} />
+                <InitiativeCell value={combatant.initiative} unset={combatant.initiativeUnset} ariaLabel={combatant.initiativeUnset ? `Set rolled initiative for ${combatant.name}` : `Initiative for ${combatant.name}`} onCommit={(value) => setInitiative(combatant.id, value)} />
                 <button type="button" className="combatant-identity" aria-label={`Manage ${combatant.name}`} aria-pressed={selectedId === combatant.id} onClick={() => setSelectedId(selectedId === combatant.id ? null : combatant.id)}><span><CombatantIcon size={23} /></span><p><strong>{combatant.name}</strong><small>{combatant.detail}</small></p><span className={`combatant-ac${combatant.ac === undefined ? ' combatant-ac--unset' : ''}`} aria-label={combatant.ac !== undefined ? `Armor Class ${combatant.ac}` : `Armor Class not set for ${combatant.name}`}>AC {combatant.ac ?? '—'}</span>{isActive && <em>Active</em>}</button>
                 <div className="combatant-hp"><span>{combatant.hp} / {combatant.maxHp}</span><i><b style={{ width: `${Math.round(combatant.hp / combatant.maxHp * 100)}%` }} /></i></div>
                 <div className="condition-chips">{combatant.conditions.map((condition) => <span key={condition}>{condition}</span>)}</div>

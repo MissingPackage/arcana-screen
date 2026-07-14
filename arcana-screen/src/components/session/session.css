@@ -449,7 +449,7 @@ body.dark-theme .pacing-step.is-current .pacing-step__num { background: var(--as
 .combatant-identity p strong { font-size: 13px; }
 .combatant-identity p small { color: var(--as-muted); font-size: 10px; }
 .combatant-identity em { padding: 3px 6px; color: #6d4a05; background: #f6d783; border-radius: 4px; font-size: 8px; font-style: normal; font-weight: 800; text-transform: uppercase; }
-.combatant-identity > span.combatant-ac { width: auto; height: auto; margin-left: auto; padding: 2px 7px; color: var(--as-ink); background: color-mix(in srgb, var(--as-gold) 16%, transparent); border: 1px solid #c9a23a; border-radius: 4px; font-size: 11px; font-weight: 800; white-space: nowrap; }
+.combatant-identity > span.combatant-ac { width: auto; height: auto; margin-left: auto; margin-right: 12px; padding: 2px 7px; color: var(--as-ink); background: color-mix(in srgb, var(--as-gold) 16%, transparent); border: 1px solid #c9a23a; border-radius: 4px; font-size: 11px; font-weight: 800; white-space: nowrap; }
 .combatant-ac + em { margin-left: 6px; }
 .roster-picker { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 13px; border-top: 1px solid var(--as-line); }
 .roster-picker > span { margin-right: 4px; color: var(--as-muted); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
@@ -457,8 +457,11 @@ body.dark-theme .pacing-step.is-current .pacing-step__num { background: var(--as
 .arcana-session .roster-chip:hover:not(:disabled) { border-color: var(--as-gold); background: color-mix(in srgb, var(--as-gold) 12%, var(--as-paper-deep)); }
 .arcana-session .roster-chip:disabled { color: var(--as-muted); cursor: default; }
 .combatant-ac--unset { color: var(--as-muted); background: transparent; border-style: dashed; }
-.arcana-session button.initiative-score { padding: 0; background: transparent; cursor: pointer; text-align: left; }
-.arcana-session button.initiative-score:hover { color: #7b540d; }
+.arcana-session button.initiative-score { display: inline-flex; align-items: center; gap: 5px; min-width: 46px; min-height: 30px; padding: 2px 6px; background: transparent; border: none; border-bottom: 1px dashed var(--as-line-strong); border-radius: 4px; cursor: pointer; text-align: left; }
+.arcana-session button.initiative-score svg { flex: none; color: var(--as-muted); }
+.arcana-session button.initiative-score:hover, .arcana-session button.initiative-score:focus-visible { color: #7b540d; border-bottom-color: #7b540d; border-bottom-style: solid; }
+.arcana-session button.initiative-score:hover svg, .arcana-session button.initiative-score:focus-visible svg { color: #7b540d; }
+.arcana-session .initiative-score--unset { color: var(--as-muted); }
 .arcana-session .initiative-input { width: 56px; padding: 2px 5px; color: var(--as-ink); background: #fff; border: 1px solid var(--as-line-strong); border-radius: 5px; font-family: 'Cinzel', serif; font-size: 20px; }
 .tracker-hint { margin: 0; padding: 6px 13px; color: var(--as-muted); font-size: 11px; font-style: italic; }
 .combatant-hp { padding-right: 25px; }

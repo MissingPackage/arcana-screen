@@ -9,6 +9,8 @@ export interface EncounterCombatant {
   conditions: string[];
   detail?: string;
   ac?: number;
+  // true when a roster PC was added but the DM has not yet entered a rolled initiative (renders as "—", not "0").
+  initiativeUnset?: boolean;
 }
 
 export interface EncounterState {

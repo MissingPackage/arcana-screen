@@ -12,6 +12,7 @@ describe('party → combat integration', () => {
     expect(combatant).toMatchObject({
       id: combatantIdForMember(member.id), name: 'Ser Kael', ac: 18, hp: 24, maxHp: 24, initiative: 3, detail: 'Sam',
     });
+    expect(combatant.initiativeUnset).toBeUndefined();
   });
 
   it('falls back to 10 HP and a generic detail when the roster values are unset', () => {
@@ -19,6 +20,11 @@ describe('party → combat integration', () => {
     expect(combatant.maxHp).toBe(10);
     expect(combatant.hp).toBe(10);
     expect(combatant.detail).toBe('Player character');
+  });
+
+  it('flags an unrolled initiative so it never reads as a rolled 0', () => {
+    expect(combatantFromMember(createPartyMember({ name: 'No mod' })).initiativeUnset).toBe(true);
+    expect(combatantFromMember(createPartyMember({ name: 'Rolled', initMod: 0 })).initiativeUnset).toBeUndefined();
   });
 
   it('adds a combatant from the roster and keeps the list sorted by initiative', () => {
