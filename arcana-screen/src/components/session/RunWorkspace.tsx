@@ -35,7 +35,7 @@ import {
   type FocusId,
   type FocusWorkspace,
 } from '../../domain/focusModel';
-import { addCombatant, adjustTemporaryHp, advanceTurn, applyDamage, healCombatant, type EncounterCombatant, type EncounterState } from '../../domain/encounterModel';
+import { addCombatant, adjustTemporaryHp, advanceTurn, applyDamage, healCombatant, sortCombatants, type EncounterCombatant, type EncounterState } from '../../domain/encounterModel';
 import { usePartyStore } from '../../store/usePartyStore';
 import type { PartyMember } from '../../domain/partyModel';
 import FocusSelector from './FocusSelector';
@@ -86,6 +86,25 @@ export const combatantFromMember = (member: PartyMember): EncounterCombatant => 
     ac: member.ac,
   };
 };
+
+// Click the initiative number to type the rolled value; commits on blur / Enter (caller re-sorts).
+function InitiativeCell({ value, ariaLabel, onCommit }: { value: number; ariaLabel: string; onCommit: (value: number) => void }) {
+  const [editing, setEditing] = useState(false);
+  if (editing) {
+    return (
+      <input
+        type="number"
+        className="initiative-input"
+        ref={(el) => { if (el) { el.focus(); el.select(); } }}
+        defaultValue={value}
+        aria-label={ariaLabel}
+        onBlur={(event) => { const raw = event.target.value.trim(); onCommit(raw === '' ? value : Number(raw)); setEditing(false); }}
+        onKeyDown={(event) => { if (event.key === 'Enter') event.currentTarget.blur(); }}
+      />
+    );
+  }
+  return <button type="button" className="initiative-score" aria-label={ariaLabel} onClick={() => setEditing(true)}>{value}</button>;
+}
 
 const clockSegments = (value: number, total: number, label: string) => (
   <div className="segment-clock" role="img" aria-label={`${label}: ${value} of ${total}`}>
@@ -409,6 +428,10 @@ function CombatView({
   const party = usePartyStore((state) => state.members);
   const encounterIds = new Set(encounter.combatants.map((combatant) => combatant.id));
   const addFromRoster = (member: PartyMember) => { setUndo(encounter); updateEncounter(addCombatant(encounter, combatantFromMember(member))); };
+  const setInitiative = (id: string, value: number) => {
+    setUndo(encounter);
+    updateEncounter({ ...encounter, combatants: sortCombatants(encounter.combatants.map((combatant) => (combatant.id === id ? { ...combatant, initiative: value } : combatant))) });
+  };
   const changeHp = (amount: number) => {
     if (!selected) return;
     setUndo(encounter);
@@ -446,8 +469,8 @@ function CombatView({
             const CombatantIcon = combatantIcon(combatant.name, combatant.detail);
             return (
               <article key={combatant.id} className={isActive ? 'is-active' : ''}>
-                <strong className="initiative-score">{combatant.initiative}</strong>
-                <button type="button" className="combatant-identity" aria-label={`Manage ${combatant.name}`} aria-pressed={selectedId === combatant.id} onClick={() => setSelectedId(selectedId === combatant.id ? null : combatant.id)}><span><CombatantIcon size={23} /></span><p><strong>{combatant.name}</strong><small>{combatant.detail}</small></p>{combatant.ac !== undefined && <span className="combatant-ac" aria-label={`Armor Class ${combatant.ac}`}>AC {combatant.ac}</span>}{isActive && <em>Active</em>}</button>
+                <InitiativeCell value={combatant.initiative} ariaLabel={`Initiative for ${combatant.name}`} onCommit={(value) => setInitiative(combatant.id, value)} />
+                <button type="button" className="combatant-identity" aria-label={`Manage ${combatant.name}`} aria-pressed={selectedId === combatant.id} onClick={() => setSelectedId(selectedId === combatant.id ? null : combatant.id)}><span><CombatantIcon size={23} /></span><p><strong>{combatant.name}</strong><small>{combatant.detail}</small></p><span className={`combatant-ac${combatant.ac === undefined ? ' combatant-ac--unset' : ''}`} aria-label={combatant.ac !== undefined ? `Armor Class ${combatant.ac}` : `Armor Class not set for ${combatant.name}`}>AC {combatant.ac ?? '—'}</span>{isActive && <em>Active</em>}</button>
                 <div className="combatant-hp"><span>{combatant.hp} / {combatant.maxHp}</span><i><b style={{ width: `${Math.round(combatant.hp / combatant.maxHp * 100)}%` }} /></i></div>
                 <div className="condition-chips">{combatant.conditions.map((condition) => <span key={condition}>{condition}</span>)}</div>
               </article>
@@ -471,6 +494,7 @@ function CombatView({
           <p>Up next: <strong>{next?.name ?? '—'}</strong> {next ? `(${next.initiative})` : ''}</p>
           <button type="button" onClick={() => updateEncounter(advanceTurn(encounter))}>Next Turn <ArrowRight size={22} /></button>
         </footer>
+        {!selected && encounter.combatants.length > 0 && <p className="tracker-hint">Tap a combatant to adjust HP, temp HP and conditions. Tap its initiative to set the rolled value.</p>}
         {selected && <div className="combat-live-editor" role="region" aria-label={`Live controls for ${selected.name}`}><strong>{selected.name}</strong><span>HP {selected.hp} / {selected.maxHp} · Temp {selected.tempHp}</span><button type="button" onClick={() => changeHp(-5)}>−5 HP</button><button type="button" onClick={() => changeHp(-1)}>−1 HP</button><button type="button" onClick={() => changeHp(1)}>+1 HP</button><button type="button" onClick={() => changeHp(5)}>+5 HP</button><button type="button" onClick={() => changeTempHp(-1)}>−1 Temp</button><button type="button" onClick={() => changeTempHp(1)}>+1 Temp</button><label>Conditions<input aria-label={`Conditions for ${selected.name}`} value={selected.conditions.join(', ')} onChange={(event) => changeConditions(event.target.value)} placeholder="Prone, poisoned…" /></label></div>}
         <p className="sr-only" aria-live="polite">Round {encounter.round}, {encounter.combatants[activeIndex]?.name} is active.</p>
       </section>

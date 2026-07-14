@@ -456,6 +456,11 @@ body.dark-theme .pacing-step.is-current .pacing-step__num { background: var(--as
 .arcana-session .roster-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; color: var(--as-ink); background: var(--as-paper-deep); border: 1px solid var(--as-line-strong); border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; }
 .arcana-session .roster-chip:hover:not(:disabled) { border-color: var(--as-gold); background: color-mix(in srgb, var(--as-gold) 12%, var(--as-paper-deep)); }
 .arcana-session .roster-chip:disabled { color: var(--as-muted); cursor: default; }
+.combatant-ac--unset { color: var(--as-muted); background: transparent; border-style: dashed; }
+.arcana-session button.initiative-score { padding: 0; background: transparent; cursor: pointer; text-align: left; }
+.arcana-session button.initiative-score:hover { color: #7b540d; }
+.arcana-session .initiative-input { width: 56px; padding: 2px 5px; color: var(--as-ink); background: #fff; border: 1px solid var(--as-line-strong); border-radius: 5px; font-family: 'Cinzel', serif; font-size: 20px; }
+.tracker-hint { margin: 0; padding: 6px 13px; color: var(--as-muted); font-size: 11px; font-style: italic; }
 .combatant-hp { padding-right: 25px; }
 .combatant-hp > span { font-size: 10px; font-weight: 600; }
 .combatant-hp i { display: block; height: 6px; margin-top: 5px; overflow: hidden; background: #e2e4dc; border-radius: 999px; }

@@ -167,6 +167,40 @@ describe('RunWorkspace', () => {
     expect(screen.getByRole('button', { name: 'Manage Ser Kael' })).toBeVisible();
   });
 
+  it('re-sorts the tracker when a combatant initiative is edited in place', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'combat';
+    const { container } = render(<StatefulRun initial={workspace} />);
+
+    const order = () =>
+      Array.from(container.querySelectorAll('.combatant-identity strong')).map((el) => el.textContent);
+    const before = order();
+    const lastName = before[before.length - 1];
+    if (!lastName) throw new Error('expected seeded combatants');
+    expect(before[0]).not.toBe(lastName);
+
+    await user.click(screen.getByRole('button', { name: `Initiative for ${lastName}` }));
+    const input = screen.getByRole('spinbutton', { name: `Initiative for ${lastName}` });
+    await user.clear(input);
+    await user.type(input, '999');
+    await user.tab();
+
+    expect(order()[0]).toBe(lastName);
+    expect(screen.queryByRole('spinbutton', { name: `Initiative for ${lastName}` })).not.toBeInTheDocument();
+  });
+
+  it('surfaces the HP editor discoverability hint until a combatant is selected', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'combat';
+    render(<StatefulRun initial={workspace} />);
+
+    expect(screen.getByText(/Tap a combatant to adjust HP/)).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Manage Ser Kael' }));
+    expect(screen.queryByText(/Tap a combatant to adjust HP/)).not.toBeInTheDocument();
+  });
+
   it('advances the Narrative beat in the context drawer', async () => {
     const user = userEvent.setup();
     const workspace = createDefaultFocusWorkspace();
