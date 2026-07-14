@@ -235,8 +235,26 @@ describe('RunWorkspace', () => {
     expect(screen.getByRole('button', { name: 'Manage Bugbear 2' })).toBeVisible();
     // Added with no initiative → flagged unset, editable in place
     expect(screen.getByRole('button', { name: 'Set rolled initiative for Bugbear 1' })).toBeVisible();
-    // The add form closes after submitting
+    // The form stays open for continuous entry, clears the name, and acknowledges the add
+    expect(screen.getByLabelText('New combatant name')).toHaveValue('');
+    expect(screen.getByText('Added Bugbear ×2')).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: 'Done' }));
     expect(screen.queryByLabelText('New combatant name')).not.toBeInTheDocument();
+  });
+
+  it('removes a single combatant from the live editor without resetting the fight', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'combat';
+    render(<StatefulRun initial={workspace} />);
+
+    await user.click(screen.getByRole('button', { name: 'Manage Goblin Scout' }));
+    await user.click(screen.getByRole('button', { name: 'Remove Goblin Scout from the encounter' }));
+
+    expect(screen.queryByRole('button', { name: 'Manage Goblin Scout' })).not.toBeInTheDocument();
+    // The rest of the encounter survives
+    expect(screen.getByRole('button', { name: 'Manage Ser Kael' })).toBeVisible();
   });
 
   it('surfaces the HP editor discoverability hint until a combatant is selected', async () => {

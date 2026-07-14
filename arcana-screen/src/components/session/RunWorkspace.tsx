@@ -21,6 +21,7 @@ import {
   Skull,
   Sparkle,
   Sword,
+  Trash,
   User,
   UserCircle,
   UserFocus,
@@ -36,7 +37,7 @@ import {
   type FocusId,
   type FocusWorkspace,
 } from '../../domain/focusModel';
-import { addCombatant, adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, healCombatant, sortCombatants, type EncounterCombatant, type EncounterState } from '../../domain/encounterModel';
+import { addCombatant, adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, healCombatant, removeCombatant, sortCombatants, type EncounterCombatant, type EncounterState } from '../../domain/encounterModel';
 import { usePartyStore } from '../../store/usePartyStore';
 import type { PartyMember } from '../../domain/partyModel';
 import FocusSelector from './FocusSelector';
@@ -457,9 +458,10 @@ function CombatView({
   // Add an ad-hoc NPC/monster to the encounter (the missing on-ramp in Run mode).
   const [addOpen, setAddOpen] = useState(false);
   const [addDraft, setAddDraft] = useState({ name: '', ac: '', hp: '', init: '', qty: '1' });
+  const [addedNote, setAddedNote] = useState('');
   const addNameField = useRef<HTMLInputElement | null>(null);
   useEffect(() => { if (addOpen) addNameField.current?.focus(); }, [addOpen]);
-  const resetAdd = () => { setAddDraft({ name: '', ac: '', hp: '', init: '', qty: '1' }); setAddOpen(false); };
+  const resetAdd = () => { setAddDraft({ name: '', ac: '', hp: '', init: '', qty: '1' }); setAddedNote(''); setAddOpen(false); };
   const optNum = (value: string) => (value.trim() === '' ? undefined : Number(value));
   const submitAdd = () => {
     const name = addDraft.name.trim();
@@ -478,7 +480,10 @@ function CombatView({
       updated = addCombatant(updated, createCombatant(makeId(`npc-${slug}`), { name: label, ac, hp, initiative }));
     }
     updateEncounter(updated);
-    resetAdd();
+    // Keep the form open for a continuous build (a whole encounter is many statblocks); acknowledge the add.
+    setAddDraft({ name: '', ac: '', hp: '', init: '', qty: '1' });
+    setAddedNote(qty > 1 ? `Added ${name} ×${qty}` : `Added ${name}`);
+    addNameField.current?.focus();
   };
   const applyBatch = () => {
     setUndo(encounter);
@@ -513,6 +518,12 @@ function CombatView({
     setUndo(encounter);
     updateEncounter({ round: 1, currentIndex: null, combatants: [] });
     setConfirmReset(false);
+    setSelectedId(null);
+  };
+  const removeSelected = () => {
+    if (!selected) return;
+    setUndo(encounter);
+    updateEncounter(removeCombatant(encounter, selected.id));
     setSelectedId(null);
   };
   return (
@@ -571,13 +582,14 @@ function CombatView({
           <div className="encounter-add">
             {addOpen ? (
               <form className="encounter-add__form" role="group" aria-label="Add a combatant" onSubmit={(event) => { event.preventDefault(); submitAdd(); }}>
-                <input ref={addNameField} aria-label="New combatant name" placeholder="Name" value={addDraft.name} onChange={(event) => setAddDraft((draft) => ({ ...draft, name: event.target.value }))} />
-                <input type="number" aria-label="New combatant AC" placeholder="AC" value={addDraft.ac} onChange={(event) => setAddDraft((draft) => ({ ...draft, ac: event.target.value }))} />
-                <input type="number" aria-label="New combatant HP" placeholder="HP" value={addDraft.hp} onChange={(event) => setAddDraft((draft) => ({ ...draft, hp: event.target.value }))} />
-                <input type="number" aria-label="New combatant initiative" placeholder="Init" value={addDraft.init} onChange={(event) => setAddDraft((draft) => ({ ...draft, init: event.target.value }))} />
-                <input type="number" min="1" max="20" aria-label="How many combatants" placeholder="×1" value={addDraft.qty} onChange={(event) => setAddDraft((draft) => ({ ...draft, qty: event.target.value }))} />
+                <input ref={addNameField} className="add-name" aria-label="New combatant name" placeholder="Name" value={addDraft.name} onChange={(event) => setAddDraft((draft) => ({ ...draft, name: event.target.value }))} />
+                <label className="add-field"><span>AC</span><input type="number" aria-label="New combatant AC" value={addDraft.ac} onChange={(event) => setAddDraft((draft) => ({ ...draft, ac: event.target.value }))} /></label>
+                <label className="add-field"><span>HP</span><input type="number" aria-label="New combatant HP" value={addDraft.hp} onChange={(event) => setAddDraft((draft) => ({ ...draft, hp: event.target.value }))} /></label>
+                <label className="add-field"><span>Init</span><input type="number" aria-label="New combatant initiative" value={addDraft.init} onChange={(event) => setAddDraft((draft) => ({ ...draft, init: event.target.value }))} /></label>
+                <label className="add-field"><span>Qty</span><input type="number" min="1" max="20" aria-label="How many combatants" value={addDraft.qty} onChange={(event) => setAddDraft((draft) => ({ ...draft, qty: event.target.value }))} /></label>
                 <button type="submit">Add</button>
-                <button type="button" onClick={resetAdd}>Cancel</button>
+                <button type="button" onClick={resetAdd}>Done</button>
+                <span className="add-note" aria-live="polite">{addedNote}</span>
               </form>
             ) : (
               <button type="button" className="encounter-add__toggle" onClick={() => setAddOpen(true)}><Plus size={13} /> Add combatant</button>
@@ -589,7 +601,7 @@ function CombatView({
           <button type="button" onClick={() => updateEncounter(advanceTurn(encounter))}>Next Turn <ArrowRight size={22} /></button>
         </footer>
         {!selected && encounter.combatants.length > 0 && <p className="tracker-hint">Tap a combatant to adjust HP, temp HP and conditions. Tap its initiative to set the rolled value.</p>}
-        {selected && <div className="combat-live-editor" role="region" aria-label={`Live controls for ${selected.name}`}><strong>{selected.name}</strong><span>HP {selected.hp} / {selected.maxHp} · Temp {selected.tempHp}</span><button type="button" onClick={() => changeHp(-5)}>−5 HP</button><button type="button" onClick={() => changeHp(-1)}>−1 HP</button><button type="button" onClick={() => changeHp(1)}>+1 HP</button><button type="button" onClick={() => changeHp(5)}>+5 HP</button><button type="button" onClick={() => changeTempHp(-1)}>−1 Temp</button><button type="button" onClick={() => changeTempHp(1)}>+1 Temp</button><label>Conditions<input aria-label={`Conditions for ${selected.name}`} value={selected.conditions.join(', ')} onChange={(event) => changeConditions(event.target.value)} placeholder="Prone, poisoned…" /></label></div>}
+        {selected && <div className="combat-live-editor" role="region" aria-label={`Live controls for ${selected.name}`}><strong>{selected.name}</strong><span>HP {selected.hp} / {selected.maxHp} · Temp {selected.tempHp}</span><button type="button" onClick={() => changeHp(-5)}>−5 HP</button><button type="button" onClick={() => changeHp(-1)}>−1 HP</button><button type="button" onClick={() => changeHp(1)}>+1 HP</button><button type="button" onClick={() => changeHp(5)}>+5 HP</button><button type="button" onClick={() => changeTempHp(-1)}>−1 Temp</button><button type="button" onClick={() => changeTempHp(1)}>+1 Temp</button><label>Conditions<input aria-label={`Conditions for ${selected.name}`} value={selected.conditions.join(', ')} onChange={(event) => changeConditions(event.target.value)} placeholder="Prone, poisoned…" /></label><button type="button" className="remove-combatant" aria-label={`Remove ${selected.name} from the encounter`} onClick={removeSelected}><Trash size={14} /> Remove</button></div>}
         <p className="sr-only" aria-live="polite">Round {encounter.round}, {encounter.combatants[activeIndex]?.name} is active.</p>
       </section>
       <aside className="combat-context">

@@ -478,14 +478,17 @@ body.dark-theme .pacing-step.is-current .pacing-step__num { background: var(--as
 .arcana-session .batch-init__actions button[type="submit"] { padding: 6px 16px; color: #1a1206; background: var(--as-gold); border: 1px solid #c68a15; border-radius: 6px; font-weight: 700; cursor: pointer; }
 .arcana-session .batch-init__actions button[type="button"] { padding: 6px 14px; color: var(--as-ink); background: transparent; border: 1px solid var(--as-line-strong); border-radius: 6px; cursor: pointer; }
 .encounter-add { padding: 8px 13px 0; }
-.arcana-session .encounter-add__toggle { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 4px 11px; color: var(--as-ink); background: transparent; border: 1px dashed var(--as-line-strong); border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; }
-.arcana-session .encounter-add__toggle:hover { border-color: #c68a15; border-style: solid; }
-.encounter-add__form { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; padding: 10px 12px; background: var(--as-paper-deep); border: 1px solid var(--as-line-strong); border-radius: 8px; }
-.arcana-session .encounter-add__form input { padding: 4px 7px; color: var(--as-ink); background: #fff; border: 1px solid var(--as-line-strong); border-radius: 5px; font-size: 12px; }
-.arcana-session .encounter-add__form input[aria-label="New combatant name"] { flex: 1 1 150px; }
-.arcana-session .encounter-add__form input[type="number"] { width: 58px; text-align: center; }
-.arcana-session .encounter-add__form button[type="submit"] { padding: 5px 15px; color: #1a1206; background: var(--as-gold); border: 1px solid #c68a15; border-radius: 6px; font-weight: 700; cursor: pointer; }
-.arcana-session .encounter-add__form button[type="button"] { padding: 5px 12px; color: var(--as-ink); background: transparent; border: 1px solid var(--as-line-strong); border-radius: 6px; cursor: pointer; }
+.arcana-session .encounter-add__toggle { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 6px 14px; color: var(--as-ink); background: transparent; border: 1px solid var(--as-line-strong); border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; }
+.arcana-session .encounter-add__toggle:hover { border-color: #c68a15; }
+.encounter-add__form { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 10px 12px; background: var(--as-paper-deep); border: 1px solid var(--as-line-strong); border-radius: 8px; }
+.encounter-add__form .add-field { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--as-muted); }
+.arcana-session .encounter-add__form input { padding: 5px 7px; color: var(--as-ink); background: #fff; border: 1px solid var(--as-line-strong); border-radius: 5px; font-size: 12px; }
+.arcana-session .encounter-add__form input.add-name { flex: 1 1 150px; min-width: 130px; }
+.arcana-session .encounter-add__form .add-field input { width: 52px; text-align: center; }
+.arcana-session .encounter-add__form button[type="submit"] { padding: 6px 15px; color: #1a1206; background: var(--as-gold); border: 1px solid #c68a15; border-radius: 6px; font-weight: 700; cursor: pointer; }
+.arcana-session .encounter-add__form button[type="button"] { padding: 6px 12px; color: var(--as-ink); background: transparent; border: 1px solid var(--as-line-strong); border-radius: 6px; cursor: pointer; }
+.add-note { color: var(--as-green); font-size: 11px; font-weight: 700; }
+.combat-live-editor button.remove-combatant { display: inline-flex !important; align-items: center; gap: 5px; margin-left: auto; color: #fff !important; background: #8a3d38 !important; }
 .combatant-hp { padding-right: 25px; }
 .combatant-hp > span { font-size: 10px; font-weight: 600; }
 .combatant-hp i { display: block; height: 6px; margin-top: 5px; overflow: hidden; background: #e2e4dc; border-radius: 999px; }

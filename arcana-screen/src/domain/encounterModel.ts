@@ -59,6 +59,22 @@ export const createCombatant = (id: string, input: NewCombatantInput): Encounter
   };
 };
 
+export const removeCombatant = (
+  encounter: EncounterState,
+  combatantId: string,
+): EncounterState => {
+  const index = encounter.combatants.findIndex((combatant) => combatant.id === combatantId);
+  if (index === -1) return encounter;
+  const combatants = encounter.combatants.filter((combatant) => combatant.id !== combatantId);
+  let currentIndex = encounter.currentIndex;
+  if (currentIndex !== null) {
+    if (combatants.length === 0) currentIndex = null;
+    else if (index < currentIndex) currentIndex -= 1; // keep the same combatant active
+    else if (currentIndex >= combatants.length) currentIndex = combatants.length - 1;
+  }
+  return { ...encounter, combatants, currentIndex };
+};
+
 export const advanceTurn = (encounter: EncounterState): EncounterState => {
   if (encounter.combatants.length === 0) return { ...encounter, currentIndex: null };
   if (encounter.currentIndex === null) return { ...encounter, currentIndex: 0 };

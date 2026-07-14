@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, sortCombatants, type EncounterState } from './encounterModel';
+import { adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, removeCombatant, sortCombatants, type EncounterState } from './encounterModel';
 
 const encounter = (): EncounterState => ({
   round: 3,
@@ -53,5 +53,19 @@ describe('Encounter model', () => {
     expect(blank.hp).toBe(10);
     expect(blank.maxHp).toBe(10);
     expect(blank.ac).toBeUndefined();
+  });
+
+  it('removes a combatant and keeps the same one active', () => {
+    const base: EncounterState = { ...encounter(), currentIndex: 1 };
+    const removed = removeCombatant(base, 'kael'); // index 0, before the active one
+    expect(removed.combatants.map((combatant) => combatant.id)).toEqual(['scout']);
+    expect(removed.combatants[removed.currentIndex ?? -1]?.id).toBe('scout'); // still Goblin Scout
+  });
+
+  it('clears the active index when the last combatant is removed', () => {
+    const single: EncounterState = { round: 1, currentIndex: 0, combatants: [encounter().combatants[0]] };
+    const removed = removeCombatant(single, 'kael');
+    expect(removed.combatants).toEqual([]);
+    expect(removed.currentIndex).toBeNull();
   });
 });
