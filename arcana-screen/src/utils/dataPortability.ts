@@ -2,6 +2,8 @@ import { getToolDefinitionByType, migrateToolInstance } from '../components/widg
 import { useScreenStore, type Screen, type ScreenImportStrategy } from '../store/useScreenStore';
 import { useThemeStore } from '../store/themeStore';
 import { useEvolutionStore } from '../store/useEvolutionStore';
+import { usePartyStore } from '../store/usePartyStore';
+import type { PartyMember } from '../domain/partyModel';
 import {
   getRecoverySnapshots,
   INVALID_STORAGE_PREFIX,
@@ -11,7 +13,8 @@ import {
 } from './safeStorage';
 
 const BACKUP_FORMAT = 'arcana-screen-backup';
-const BACKUP_SCHEMA_VERSION = 2;
+const BACKUP_SCHEMA_VERSION = 3;
+const SUPPORTED_SCHEMA_VERSIONS = [1, 2, 3];
 
 interface ArcanaBackup {
   format: typeof BACKUP_FORMAT;
@@ -25,6 +28,7 @@ interface ArcanaBackup {
       ReturnType<typeof useEvolutionStore.getState>,
       'personalTemplates' | 'referencePacks' | 'density' | 'locale' | 'accentTheme' | 'customAccent'
     >;
+    party?: PartyMember[];
   };
 }
 
@@ -60,7 +64,7 @@ export const parseBackup = (text: string): ParseBackupResult => {
     if (!isRecord(parsed) || parsed.format !== BACKUP_FORMAT) {
       return { ok: false, error: 'This file is not an ArcanaScreen backup.' };
     }
-    if (parsed.schemaVersion !== 1 && parsed.schemaVersion !== BACKUP_SCHEMA_VERSION) {
+    if (!SUPPORTED_SCHEMA_VERSIONS.includes(parsed.schemaVersion as number)) {
       return { ok: false, error: 'This backup version is not supported.' };
     }
     if (!isRecord(parsed.data) || !Array.isArray(parsed.data.screens)) {
@@ -133,6 +137,7 @@ export const exportBackup = () => {
         accentTheme: useEvolutionStore.getState().accentTheme,
         customAccent: useEvolutionStore.getState().customAccent,
       },
+      party: usePartyStore.getState().members,
     },
   };
   triggerJsonDownload(backup, `arcana-screen-backup-${new Date().toISOString().slice(0, 10)}.json`);
@@ -151,6 +156,9 @@ export const importBackup = (preview: ImportPreview, strategy: ScreenImportStrat
   }
   if (preview.backup.data.evolution) {
     useEvolutionStore.setState(preview.backup.data.evolution);
+  }
+  if (Array.isArray(preview.backup.data.party)) {
+    usePartyStore.getState().setMembers(preview.backup.data.party);
   }
   return imported;
 };

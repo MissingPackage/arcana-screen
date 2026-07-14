@@ -100,7 +100,7 @@ Decisions are taken (see top). Run the goal-loop per feature → build → **bro
 
 ### Horizon A — build steps (loop-sized)
 1. **Entity + party store.** ✅ done 2026-07-14 — `src/domain/partyModel.ts` (PC `Entity`: id/kind/name/ac/hp/maxHp/initMod/passivePerception/passiveInsight/notes/reveal/origin, with `createPartyMember` validating+clamping) + `src/store/usePartyStore.ts` (persisted `arcana_party`, add/update/remove/reorder/setMembers/clear) + 10 unit tests. `test:ci` 96 green.
-2. **Backup integration.** Include the party in export/import with a schema-version bump + migration; round-trip test.
+2. **Backup integration.** ✅ done 2026-07-14 — party added to `exportBackup`/`importBackup` (`dataPortability.ts`), backup schema bumped to **v3** (accepts v1/v2/v3; imported party sanitized via `setMembers`); round-trip test. `test:ci` 97 green.
 3. **Party/table setup UI.** Inline add/edit PC rows (light, sane defaults, tab-through); non-blocking entry nudge when a Focus needs the party and it's empty.
 4. **Tracker integration (Combat).** AC inline on combatant rows; add-PC becomes a roster chip-picker (auto-fills name/AC/init, no re-keying); HP edits write the shared Entity.
 5. **Non-combat party surface.** Collapsible badge → ephemeral overlay (real button, `aria-expanded`, AA/keyboard) in Narrative/Social/Exploration; Social shows passive Insight/Perception.

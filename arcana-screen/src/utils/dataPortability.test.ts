@@ -3,6 +3,7 @@ import { createDefaultFocusWorkspace } from '../domain/focusModel';
 import { useScreenStore, type Screen } from '../store/useScreenStore';
 import { importBackup, parseBackup } from './dataPortability';
 import { useEvolutionStore } from '../store/useEvolutionStore';
+import { usePartyStore } from '../store/usePartyStore';
 
 const screen: Screen = {
   id: 'screen-1',
@@ -32,6 +33,7 @@ describe('data portability', () => {
     localStorage.clear();
     useScreenStore.setState({ screens: [], activeScreenId: '' });
     useEvolutionStore.setState({ personalTemplates: [], referencePacks: [], density: 'comfortable', locale: 'en', accentTheme: 'arcane', customAccent: '#6d4aa2' });
+    usePartyStore.setState({ members: [] });
   });
 
   it('previews a complete backup including Focus state without mutating the store', () => {
@@ -68,5 +70,16 @@ describe('data portability', () => {
     importBackup(result.preview, 'replace');
     expect(useEvolutionStore.getState()).toMatchObject({ density: 'compact', locale: 'it', accentTheme: 'forest' });
     expect(useEvolutionStore.getState().referencePacks[0].name).toBe('Rules');
+  });
+
+  it('round-trips the party roster and sanitizes it (schema 3)', () => {
+    const payload = JSON.parse(backupText([screen]));
+    payload.schemaVersion = 3;
+    payload.data.party = [{ name: 'Ser Kael', ac: 18, maxHp: 24, hp: 24, initMod: 3 }];
+    const result = parseBackup(JSON.stringify(payload));
+    if (!result.ok) throw new Error('schema 3 fixture must parse');
+    importBackup(result.preview, 'replace');
+    expect(usePartyStore.getState().members).toHaveLength(1);
+    expect(usePartyStore.getState().members[0]).toMatchObject({ name: 'Ser Kael', ac: 18, kind: 'pc', origin: 'mine' });
   });
 });
