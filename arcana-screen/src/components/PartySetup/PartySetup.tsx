@@ -1,40 +1,72 @@
 import { usePartyStore } from '../../store/usePartyStore';
 import type { PartyMember } from '../../domain/partyModel';
 
-// Uncontrolled inputs committed on blur: the editor never fights the DM mid-typing
-// (clearing a field to retype won't snap it back to a default while you type).
+// One numeric field: uncontrolled + committed on blur, blank when unset (shows a
+// placeholder hint) so an untouched party never looks pre-filled with wrong values.
+function NumberField({
+  label, value, placeholder, ariaLabel, onCommit,
+}: {
+  label: string;
+  value: number | undefined;
+  placeholder: string;
+  ariaLabel: string;
+  onCommit: (value: number | undefined) => void;
+}) {
+  return (
+    <label>
+      <span>{label}</span>
+      <input
+        type="number"
+        defaultValue={value ?? ''}
+        placeholder={placeholder}
+        aria-label={ariaLabel}
+        onBlur={(event) => onCommit(event.target.value.trim() === '' ? undefined : Number(event.target.value))}
+      />
+    </label>
+  );
+}
+
 function PartyMemberRow({ member }: { member: PartyMember }) {
   const updateMember = usePartyStore((state) => state.updateMember);
   const removeMember = usePartyStore((state) => state.removeMember);
-  const num = (raw: string, fallback: number) => (raw.trim() === '' ? fallback : Number(raw));
+  const setNum = (key: keyof PartyMember) => (value: number | undefined) => updateMember(member.id, { [key]: value });
 
   return (
     <li className="party-member">
-      <label className="party-member__name">
-        <span>Name</span>
-        <input
-          defaultValue={member.name}
-          aria-label={`Name of ${member.name}`}
-          onBlur={(event) => updateMember(member.id, { name: event.target.value })}
-        />
-      </label>
-      <div className="party-member__stats">
-        <label><span>AC</span><input type="number" min={0} defaultValue={member.ac} aria-label={`Armor Class of ${member.name}`} onBlur={(e) => updateMember(member.id, { ac: num(e.target.value, member.ac) })} /></label>
-        <label><span>HP</span><input type="number" min={0} defaultValue={member.hp} aria-label={`Current HP of ${member.name}`} onBlur={(e) => updateMember(member.id, { hp: num(e.target.value, member.hp) })} /></label>
-        <label><span>Max</span><input type="number" min={0} defaultValue={member.maxHp} aria-label={`Max HP of ${member.name}`} onBlur={(e) => updateMember(member.id, { maxHp: num(e.target.value, member.maxHp) })} /></label>
-        <label><span>Init</span><input type="number" defaultValue={member.initMod} aria-label={`Initiative modifier of ${member.name}`} onBlur={(e) => updateMember(member.id, { initMod: num(e.target.value, member.initMod) })} /></label>
-        <label><span>Pass. Perc.</span><input type="number" min={0} defaultValue={member.passivePerception} aria-label={`Passive Perception of ${member.name}`} onBlur={(e) => updateMember(member.id, { passivePerception: num(e.target.value, member.passivePerception) })} /></label>
-        <label><span>Pass. Ins.</span><input type="number" min={0} defaultValue={member.passiveInsight} aria-label={`Passive Insight of ${member.name}`} onBlur={(e) => updateMember(member.id, { passiveInsight: num(e.target.value, member.passiveInsight) })} /></label>
+      <div className="party-member__identity">
+        <label className="party-member__name">
+          <span>Character</span>
+          <input defaultValue={member.name} aria-label={`Name of ${member.name}`} onBlur={(e) => updateMember(member.id, { name: e.target.value })} />
+        </label>
+        <label>
+          <span>Player</span>
+          <input defaultValue={member.playerName ?? ''} placeholder="—" aria-label={`Player of ${member.name}`} onBlur={(e) => updateMember(member.id, { playerName: e.target.value })} />
+        </label>
       </div>
+
+      <div className="party-member__group" role="group" aria-label={`Core stats for ${member.name}`}>
+        <NumberField label="AC" value={member.ac} placeholder="10" ariaLabel={`Armor Class of ${member.name}`} onCommit={setNum('ac')} />
+        <NumberField label="HP" value={member.hp} placeholder="—" ariaLabel={`Current HP of ${member.name}`} onCommit={setNum('hp')} />
+        <NumberField label="Max HP" value={member.maxHp} placeholder="—" ariaLabel={`Max HP of ${member.name}`} onCommit={setNum('maxHp')} />
+        <NumberField label="Init" value={member.initMod} placeholder="+0" ariaLabel={`Initiative modifier of ${member.name}`} onCommit={setNum('initMod')} />
+      </div>
+
+      <div className="party-member__group" role="group" aria-label={`Passive scores for ${member.name}`}>
+        <NumberField label="Pass. Perception" value={member.passivePerception} placeholder="10" ariaLabel={`Passive Perception of ${member.name}`} onCommit={setNum('passivePerception')} />
+        <NumberField label="Pass. Investigation" value={member.passiveInvestigation} placeholder="10" ariaLabel={`Passive Investigation of ${member.name}`} onCommit={setNum('passiveInvestigation')} />
+        <NumberField label="Pass. Insight" value={member.passiveInsight} placeholder="10" ariaLabel={`Passive Insight of ${member.name}`} onCommit={setNum('passiveInsight')} />
+      </div>
+
+      <div className="party-member__group" role="group" aria-label={`Spellcasting for ${member.name}`}>
+        <NumberField label="Spell save DC" value={member.spellSaveDc} placeholder="—" ariaLabel={`Spell save DC of ${member.name}`} onCommit={setNum('spellSaveDc')} />
+        <NumberField label="Spell atk" value={member.spellAttack} placeholder="—" ariaLabel={`Spell attack bonus of ${member.name}`} onCommit={setNum('spellAttack')} />
+      </div>
+
       <label className="party-member__notes">
         <span>Notes</span>
-        <input
-          defaultValue={member.notes}
-          placeholder="Saves, resistances, reminders…"
-          aria-label={`Notes for ${member.name}`}
-          onBlur={(event) => updateMember(member.id, { notes: event.target.value })}
-        />
+        <input defaultValue={member.notes} placeholder="Saves, resistances, reminders…" aria-label={`Notes for ${member.name}`} onBlur={(e) => updateMember(member.id, { notes: e.target.value })} />
       </label>
+
       <button
         type="button"
         className="screen-action-button screen-action-button--danger party-member__remove"
@@ -59,7 +91,7 @@ export default function PartySetup() {
       <div className="party-setup__panel" aria-label="Party setup">
         <div className="party-setup__head">
           <h2>Your party</h2>
-          <p>Set up your characters once — AC, HP and passives are reused in every combat and scene.</p>
+          <p>Set up your characters once — AC, HP and passives are reused in every combat and scene. Leave a field blank if you don't track it.</p>
         </div>
         {members.length === 0 ? (
           <p className="tool-empty-state">No characters yet. Add your party and it stays with you across screens and sessions.</p>
