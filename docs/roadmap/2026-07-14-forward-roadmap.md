@@ -108,5 +108,10 @@ Decisions are taken (see top). Run the goal-loop per feature → build → **bro
 4. **Tracker integration (Combat).**
    - 4a ✅ done 2026-07-14 — **AC inline on every combatant row** (gold chip in the identity cell, AA-safe, no grid change); `ac?` added to the encounter model + demo seed. `test:ci` 101 green; browser+axe 0 violations. (Fixed a CSS collision where the icon-circle rule also styled the AC span.)
    - 4b ✅ done 2026-07-14 — **roster chip-picker** ("Add from party" chips under the tracker; click adds a PC as a combatant with name/AC/HP/init auto-filled from the entity, dedup-disables the chip). `addCombatant` + `combatantFromMember` mappers, 3 integration tests; `test:ci` 104 green; browser+axe verified (chips 2, combatants 7→8, chip disables). Follow-up: set the *rolled* initiative in-Run (currently seeds from the init modifier); HP edited in the tracker doesn't yet write back to the roster entity (encounter holds its own copy).
+4c. **Tracker polish (from designer + DM judgment, 2026-07-14) — do before step 5.**
+   - *Designer P1:* AC chip should **always render** (muted "AC —" when unset) so present/absent AC doesn't leave a ragged edge beside HP.
+   - *DM #1:* **in-place INIT editing** — click a combatant's initiative to type the rolled value and auto-resort (added PCs currently sit at init 0; that's the tell). Biggest "run the fight" gap.
+   - *DM:* the HP live editor (−5/−1/+1/+5, temp, conditions) only appears after selecting a combatant and is undiscoverable — surface it (make HP/the row obviously editable). Later: downed / death saves / concentration.
+
 5. **Non-combat party surface.** Collapsible badge → ephemeral overlay (real button, `aria-expanded`, AA/keyboard) in Narrative/Social/Exploration; Social shows passive Insight/Perception.
 6. **Verify + judge each step** (container Playwright + axe + unit + designer/DM), commit+push.
