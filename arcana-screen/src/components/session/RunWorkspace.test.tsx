@@ -190,6 +190,30 @@ describe('RunWorkspace', () => {
     expect(screen.queryByRole('spinbutton', { name: `Initiative for ${lastName}` })).not.toBeInTheDocument();
   });
 
+  it('sets every initiative at once and sorts only on apply', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'combat';
+    const { container } = render(<StatefulRun initial={workspace} />);
+
+    const order = () =>
+      Array.from(container.querySelectorAll('.combatant-identity strong')).map((el) => el.textContent);
+    const before = order();
+    const lastName = before[before.length - 1];
+    if (!lastName) throw new Error('expected seeded combatants');
+
+    await user.click(screen.getByRole('button', { name: /Set initiative/ }));
+    // Raising the bottom combatant does NOT reorder the batch rows while typing
+    const field = screen.getByRole('spinbutton', { name: `Set ${lastName} initiative` });
+    await user.clear(field);
+    await user.type(field, '99');
+    expect(order()).toEqual(before);
+
+    await user.click(screen.getByRole('button', { name: 'Apply order' }));
+    expect(order()[0]).toBe(lastName);
+    expect(screen.queryByRole('button', { name: 'Apply order' })).not.toBeInTheDocument();
+  });
+
   it('surfaces the HP editor discoverability hint until a combatant is selected', async () => {
     const user = userEvent.setup();
     const workspace = createDefaultFocusWorkspace();

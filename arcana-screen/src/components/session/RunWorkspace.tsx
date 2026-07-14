@@ -10,6 +10,7 @@ import {
   Eye,
   Flame,
   LinkSimple,
+  ListNumbers,
   MagicWand,
   MapPin,
   Note,
@@ -440,6 +441,25 @@ function CombatView({
     setUndo(encounter);
     updateEncounter({ ...encounter, combatants: sortCombatants(encounter.combatants.map((combatant) => (combatant.id === id ? { ...combatant, initiative: value, initiativeUnset: undefined } : combatant))) });
   };
+  // Batch entry: type every roll first, sort once — so the list never reflows the row you're about to edit.
+  const [batchOpen, setBatchOpen] = useState(false);
+  const [batchDraft, setBatchDraft] = useState<Record<string, string>>({});
+  const openBatch = () => {
+    const draft: Record<string, string> = {};
+    encounter.combatants.forEach((combatant) => { draft[combatant.id] = combatant.initiativeUnset ? '' : String(combatant.initiative); });
+    setBatchDraft(draft);
+    setBatchOpen(true);
+  };
+  const closeBatch = () => { setBatchOpen(false); setBatchDraft({}); };
+  const applyBatch = () => {
+    setUndo(encounter);
+    const combatants = encounter.combatants.map((combatant) => {
+      const raw = (batchDraft[combatant.id] ?? '').trim();
+      return raw === '' ? combatant : { ...combatant, initiative: Number(raw), initiativeUnset: undefined };
+    });
+    updateEncounter({ ...encounter, combatants: sortCombatants(combatants) });
+    closeBatch();
+  };
   const changeHp = (amount: number) => {
     if (!selected) return;
     setUndo(encounter);
@@ -469,7 +489,7 @@ function CombatView({
   return (
     <div className="focus-layout combat-layout">
       <section className="initiative-panel">
-        <header className="panel-title"><h2>Initiative Tracker</h2><strong>Round {encounter.round}</strong></header>
+        <header className="panel-title"><h2>Initiative Tracker</h2><div className="tracker-tools">{encounter.combatants.length > 1 && <button type="button" className="batch-init-toggle" aria-expanded={batchOpen} onClick={() => (batchOpen ? closeBatch() : openBatch())}><ListNumbers size={15} /> Set initiative</button>}<strong>Round {encounter.round}</strong></div></header>
         <div className="initiative-head" aria-hidden="true"><span>Init</span><span>Combatant</span><span>HP</span><span>Status</span></div>
         <div className="combatant-list">
           {encounter.combatants.map((combatant, index) => {
@@ -485,6 +505,23 @@ function CombatView({
             );
           })}
         </div>
+        {batchOpen && encounter.combatants.length > 0 && (
+          <form className="batch-init" role="region" aria-label="Set initiative order" onSubmit={(event) => { event.preventDefault(); applyBatch(); }}>
+            <p className="batch-init__hint">Type each roll, then apply once — the list won’t reorder while you enter them.</p>
+            <div className="batch-init__rows">
+              {encounter.combatants.map((combatant) => (
+                <label key={combatant.id}>
+                  <span>{combatant.name}</span>
+                  <input type="number" aria-label={`Set ${combatant.name} initiative`} placeholder="—" value={batchDraft[combatant.id] ?? ''} onChange={(event) => setBatchDraft((draft) => ({ ...draft, [combatant.id]: event.target.value }))} />
+                </label>
+              ))}
+            </div>
+            <div className="batch-init__actions">
+              <button type="submit">Apply order</button>
+              <button type="button" onClick={closeBatch}>Cancel</button>
+            </div>
+          </form>
+        )}
         {party.length > 0 && (
           <div className="roster-picker" role="group" aria-label="Add party members to the encounter">
             <span>Add from party</span>
