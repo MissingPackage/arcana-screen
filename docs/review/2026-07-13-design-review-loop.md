@@ -344,3 +344,9 @@ Ri-ancorato da `docs/roadmap/2026-07-14-forward-roadmap.md` (build-steps in quel
 - **Orizzonte C — stato:** ✅ recap "Previously on" (C2), ✅ read-aloud/presenter universale (C3), ⛔ spine (C1, revertata, in attesa decisione pacing/beats). Resta il **session tape** per completare C.
 - **Rinviati:** passage picker; reveal-tagging read-aloud/secret (legato al present-mode a bassa priorità).
 - **Next (iter. 15):** valutare il **session tape** (log append-only — ATTENZIONE overlap col `liveLog` di Exploration, controllare prima) oppure il tie combat, oppure aprire l'Orizzonte D (mini-wiki/SRD via IndexedDB). Budget: index 181/560, CSS 112.7/130.
+
+### Iter. 15 — Tie combat (chiude il P1 DM di iter. 4d) — commit `65e6f8f`
+- **Fatto:** `reorderTiedCombatant` (bump deterministico del tie-breaker) + controlli ▲▼ sotto l'iniziativa, **visibili solo quando un combattente è in pareggio** con un vicino. Il pareggio è quindi *visibile* (i controlli lo segnalano) e *risolvibile* dal DM, zero clutter nel caso normale. Domain + component test; `test:ci` **136 verdi**; browser+axe 0 violazioni.
+- **Perché ora:** debito P1 del DM da iter. 4d ("i pareggi si risolvono in modo invisibile, non posso riordinare"). Piccolo, self-contained, basso rischio — scelto rispetto al session tape (complesso, rischio overlap col liveLog) per un'iterazione pulita. Nessun nuovo ciclo giudici: ripiega un giudizio DM già dato.
+- **Orizzonte A/combat: tutti i P0/P1 dei giudici ora chiusi** (CA, roster, init in-place, batch, add-mostro, remove, tie).
+- **Next (iter. 16):** session tape (design attento all'overlap) o apertura Orizzonte D (mini-wiki/SRD IndexedDB — foundation, multi-iterazione). Budget: index 182/560, CSS 113/130.
