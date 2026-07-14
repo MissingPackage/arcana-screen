@@ -86,7 +86,7 @@ export default function PartySetup() {
   return (
     <details className="party-setup header-party">
       <summary className="screen-action-button screen-action-button--quiet">
-        The party{members.length ? ` · ${members.length}` : ''}
+        Edit party{members.length ? ` · ${members.length}` : ''}
       </summary>
       <div className="party-setup__panel" aria-label="Party setup">
         <div className="party-setup__head">

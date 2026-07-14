@@ -9,7 +9,7 @@ const party = () => usePartyStore.getState();
 async function openPanel() {
   const user = userEvent.setup();
   render(<PartySetup />);
-  await user.click(screen.getByText(/The party/)); // open the <details>
+  await user.click(screen.getByText(/Edit party/)); // open the <details>
   return user;
 }
 
