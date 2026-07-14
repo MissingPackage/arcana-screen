@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, removeCombatant, sortCombatants, type EncounterState } from './encounterModel';
+import { adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, removeCombatant, reorderTiedCombatant, sortCombatants, type EncounterState } from './encounterModel';
 
 const encounter = (): EncounterState => ({
   round: 3,
@@ -60,6 +60,21 @@ describe('Encounter model', () => {
     const removed = removeCombatant(base, 'kael'); // index 0, before the active one
     expect(removed.combatants.map((combatant) => combatant.id)).toEqual(['scout']);
     expect(removed.combatants[removed.currentIndex ?? -1]?.id).toBe('scout'); // still Goblin Scout
+  });
+
+  it('reorders a tied combatant while leaving other initiatives untouched', () => {
+    const tie: EncounterState = { round: 1, currentIndex: null, combatants: [
+      { id: 'a', name: 'Alda', initiative: 15, tieBreaker: 0, hp: 5, maxHp: 5, tempHp: 0, conditions: [] },
+      { id: 'b', name: 'Bram', initiative: 15, tieBreaker: 0, hp: 5, maxHp: 5, tempHp: 0, conditions: [] },
+      { id: 'c', name: 'Cyra', initiative: 20, tieBreaker: 0, hp: 5, maxHp: 5, tempHp: 0, conditions: [] },
+    ] };
+    expect(sortCombatants(tie.combatants).map((combatant) => combatant.id)).toEqual(['c', 'a', 'b']); // tie breaks by name
+
+    const up = reorderTiedCombatant(tie, 'b', 'up');
+    expect(up.combatants.map((combatant) => combatant.id)).toEqual(['c', 'b', 'a']); // Bram jumps ahead of Alda
+
+    // Cyra (a different initiative) can't be dragged into the tie below it
+    expect(reorderTiedCombatant(tie, 'c', 'down')).toEqual(tie);
   });
 
   it('clears the active index when the last combatant is removed', () => {

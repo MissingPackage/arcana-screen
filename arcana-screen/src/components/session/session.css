@@ -530,6 +530,11 @@ body.dark-theme .pacing-step.is-current .pacing-step__num { background: var(--as
 .arcana-session .roster-chip:hover:not(:disabled) { border-color: var(--as-gold); background: color-mix(in srgb, var(--as-gold) 12%, var(--as-paper-deep)); }
 .arcana-session .roster-chip:disabled { color: var(--as-muted); cursor: default; }
 .combatant-ac--unset { color: var(--as-muted); background: transparent; border-style: dashed; }
+.init-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+.tie-reorder { display: inline-flex; gap: 3px; }
+.arcana-session .tie-reorder button { padding: 1px 4px; color: var(--as-muted); background: transparent; border: 1px solid var(--as-line-strong); border-radius: 3px; cursor: pointer; }
+.arcana-session .tie-reorder button:hover:not(:disabled) { color: #7b540d; border-color: #c68a15; }
+.arcana-session .tie-reorder button:disabled { opacity: .4; cursor: default; }
 .arcana-session button.initiative-score { display: inline-flex; align-items: center; gap: 5px; min-width: 46px; min-height: 30px; padding: 2px 6px; background: transparent; border: none; border-bottom: 1px dashed var(--as-line-strong); border-radius: 4px; cursor: pointer; text-align: left; }
 .arcana-session button.initiative-score svg { flex: none; color: var(--as-muted); }
 .arcana-session button.initiative-score:hover, .arcana-session button.initiative-score:focus-visible { color: #7b540d; border-bottom-color: #7b540d; border-bottom-style: solid; }

@@ -75,6 +75,23 @@ export const removeCombatant = (
   return { ...encounter, combatants, currentIndex };
 };
 
+// Let the DM break an initiative tie by nudging a combatant above/below a same-initiative neighbour.
+export const reorderTiedCombatant = (
+  encounter: EncounterState,
+  combatantId: string,
+  direction: 'up' | 'down',
+): EncounterState => {
+  const sorted = sortCombatants(encounter.combatants);
+  const index = sorted.findIndex((combatant) => combatant.id === combatantId);
+  const target = sorted[index];
+  const neighbor = sorted[direction === 'up' ? index - 1 : index + 1];
+  if (!target || !neighbor || neighbor.initiative !== target.initiative) return encounter; // only reorder within a tie
+  // Push the target just past the neighbour's tie-breaker so the order flips deterministically.
+  const tieBreaker = direction === 'up' ? neighbor.tieBreaker + 1 : neighbor.tieBreaker - 1;
+  const combatants = encounter.combatants.map((combatant) => (combatant.id === target.id ? { ...combatant, tieBreaker } : combatant));
+  return { ...encounter, combatants: sortCombatants(combatants) };
+};
+
 export const advanceTurn = (encounter: EncounterState): EncounterState => {
   if (encounter.combatants.length === 0) return { ...encounter, currentIndex: null };
   if (encounter.currentIndex === null) return { ...encounter, currentIndex: 0 };

@@ -368,6 +368,26 @@ describe('RunWorkspace', () => {
     expect(screen.getByRole('button', { name: 'Manage Ser Kael' })).toBeVisible();
   });
 
+  it('surfaces tie-break controls only for tied combatants and reorders them', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'combat';
+    workspace.contexts.combat = { round: 1, currentIndex: null, combatants: [
+      { id: 'c', name: 'Cyra', initiative: 20, tieBreaker: 0, hp: 5, maxHp: 5, tempHp: 0, conditions: [] },
+      { id: 'a', name: 'Alda', initiative: 15, tieBreaker: 0, hp: 5, maxHp: 5, tempHp: 0, conditions: [] },
+      { id: 'b', name: 'Bram', initiative: 15, tieBreaker: 0, hp: 5, maxHp: 5, tempHp: 0, conditions: [] },
+    ] }; // pre-sorted, as the app always keeps it
+    const { container } = render(<StatefulRun initial={workspace} />);
+
+    const order = () => Array.from(container.querySelectorAll('.combatant-identity strong')).map((el) => el.textContent);
+    expect(order()).toEqual(['Cyra', 'Alda', 'Bram']); // the 15s tie by name
+
+    expect(screen.queryByRole('button', { name: /Move Cyra up in the tie/ })).not.toBeInTheDocument(); // untied → no controls
+
+    await user.click(screen.getByRole('button', { name: 'Move Bram up in the tie' }));
+    expect(order()).toEqual(['Cyra', 'Bram', 'Alda']);
+  });
+
   it('surfaces the HP editor discoverability hint until a combatant is selected', async () => {
     const user = userEvent.setup();
     const workspace = createDefaultFocusWorkspace();

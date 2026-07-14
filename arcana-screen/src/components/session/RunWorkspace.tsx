@@ -3,8 +3,10 @@ import {
   ArrowsClockwise,
   BookOpenText,
   Bug,
+  CaretDown,
   CaretLeft,
   CaretRight,
+  CaretUp,
   Check,
   Compass,
   Crosshair,
@@ -40,7 +42,7 @@ import {
   type FocusId,
   type FocusWorkspace,
 } from '../../domain/focusModel';
-import { addCombatant, adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, healCombatant, removeCombatant, sortCombatants, type EncounterCombatant, type EncounterState } from '../../domain/encounterModel';
+import { addCombatant, adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, healCombatant, removeCombatant, reorderTiedCombatant, sortCombatants, type EncounterCombatant, type EncounterState } from '../../domain/encounterModel';
 import { mintNpc } from '../../domain/npcModel';
 import { usePartyStore } from '../../store/usePartyStore';
 import type { PartyMember } from '../../domain/partyModel';
@@ -483,6 +485,7 @@ function CombatView({
     setUndo(encounter);
     updateEncounter({ ...encounter, combatants: sortCombatants(encounter.combatants.map((combatant) => (combatant.id === id ? { ...combatant, initiative: value, initiativeUnset: undefined } : combatant))) });
   };
+  const reorderTie = (id: string, direction: 'up' | 'down') => { setUndo(encounter); updateEncounter(reorderTiedCombatant(encounter, id, direction)); };
   // Batch entry: type every roll first, sort once — so the list never reflows the row you're about to edit.
   const [batchOpen, setBatchOpen] = useState(false);
   const [batchDraft, setBatchDraft] = useState<Record<string, string>>({});
@@ -593,9 +596,19 @@ function CombatView({
               {encounter.combatants.map((combatant, index) => {
                 const isActive = index === activeIndex;
                 const CombatantIcon = combatantIcon(combatant.name, combatant.detail);
+                const canTieUp = encounter.combatants[index - 1]?.initiative === combatant.initiative;
+                const canTieDown = encounter.combatants[index + 1]?.initiative === combatant.initiative;
                 return (
                   <article key={combatant.id} className={isActive ? 'is-active' : ''}>
-                    <InitiativeCell value={combatant.initiative} unset={combatant.initiativeUnset} ariaLabel={combatant.initiativeUnset ? `Set rolled initiative for ${combatant.name}` : `Initiative for ${combatant.name}`} onCommit={(value) => setInitiative(combatant.id, value)} />
+                    <div className="init-cell">
+                      <InitiativeCell value={combatant.initiative} unset={combatant.initiativeUnset} ariaLabel={combatant.initiativeUnset ? `Set rolled initiative for ${combatant.name}` : `Initiative for ${combatant.name}`} onCommit={(value) => setInitiative(combatant.id, value)} />
+                      {(canTieUp || canTieDown) && (
+                        <div className="tie-reorder" role="group" aria-label={`Break the initiative tie for ${combatant.name}`}>
+                          <button type="button" aria-label={`Move ${combatant.name} up in the tie`} disabled={!canTieUp} onClick={() => reorderTie(combatant.id, 'up')}><CaretUp size={11} /></button>
+                          <button type="button" aria-label={`Move ${combatant.name} down in the tie`} disabled={!canTieDown} onClick={() => reorderTie(combatant.id, 'down')}><CaretDown size={11} /></button>
+                        </div>
+                      )}
+                    </div>
                     <button type="button" className="combatant-identity" aria-label={`Manage ${combatant.name}`} aria-pressed={selectedId === combatant.id} onClick={() => setSelectedId(selectedId === combatant.id ? null : combatant.id)}><span><CombatantIcon size={23} /></span><p><strong>{combatant.name}</strong><small>{combatant.detail}</small></p><span className={`combatant-ac${combatant.ac === undefined ? ' combatant-ac--unset' : ''}`} aria-label={combatant.ac !== undefined ? `Armor Class ${combatant.ac}` : `Armor Class not set for ${combatant.name}`}>AC {combatant.ac ?? '—'}</span>{isActive && <em>Active</em>}</button>
                     <div className="combatant-hp"><span>{combatant.hp} / {combatant.maxHp}</span><i><b style={{ width: `${Math.round(combatant.hp / combatant.maxHp * 100)}%` }} /></i></div>
                     <div className="condition-chips">{combatant.conditions.map((condition) => <span key={condition}>{condition}</span>)}</div>
