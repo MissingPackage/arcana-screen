@@ -59,6 +59,18 @@ describe('RunWorkspace', () => {
     expect(screen.getByRole('link', { name: /Monster Manual/ })).toHaveAttribute('href', 'https://www.dndbeyond.com/sources/dnd/free-rules');
   });
 
+  it('offers read-aloud prose in the Social Focus too', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'social';
+    render(<StatefulRun initial={workspace} />);
+
+    expect(screen.getByText(/The warden does not rise to greet you/)).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Present' }));
+    const presenter = screen.getByRole('dialog', { name: 'Read-aloud presenter' });
+    expect(within(presenter).getByText(/The warden does not rise to greet you/)).toBeVisible();
+  });
+
   it('mints a role-pinned NPC to the top of the scene and confirms removal', async () => {
     const user = userEvent.setup();
     const workspace = createDefaultFocusWorkspace();

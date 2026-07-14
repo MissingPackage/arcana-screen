@@ -50,6 +50,7 @@ export interface SocialFocusState {
   sceneClock: number;
   npcs: SocialNpc[];
   pinnedReference: { title: string; detail: string; source: string };
+  readAloud: string; // boxed scene-opener prose, presentable large + clean
 }
 
 export interface ExplorationMoment {
@@ -160,6 +161,7 @@ export const createDefaultFocusWorkspace = (): FocusWorkspace => ({
         { id: 'erava', name: 'Erava', role: 'Chronicler', attitude: 'Neutral', motive: 'Record the truth', secret: 'Hiding a forbidden text' },
       ],
       pinnedReference: { title: 'Vhalic Wards', detail: 'Voice bindings and the costs of unsealing.', source: 'Lore · Cripta di Vhal' },
+      readAloud: 'The warden does not rise to greet you. Her eyes move over each of you in turn, weighing, and the great door behind her stays shut.',
     },
     exploration: {
       currentMomentId: 'galleries',

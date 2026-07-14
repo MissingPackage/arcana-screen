@@ -354,6 +354,7 @@ function SocialView({ workspace, onWorkspaceChange }: Pick<RunWorkspaceProps, 'w
       <aside className="focus-context social-context">
         <header><div><span className="eyebrow">Current scene</span><h2>Social Focus</h2></div><UserCircle size={29} /></header>
         <div className="focus-scene-title"><span>The scene</span><strong>{social.sceneTitle}</strong></div>
+        <ReadAloud text={social.readAloud} onChange={(readAloud) => onWorkspaceChange({ ...workspace, contexts: { ...workspace.contexts, social: { ...social, readAloud } } })} />
         <section>
           <div className="section-head">
             <h3 className="section-label">People in the scene</h3>
