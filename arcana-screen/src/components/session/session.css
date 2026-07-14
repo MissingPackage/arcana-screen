@@ -257,19 +257,8 @@
 .recent-capture > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .recent-capture button { margin-left: auto; border: 0; background: transparent; color: var(--as-wine); font: inherit; font-weight: 700; white-space: nowrap; }
 .recent-capture button b { display: inline-grid; min-width: 18px; min-height: 18px; place-items: center; border-radius: 999px; background: var(--as-wine); color: #fff; font-size: 10px; }
-.run-capture { grid-row: 3; display: flex; flex-direction: column; align-items: stretch; gap: 8px; padding: 8px 18px; background: var(--as-paper-deep); border-top: 1px solid var(--as-line); }
-.run-capture__row { display: flex; align-items: center; gap: 14px; }
-.run-capture__row > .quick-capture { flex: 1; min-width: 0; }
-.session-spine { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; padding: 6px 11px; background: #fffdf8; border: 1px solid var(--as-line-strong); border-radius: 7px; }
-.spine-beats { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
-.spine-beats li { padding: 3px 10px; color: var(--as-muted); font-size: 11px; border: 1px solid var(--as-line); border-radius: 999px; }
-.spine-beats li.is-done { color: var(--as-ink); border-color: var(--as-line-strong); text-decoration: line-through; }
-.spine-beats li.is-current { color: #1a1206; background: var(--as-gold); border-color: #c68a15; font-weight: 700; }
-.spine-status { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-left: auto; }
-.spine-clock { color: var(--as-ink); font-size: 11px; font-weight: 600; }
-.session-spine--behind .spine-clock { color: #8a3d38; }
-.arcana-session .spine-start, .arcana-session .spine-advance { display: inline-flex; align-items: center; gap: 5px; min-height: 28px; padding: 4px 10px; color: var(--as-ink); background: transparent; border: 1px solid var(--as-line-strong); border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; }
-.arcana-session .spine-advance:disabled { color: var(--as-muted); cursor: default; }
+.run-capture { grid-row: 3; display: flex; align-items: center; gap: 14px; padding: 8px 18px; background: var(--as-paper-deep); border-top: 1px solid var(--as-line); }
+.run-capture > .quick-capture { flex: 1; min-width: 0; }
 .party-glance { position: relative; flex: none; margin-left: auto; }
 .arcana-session .party-glance__toggle { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 6px 13px; color: var(--as-ink); background: #fffdf8; border: 1px solid var(--as-line-strong); border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; }
 .arcana-session .party-glance__toggle[aria-expanded="true"] { border-color: #c68a15; background: #fff8e7; }
