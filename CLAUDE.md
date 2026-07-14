@@ -77,7 +77,7 @@ npm run lint              # eslint
 npm test                  # vitest run (unit/component) — currently 86 tests
 npm run test:ci           # build + lint + test + check:budget   ← does NOT run e2e
 npm run test:e2e:critical # Playwright @critical suite (browsers + axe)  ← run this for browser/a11y
-npm run check:budget      # asset budget: 560 KiB JS / 110 KiB CSS
+npm run check:budget      # per-file asset budget: 560 KiB per JS chunk / 130 KiB CSS (vendors split via manualChunks)
 npm run preview           # serve the production build (used by Playwright webServer on :4173)
 ```
 
@@ -114,7 +114,7 @@ Legacy widgets are registered in `src/components/widgets/toolRegistry.tsx` (type
 
 ## Do / Don't
 
-**Do:** run `npm run test:ci` **and** `npm run test:e2e:critical` before claiming done; keep the two modes visually coherent with the session design system; use Phosphor icons; keep new widgets self-contained; watch the asset budget (560/110 KiB).
+**Do:** run `npm run test:ci` **and** `npm run test:e2e:critical` before claiming done; keep the two modes visually coherent with the session design system; use Phosphor icons; keep new widgets self-contained; watch the asset budget (560 KiB per JS chunk / 130 KiB CSS).
 **Don't:** add a backend; ship emoji glyphs; lighten muted text below AA; change a localStorage key without updating all references; claim "green" from unit tests alone (they miss browser/a11y).
 
 ## Key file references
