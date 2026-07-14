@@ -338,3 +338,9 @@ Ri-ancorato da `docs/roadmap/2026-07-14-forward-roadmap.md` (build-steps in quel
 - **Perché:** ripiega il P1 sollevato da entrambi i giudici in C3 ("read-aloud serve anche in Narrative/Social"). Nessun nuovo ciclo giudici — la UX era già stata giudicata due volte; questa è l'estensione che avevano chiesto. Scelta architetturale (componente condiviso vs duplicazione vs lift) presa applicando la lezione spine: evitare over-reach.
 - **Rinviato:** read-aloud in Social (stesso componente, `social.readAloud`); passage picker.
 - **Next (iter. 14):** read-aloud in Social (rapido, stesso componente) per chiudere l'universale, oppure session tape (C), oppure il tie combat. Budget: index 181/560, CSS 112.7/130.
+
+### Iter. 14 — read-aloud in Social (completa l'universale) — commit `b8f0ac0`
+- **Fatto:** `social.readAloud` (apertura scena) + `<ReadAloud>` condiviso nell'aside Social. Read-aloud ora **universale su tutti e 3 i Focus non-combat** (Narrative/Social/Exploration-per-moment), una sola implementazione. `test:ci` **134 verdi**; browser+axe 0 violazioni. Nessun nuovo ciclo giudici (stessa UX già giudicata; estensione richiesta).
+- **Orizzonte C — stato:** ✅ recap "Previously on" (C2), ✅ read-aloud/presenter universale (C3), ⛔ spine (C1, revertata, in attesa decisione pacing/beats). Resta il **session tape** per completare C.
+- **Rinviati:** passage picker; reveal-tagging read-aloud/secret (legato al present-mode a bassa priorità).
+- **Next (iter. 15):** valutare il **session tape** (log append-only — ATTENZIONE overlap col `liveLog` di Exploration, controllare prima) oppure il tie combat, oppure aprire l'Orizzonte D (mini-wiki/SRD via IndexedDB). Budget: index 181/560, CSS 112.7/130.
