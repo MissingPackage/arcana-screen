@@ -449,6 +449,8 @@ body.dark-theme .pacing-step.is-current .pacing-step__num { background: var(--as
 .combatant-identity p strong { font-size: 13px; }
 .combatant-identity p small { color: var(--as-muted); font-size: 10px; }
 .combatant-identity em { padding: 3px 6px; color: #6d4a05; background: #f6d783; border-radius: 4px; font-size: 8px; font-style: normal; font-weight: 800; text-transform: uppercase; }
+.combatant-identity > span.combatant-ac { width: auto; height: auto; margin-left: auto; padding: 2px 7px; color: var(--as-ink); background: color-mix(in srgb, var(--as-gold) 16%, transparent); border: 1px solid #c9a23a; border-radius: 4px; font-size: 11px; font-weight: 800; white-space: nowrap; }
+.combatant-ac + em { margin-left: 6px; }
 .combatant-hp { padding-right: 25px; }
 .combatant-hp > span { font-size: 10px; font-weight: 600; }
 .combatant-hp i { display: block; height: 6px; margin-top: 5px; overflow: hidden; background: #e2e4dc; border-radius: 999px; }

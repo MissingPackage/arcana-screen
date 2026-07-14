@@ -8,6 +8,7 @@ export interface EncounterCombatant {
   tempHp: number;
   conditions: string[];
   detail?: string;
+  ac?: number;
 }
 
 export interface EncounterState {

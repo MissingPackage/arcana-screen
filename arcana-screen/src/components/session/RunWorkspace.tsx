@@ -424,7 +424,7 @@ function CombatView({
             return (
               <article key={combatant.id} className={isActive ? 'is-active' : ''}>
                 <strong className="initiative-score">{combatant.initiative}</strong>
-                <button type="button" className="combatant-identity" aria-label={`Manage ${combatant.name}`} aria-pressed={selectedId === combatant.id} onClick={() => setSelectedId(selectedId === combatant.id ? null : combatant.id)}><span><CombatantIcon size={23} /></span><p><strong>{combatant.name}</strong><small>{combatant.detail}</small></p>{isActive && <em>Active</em>}</button>
+                <button type="button" className="combatant-identity" aria-label={`Manage ${combatant.name}`} aria-pressed={selectedId === combatant.id} onClick={() => setSelectedId(selectedId === combatant.id ? null : combatant.id)}><span><CombatantIcon size={23} /></span><p><strong>{combatant.name}</strong><small>{combatant.detail}</small></p>{combatant.ac !== undefined && <span className="combatant-ac" aria-label={`Armor Class ${combatant.ac}`}>AC {combatant.ac}</span>}{isActive && <em>Active</em>}</button>
                 <div className="combatant-hp"><span>{combatant.hp} / {combatant.maxHp}</span><i><b style={{ width: `${Math.round(combatant.hp / combatant.maxHp * 100)}%` }} /></i></div>
                 <div className="condition-chips">{combatant.conditions.map((condition) => <span key={condition}>{condition}</span>)}</div>
               </article>

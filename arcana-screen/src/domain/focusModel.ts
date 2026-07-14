@@ -99,13 +99,13 @@ export interface FocusWorkspace {
 }
 
 const combatants: EncounterState['combatants'] = [
-  { id: 'kael', name: 'Ser Kael', detail: 'Human · Paladin', initiative: 18, tieBreaker: 3, hp: 24, maxHp: 24, tempHp: 0, conditions: ['Blessed', 'Shielded'] },
-  { id: 'scout', name: 'Goblin Scout', detail: 'Stealthy · Nimble', initiative: 15, tieBreaker: 2, hp: 7, maxHp: 7, tempHp: 0, conditions: [] },
-  { id: 'worg', name: 'Worg', detail: 'Ferocious', initiative: 12, tieBreaker: 1, hp: 26, maxHp: 26, tempHp: 0, conditions: [] },
-  { id: 'archer', name: 'Skeletal Archer', detail: 'Undead · Ranged', initiative: 10, tieBreaker: 0, hp: 13, maxHp: 13, tempHp: 0, conditions: [] },
-  { id: 'shaman', name: 'Goblin Shaman', detail: 'Spellcaster', initiative: 7, tieBreaker: 2, hp: 11, maxHp: 11, tempHp: 0, conditions: ['Prone'] },
-  { id: 'grunt', name: 'Goblin Grunt', detail: 'Minion · Melee', initiative: 4, tieBreaker: 1, hp: 9, maxHp: 9, tempHp: 0, conditions: [] },
-  { id: 'spider', name: 'Phase Spider', detail: 'Huge · Stealthy', initiative: -2, tieBreaker: 0, hp: 22, maxHp: 22, tempHp: 0, conditions: [] },
+  { id: 'kael', name: 'Ser Kael', detail: 'Human · Paladin', initiative: 18, tieBreaker: 3, hp: 24, maxHp: 24, tempHp: 0, conditions: ['Blessed', 'Shielded'], ac: 18 },
+  { id: 'scout', name: 'Goblin Scout', detail: 'Stealthy · Nimble', initiative: 15, tieBreaker: 2, hp: 7, maxHp: 7, tempHp: 0, conditions: [], ac: 15 },
+  { id: 'worg', name: 'Worg', detail: 'Ferocious', initiative: 12, tieBreaker: 1, hp: 26, maxHp: 26, tempHp: 0, conditions: [], ac: 13 },
+  { id: 'archer', name: 'Skeletal Archer', detail: 'Undead · Ranged', initiative: 10, tieBreaker: 0, hp: 13, maxHp: 13, tempHp: 0, conditions: [], ac: 13 },
+  { id: 'shaman', name: 'Goblin Shaman', detail: 'Spellcaster', initiative: 7, tieBreaker: 2, hp: 11, maxHp: 11, tempHp: 0, conditions: ['Prone'], ac: 11 },
+  { id: 'grunt', name: 'Goblin Grunt', detail: 'Minion · Melee', initiative: 4, tieBreaker: 1, hp: 9, maxHp: 9, tempHp: 0, conditions: [], ac: 12 },
+  { id: 'spider', name: 'Phase Spider', detail: 'Huge · Stealthy', initiative: -2, tieBreaker: 0, hp: 22, maxHp: 22, tempHp: 0, conditions: [], ac: 14 },
 ];
 
 export const createDefaultFocusWorkspace = (): FocusWorkspace => ({
