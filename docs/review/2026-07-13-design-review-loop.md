@@ -317,3 +317,11 @@ Ri-ancorato da `docs/roadmap/2026-07-14-forward-roadmap.md` (build-steps in quel
 - **Errore mio (onesto):** ho costruito un modello di beat parallelo senza accorgermi che il Focus Narrative ne ha già uno. Verifica tecnica (test/axe) verde ≠ feature giusta — i giudici servono proprio a questo.
 - **⚑ DECISIONE PRODOTTO per Cristiano (sollevata, non presa):** pacing di sessione vs `narrative.beats`/pacing-stepper già esistenti → **un solo modello beat/pacing unificato, o una spine di sessione distinta ma de-conflittata visivamente?** Da decidere prima di ri-tentare C1.
 - **Next (iter. 11):** in attesa della decisione, prendo un altro pezzo di C che NON tocca i beat — **read-aloud / secret layer** (contenuto taggato `reveal` → presenter boxed) oppure **session bookends** (recap da catture stellate). Oppure il DM P1 combat (tie) rimasto.
+
+### Iter. 11 — C2 "Previously on…" recap (bookend) + polish — commit `bde2ba2` + `c4bf9fa`
+- **Fatto:** flag `starred` sulle catture (sistema esistente, persistito, **nessuna sovrapposizione** — lezione da C1) → recap "Previously on…". `test:ci` **130 verdi**; browser+axe 0 violazioni.
+- **Giudizio designer (2×P0):** (1) sepolto dietro "Review captures" → deve accogliere all'ingresso in Run. (2) crescita illimitata → serve un confine di sessione. P1: oro sovraccarico.
+- **Giudizio DM (2×P0):** (1) **il make-or-break** — la stella stava solo nel pannello review post-sessione, quindi un DM vero non cura mai → recap vuoto. (2) momento/flusso sbagliati: deve accogliere all'apertura, non dietro l'inbox di triage. P1: 12px in un popover non è leggibile ad alta voce.
+- **Fold (tutti i P0):** stella **al momento della cattura** (★ sulla riga recent-capture), banner **"Previously on…" all'ingresso** (fisso, top-centro, leggibile 15px, dismissible), cap alle **ultime 6** starred, box parchment+riga-ink (solo la stella porta oro). *Nailed (entrambi):* l'istinto era giusto (callout persistito tra le settimane) — sbagliati solo surfacing e frizione.
+- **Rinviati:** raggruppamento per-sessione / archivio reale (il cap-a-6 è la versione minima); timestamp nel recap.
+- **Next (iter. 12):** altro pezzo di C — **read-aloud / secret layer** (contenuto taggato reveal → presenter boxed), oppure il tie combat rimasto. Budget: index 179/560, CSS 111/130.
