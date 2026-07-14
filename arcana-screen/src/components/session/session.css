@@ -535,6 +535,13 @@ body.dark-theme .pacing-step.is-current .pacing-step__num { background: var(--as
 @keyframes ink-settle { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
 .arcana-session .focus-layout { animation: ink-settle 380ms cubic-bezier(.22, .68, .34, 1); }
 
+/* Screen/Desk density — compact tightens the live cockpit for arm's-length glancing under pressure.
+   (Previously only the legacy Prepare grid honoured data-density; the Run cockpit ignored it.) */
+body[data-density='compact'] .arcana-session .panel-title { min-height: 46px; }
+body[data-density='compact'] .arcana-session .focus-context { padding: 13px 15px; }
+body[data-density='compact'] .arcana-session .combatant-list article { min-height: 44px; padding-top: 3px; padding-bottom: 3px; }
+body[data-density='compact'] .arcana-session .npc-list article { padding: 6px; }
+
 .init-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
 .tie-reorder { display: inline-flex; gap: 3px; }
 .arcana-session .tie-reorder button { padding: 1px 4px; color: var(--as-muted); background: transparent; border: 1px solid var(--as-line-strong); border-radius: 3px; cursor: pointer; }
