@@ -332,3 +332,9 @@ Ri-ancorato da `docs/roadmap/2026-07-14-forward-roadmap.md` (build-steps in quel
 - **Giudizio DM (P0 dealbreaker):** il box era **una stringa piatta**, non legata ai `moments[]` che modellano le stanze → dungeon a 12 stanze = riscrivi ogni volta. **Risolto**: `readAloud` per-moment, selezionando una stanza il box cambia. *Nailed (entrambi):* il Present disabilitato quando vuoto (niente schermo blu vuoto davanti ai giocatori).
 - **Rinviato (taglio v1 documentato, entrambi P1):** read-aloud solo in Exploration (serve anche a Narrative/Social; a lungo termine su `workspace.universal`); passage picker oltre il per-moment.
 - **Next (iter. 13):** valutare read-aloud universale (P1) o altro pezzo di C (session tape) o il tie combat. Budget: index 181/560, CSS 112.7/130.
+
+### Iter. 13 — read-aloud universale (fold P1 C3) — commit `917e76b`
+- **Fatto:** estratto `ReadAloud.tsx` (componente riutilizzabile: box + Edit + presenter keyboard-safe, auto-contenuto) e messo nel drawer Narrative (`narrative.readAloud`, cold-open di scena) oltre a Exploration (per-moment). Una sola implementazione, niente duplicazione, niente refactor rischioso. `test:ci` **133 verdi**; browser+axe 0 violazioni.
+- **Perché:** ripiega il P1 sollevato da entrambi i giudici in C3 ("read-aloud serve anche in Narrative/Social"). Nessun nuovo ciclo giudici — la UX era già stata giudicata due volte; questa è l'estensione che avevano chiesto. Scelta architetturale (componente condiviso vs duplicazione vs lift) presa applicando la lezione spine: evitare over-reach.
+- **Rinviato:** read-aloud in Social (stesso componente, `social.readAloud`); passage picker.
+- **Next (iter. 14):** read-aloud in Social (rapido, stesso componente) per chiudere l'universale, oppure session tape (C), oppure il tie combat. Budget: index 181/560, CSS 112.7/130.
