@@ -1,6 +1,6 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-07-16 (sessione: adozione design system + prima iterazione product-loop)
+Aggiornato: 2026-07-16, iterazione 10: **loop FERMO by design (2ª volta)** — D12 chiuso (tranche 2 vuota per analisi), lavoro non-gated esaurito. Riparte con `/loop /product-loop`; primo item post-merge: D13 (test axe dark in suite). Nota operativa: vite-preview zombie su :4173 possono dare e2e tutti rossi — pkill vite prima di diagnosticare.
 
 ## Stato corrente
 
@@ -8,8 +8,10 @@ Aggiornato: 2026-07-16 (sessione: adozione design system + prima iterazione prod
   "Arcana Screen Dungeon Master" (`arcana-screen/src/styles/tokens.css`), body
   font Inter → Work Sans, fix dei token mai definiti (`--as-wine`, `--as-display`)
   e del contrasto dark-theme di eyebrow/popover. Pushed su origin/dev.
-- Branch `test/webkit-e2e-gate` @ `9fd61b6` (+ commit docs): **fix del bug
-  cross-browser WebKit** — `upgrade-insecure-requests` nel meta CSP accecava
+- Branch `test/timer-suspension-e2e` (stacked su `test/webkit-e2e-gate`):
+  prova Timer post-sospensione automatizzata (M2.5 chiusa). PR-ready.
+- Branch `test/webkit-e2e-gate` @ `9fd61b6` (+ commit docs), **PR #83, CI tutta
+  verde WebKit incluso**: fix del bug cross-browser WebKit — `upgrade-insecure-requests` nel meta CSP accecava
   l'app su host HTTP (WebKit forza l'upgrade anche su localhost). Direttiva
   spostata solo in `public/_headers`. **PR-ready, non mergiato** (policy loop:
   il merge su dev è una decisione utente → docket D1).
@@ -28,19 +30,13 @@ Aggiornato: 2026-07-16 (sessione: adozione design system + prima iterazione prod
 
 ## §next-decidable (in ordine)
 
-1. **Prova Timer dopo sospensione lunga/background** (ROADMAP Sequenza immediata
-   item 2, seconda metà — l'unica parte ancora aperta dell'item). Slice: test
-   e2e/harness che simula sospensione (clock skew / page freeze) e verifica il
-   ricalcolo da timestamp.
-2. **Conferma lane WebKit nella CI GitHub**: push/PR del branch
-   `test/webkit-e2e-gate` esercita il workflow `Quality gate` con la matrice
-   browser. Osservare il run, chiudere l'item 2 prima metà anche in CI.
-3. Righe acceptance-matrix non verdi legate a WebKit (`docs/specs/acceptance-matrix.md`)
-   da riesaminare dopo il merge del fix.
-4. Residui design-system: vedi docket D3–D5.
+Lavoro non-gated: ESAURITO (D12 chiuso — tranche 2 vuota per analisi).
 
-Item 1 e 3 della Sequenza immediata (sessioni con DM reali, PWA su device
-reali) restano human-gated: non decidibili in loop.
+1. Merge attesi: D1 (#83→#84), D8 (#85), D8b (#86 + chiudere #80/#82),
+   D4b (#87), D11b (#88), D12b (#89). Ruling: D3, D9, D10.
+2. Post-merge, primo item del loop: **D13** — variante dark del test axe nella
+   suite @critical (rosso prima dei merge di #85/#87/#88, per questo è gated).
+3. Post-merge: riesame acceptance-matrix.
 
 ## Protocollo
 
