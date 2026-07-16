@@ -18,7 +18,7 @@
      --stone-grey: #B0B0B0;
      --parchment-white: #fbf7ee; /* always-light: used as text on navy in dark theme — not the themed paper plane */
      --background-light: #fbf7ee;
-     --background-dark: #061f36;
+     --background-dark: var(--as-navy);
      --text-main-light: var(--deep-blue);
      --text-main-dark: #fbf7ee;
      --font-title-light: var(--deep-blue);
@@ -747,28 +747,28 @@
      align-items: center;
      padding: 0.65rem 1rem;
      color: #fff;
-     background: #061f36;
+     background: var(--as-navy);
      border: 0;
-     border-bottom: 1px solid #9f7420;
+     border-bottom: 1px solid var(--as-gold-line);
    }
 
    body.light-theme .arcana-header,
    body.dark-theme .arcana-header {
      color: #fff;
-     background: #061f36;
-     border-color: #9f7420;
+     background: var(--as-navy);
+     border-color: var(--as-gold-line);
    }
 
    .arcana-header .app-header__brand {
      display: flex;
      align-items: center;
      gap: 0.6rem;
-     color: #e5ad32;
+     color: var(--as-gold);
    }
 
    .arcana-header .app-header__brand h1 {
      margin: 0;
-     color: #f8d887;
+     color: var(--as-gold-pale);
      font-family: var(--as-font-display);
      font-size: 1.25rem;
      font-weight: 500;
@@ -784,8 +784,8 @@
      min-width: 11rem;
      padding: 0 2.2rem 0 0.75rem;
      color: #fff;
-     background: #0c2a45;
-     border: 1px solid #547089;
+     background: var(--as-navy-select);
+     border: 1px solid var(--as-navy-line);
      border-radius: 6px;
      font-size: 0.82rem;
    }
@@ -839,7 +839,7 @@
      padding: 0;
      color: #fff;
      background: transparent;
-     border: 1px solid #547089;
+     border: 1px solid var(--as-navy-line);
      border-radius: 6px;
    }
 
@@ -856,7 +856,7 @@
      height: 36px;
      place-items: center;
      color: #fff;
-     border: 1px solid #547089;
+     border: 1px solid var(--as-navy-line);
      border-radius: 6px;
      cursor: pointer;
      list-style: none;
@@ -880,7 +880,7 @@
      padding: 0.5rem;
      color: #102b49;
      background: #fffaf0;
-     border: 1px solid #9f7420;
+     border: 1px solid var(--as-gold-line);
      border-radius: 0.5rem;
      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
    }
@@ -1727,7 +1727,7 @@
   place-items: center stretch;
   padding: 0;
   color: #122b49;
-  background: #061f36;
+  background: var(--as-navy);
 }
 
 .first-run__brand {
@@ -1737,7 +1737,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 clamp(1.25rem, 5vw, 4.5rem);
-  color: #f8d887;
+  color: var(--as-gold-pale);
   border-bottom: 1px solid rgba(248, 216, 135, 0.2);
 }
 
@@ -1750,7 +1750,7 @@
   letter-spacing: 0.03em;
 }
 
-.first-run__brand svg { color: #e5ad32; }
+.first-run__brand svg { color: var(--as-gold); }
 .first-run__brand small { color: #b9c7d1; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
 
 .first-run__card {
