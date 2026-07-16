@@ -16,9 +16,6 @@ non li assorbe. Quando Linear è raggiungibile, migrare gli item aperti.
 - D11b [2026-07-16] [merge] Mergiare PR #88 (fix toggle Prepare/Run in dark,
   bug di specificità, 1.24:1 → 7.9:1). Con TUTTE le PR integrate lo scan axe
   dark dell'intera app (4 Focus + Prepare) dà ZERO violazioni.
-- D12 [2026-07-16] [design/coverage] Sweep index.css: tranche 1 (theme-static,
-  header + first-run) su PR #89. Restano i letterali theme-dependent
-  (surface/ink/line con analisi dark per riga) — tranche 2, slice media.
 - D12b [2026-07-16] [merge] Mergiare PR #89 (tranche 1, zero delta visivo).
 - D13 [2026-07-16] [ci/proposta] Variante dark del test axe nella suite
   @critical (i bug D2/D4/D11 erano invisibili al gate light-only). NOTA: il
@@ -41,6 +38,13 @@ non li assorbe. Quando Linear è raggiungibile, migrare gli item aperti.
   evidenza full-matrix ottenuta su merge locale di integrazione (37+3, 0 failed).
 
 ## Chiusi
+
+- D12 [2026-07-16 → 2026-07-16] [design/coverage] Sweep index.css COMPLETA con
+  la sola tranche 1 (PR #89): l'analisi della tranche 2 ha mostrato che è vuota
+  — i 4 `#fbf7ee` restanti sono definizioni always-light deliberate o la card
+  first-run a palette fissa; i 45 hex unici residui sono tinte senza
+  equivalente DS (mapparli sarebbe inventare, non adottare). Copertura token di
+  index.css: fatta dove un token esiste.
 
 - D11 (prima metà) [2026-07-16 → 2026-07-16] Toggle Prepare/Run in dark: fix su
   PR #88 (regola dark-scoped sullo stato attivo; era un conflitto di
