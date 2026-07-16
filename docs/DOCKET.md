@@ -16,11 +16,14 @@ non li assorbe. Quando Linear è raggiungibile, migrare gli item aperti.
 - D11b [2026-07-16] [merge] Mergiare PR #88 (fix toggle Prepare/Run in dark,
   bug di specificità, 1.24:1 → 7.9:1). Con TUTTE le PR integrate lo scan axe
   dark dell'intera app (4 Focus + Prepare) dà ZERO violazioni.
-- D12 [2026-07-16] [design/coverage] Sweep profonda dei letterali di index.css
-  (~2900 righe, shell/Prepare) — residuo di D11, slice grande separata.
-- D13 [2026-07-16] [ci/proposta] Aggiungere una variante dark del test axe
-  alla suite @critical: i bug D2/D4/D11 erano tutti invisibili al gate attuale
-  (scansiona solo light). Piccola, alto valore di guardia.
+- D12 [2026-07-16] [design/coverage] Sweep index.css: tranche 1 (theme-static,
+  header + first-run) su PR #89. Restano i letterali theme-dependent
+  (surface/ink/line con analisi dark per riga) — tranche 2, slice media.
+- D12b [2026-07-16] [merge] Mergiare PR #89 (tranche 1, zero delta visivo).
+- D13 [2026-07-16] [ci/proposta] Variante dark del test axe nella suite
+  @critical (i bug D2/D4/D11 erano invisibili al gate light-only). NOTA: il
+  test sarebbe ROSSO finché #85/#87/#88 non sono mergiate → di fatto
+  merge-gated; implementarla subito dopo i merge.
 - D10 [2026-07-16] [decisione/ci] `.github/worklows/project-update.yml` (typo:
   "worklows") esiste dal commit di setup 342ae79 e NON è mai stato eseguito —
   GitHub legge solo `workflows/`. Automazione project-board su ogni push/PR:

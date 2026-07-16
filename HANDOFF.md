@@ -1,6 +1,6 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-07-16, iterazione 8 (loop riavviato dall'utente): D11 prima metà chiusa via PR #88; con tutte le PR integrate, axe dark = 0 su tutta l'app.
+Aggiornato: 2026-07-16, iterazione 9: verifier iter.8 PASS (con controllo negativo); D12 tranche 1 su PR #89. Nota operativa: probe detached possono lasciare vite-preview zombie su :4173 (e2e rossi con ERR_CONNECTION_REFUSED) — pkill vite prima di diagnosticare regressioni.
 
 ## Stato corrente
 
@@ -30,14 +30,13 @@ Aggiornato: 2026-07-16, iterazione 8 (loop riavviato dall'utente): D11 prima met
 
 ## §next-decidable (in ordine)
 
-1. **D12 — sweep profonda index.css** (~2900 righe, shell/Prepare): l'ultima
-   slice non-gated rimasta. Grande: valutare se spezzarla (token aliasing è
-   già fatto; restano i letterali nei componenti shell).
-2. **D13 — variante dark del test axe nella suite @critical**: piccola, chiude
-   il buco di guardia che ha nascosto D2/D4/D11. Fattibile subito.
-3. Merge attesi: D1 (#83→#84), D8 (#85), D8b (#86 + chiudere #80/#82),
-   D4b (#87), D11b (#88). Ruling: D3, D9, D10.
-4. Post-merge: riesame acceptance-matrix.
+1. **D12 tranche 2** — letterali theme-dependent di index.css (surface/ink/
+   line, analisi dark per riga): ultima slice non-gated. Media, spezzabile
+   per blocchi di componenti shell.
+2. Merge attesi: D1 (#83→#84), D8 (#85), D8b (#86 + chiudere #80/#82),
+   D4b (#87), D11b (#88), D12b (#89). Ruling: D3, D9, D10.
+3. Merge-gated: D13 (test axe dark in suite — rosso finché le PR dark non
+   mergiano), riesame acceptance-matrix.
 
 ## Protocollo
 
