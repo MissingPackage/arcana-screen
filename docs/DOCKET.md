@@ -17,16 +17,24 @@ non li assorbe. Quando Linear è raggiungibile, migrare gli item aperti.
   Candidato per /pattern-coverage.
 - D5 [2026-07-16] [docs] ROADMAP riga budget dice "560 KiB JS / 110 KiB CSS" ma
   lo script applica 130 KiB CSS (CLAUDE.md corretto). Riconciliare.
-- D7 [2026-07-16] [deps] PR dependabot "bump react and @types/react" ha il
-  Quality gate rosso (run 29520178703). Triage parziale 2026-07-16: fallisce il
-  job `quality` (build/lint/unit), browser-matrix mai partita → rottura da bump
-  react, NON il bug CSP WebKit. Resta da triage-are il log del job.
+- D8b [2026-07-16] [merge] Mergiare PR #86 (bump react allineato 19.2.7) e poi
+  CHIUDERE le PR dependabot #80 e #82 come superate (ciascuna da sola ha
+  versioni react/react-dom disallineate e non potrà mai essere verde).
+- D9 [2026-07-16] [decisione/ci] Raggruppare i pacchetti React in
+  `.github/dependabot.yml` per impedire bump spezzati (yaml proposto nel corpo
+  della PR #86): `groups: react: patterns ["react","react-dom","@types/react",
+  "@types/react-dom"]`. File di automazione: ruling tuo, il loop non lo tocca.
 - D8 [2026-07-16] [merge] Mergiare PR #85 (fix D2, input dark theme) — indipendente
   da #83/#84, merge in qualsiasi ordine. Nota: il lane WebKit della sua CI resta
   rosso finché #83 non è mergiata (l'app non carica in WebKit senza quel fix);
   evidenza full-matrix ottenuta su merge locale di integrazione (37+3, 0 failed).
 
 ## Chiusi
+
+- D7 [2026-07-16 → 2026-07-16] [deps] Gate rosso PR dependabot react: root cause
+  `react 19.2.7 vs react-dom 19.1.0` (dependabot ha spezzato il bump in #80/#82,
+  ognuna incoerente da sola → tutte le 32 suite morivano all'import). Risolto con
+  bump combinato su PR #86, 136/136 verdi.
 
 - D2 [2026-07-16 → 2026-07-16] [bug/dark-theme] Input bianchi in dark theme:
   fix su PR #85 (`--as-surface-raised`), contrasto misurato a runtime 10.24:1

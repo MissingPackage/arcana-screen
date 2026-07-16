@@ -1,6 +1,6 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-07-16, iterazione 3 del product-loop (fix D2 input dark theme, PR #85)
+Aggiornato: 2026-07-16, iterazione 4 del product-loop (D7 risolto: bump react allineato, PR #86)
 
 ## Stato corrente
 
@@ -30,18 +30,22 @@ Aggiornato: 2026-07-16, iterazione 3 del product-loop (fix D2 input dark theme, 
 
 ## §next-decidable (in ordine)
 
-1. Triage completo D7: log del job `quality` fallito sulla PR dependabot
-   react/@types-react (run 29520178703) — capire la rottura e proporre fix o
-   chiusura della PR.
-2. Osservare la CI di PR #85: attesa rossa SOLO sul lane WebKit finché #83 non
-   è mergiata; se fallisce altro, è una regressione da indagare.
+1. Osservare la CI di PR #86 (bump react allineato): attesa verde su quality
+   + 3 lane; WebKit rosso finché #83 non è mergiata (noto).
+2. D5 (slice piccola non gated): riconciliare i numeri di budget in ROADMAP
+   (dice 110 KiB CSS, lo script applica 130) — nota: la riga vive su questo
+   branch stack, il fix è un edit del ROADMAP già aggiornato qui; verificare
+   dove conviene farlo per non creare conflitti.
 3. **Righe acceptance-matrix non verdi**: riesame dopo il merge dei fix
-   (gated su D1/D8).
-4. Residui design-system rimanenti: D3 (color-scheme), D4 (literal sweep),
-   D5 (numeri budget in ROADMAP).
+   (gated su D1/D8/D8b).
+4. Residui design-system: D3 (color-scheme, gated su ruling), D4 (literal
+   sweep — slice fattibile).
+Quasi tutto il lavoro non gated si sta esaurendo: se D4 non è prioritario,
+valutare stop-by-design del loop in attesa dei merge (D1/D8/D8b) e dei ruling
+(D3/D9).
 
-Chiusi: D6 (WebKit CI lane, PR #83), prova Timer (PR #84), D2 (input dark
-theme, PR #85 — merge in D8).
+Chiusi: D6 (PR #83 CI), Timer (PR #84), D2 (PR #85), D7 (PR #86 — merge in
+D8b). PR #85 CI confermata: rossa solo sul lane WebKit, come previsto.
 Item 1 e 3 della Sequenza immediata restano human-gated.
 
 ## Protocollo
