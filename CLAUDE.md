@@ -74,7 +74,7 @@ arcana-screen/                      # repo root (README, LICENSE, ROADMAP.md, CH
 npm run dev               # Vite dev server (HMR)
 npm run build             # tsc -b && vite build
 npm run lint              # eslint
-npm test                  # vitest run (unit/component) — currently 86 tests
+npm test                  # vitest run (unit/component) — currently 136 tests
 npm run test:ci           # build + lint + test + check:budget   ← does NOT run e2e
 npm run test:e2e:critical # Playwright @critical suite (browsers + axe)  ← run this for browser/a11y
 npm run check:budget      # per-file asset budget: 560 KiB per JS chunk / 130 KiB CSS (vendors split via manualChunks)
