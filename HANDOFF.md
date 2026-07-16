@@ -1,6 +1,6 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-07-16, iterazione 6 del product-loop (D4 chiuso via PR #87; loop verso stop-by-design)
+Aggiornato: 2026-07-16, iterazione 7: **loop FERMO by design** — lavoro non-gated esaurito, tutto attende merge/ruling dell'utente. Riavviabile con `/loop /product-loop`.
 
 ## Stato corrente
 
@@ -39,8 +39,9 @@ media, ultima candidata). Tutto il resto è gated:
   project-update mai eseguito).
 - Post-merge: riesame righe acceptance-matrix.
 
-Se D11 non viene autorizzata/prioritizzata, il loop si ferma by design al
-prossimo giro.
+Il loop si è fermato by design il 2026-07-16 (iterazione 7): nessun merge,
+ruling o autorizzazione a D11 al momento dello stop. D11 resta la prima slice
+se il loop riparte.
 
 ## Protocollo
 
