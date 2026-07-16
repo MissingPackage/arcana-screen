@@ -22,9 +22,10 @@ non li assorbe. Quando Linear è raggiungibile, migrare gli item aperti.
   Candidato per /pattern-coverage.
 - D5 [2026-07-16] [docs] ROADMAP riga budget dice "560 KiB JS / 110 KiB CSS" ma
   lo script applica 130 KiB CSS (CLAUDE.md corretto). Riconciliare.
-- D6 [2026-07-16] [ci] Confermare il lane WebKit nel workflow `Quality gate` su
-  GitHub Actions al prossimo push/PR (next-decidable #2).
+- D7 [2026-07-16] [deps] PR dependabot "bump react and @types/react" ha il
+  Quality gate rosso (run 29520178703): triage prima di mergiarla.
 
 ## Chiusi
 
-(vuoto)
+- D6 [2026-07-16 → 2026-07-16] [ci] Lane WebKit nel `Quality gate` GitHub:
+  verde su PR #83 (webkit-desktop pass, 1m54s, run 29521841731).

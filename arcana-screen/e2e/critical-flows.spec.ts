@@ -224,3 +224,36 @@ test("@critical exposes 44px touch targets on the mobile project", async ({
   );
   expect(undersized).toEqual([]);
 });
+
+test("@critical timer stays truthful after a long background suspension", async ({
+  page,
+}) => {
+  // Fake clock: fastForward jumps time firing timers at most once — the
+  // "laptop lid closed, reopened later" scenario (ROADMAP M2.5 open prova).
+  await page.clock.install();
+  await createScreen(page);
+  await page.getByRole("button", { name: "Run", exact: true }).click();
+
+  const timerTool = page.getByRole("region", { name: "Session timer" });
+  await page.getByRole("button", { name: "Set time" }).click();
+  await page.getByLabel("Timer minutes").fill("30");
+  await page.getByLabel("Timer seconds").fill("0");
+  await timerTool.getByRole("button", { name: "Start" }).click();
+  await expect(timerTool.locator("time")).toHaveText("30:00");
+
+  // A few seconds of live ticking, then a 12-minute suspension: no interval
+  // ticks fire during the gap, so only endAt arithmetic can keep this honest.
+  await page.clock.runFor(3_000);
+  await page.clock.fastForward("12:00");
+  await expect(timerTool.locator("time")).toHaveText(/^17:5[0-7]$/);
+
+  // Reload while running: the persisted end timestamp must survive.
+  await page.reload();
+  await expect(timerTool.locator("time")).toHaveText(/^17:[45][0-9]$/);
+
+  // Suspend far past the deadline: completes at 00:00, never negative,
+  // and the control returns to Start (running state cleared).
+  await page.clock.fastForward("20:00");
+  await expect(timerTool.locator("time")).toHaveText("00:00");
+  await expect(timerTool.getByRole("button", { name: "Start" })).toBeVisible();
+});

@@ -377,7 +377,7 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Outcome:** il DM gestisce una scadenza senza perdere continuità quando il tab non è attivo.
 
-**Stato:** aritmetica timestamp testata, continuità su reload e configurazione durata verificate nel browser; resta aperta la prova di sospensione lunga/background.
+**Stato:** aritmetica timestamp testata, continuità su reload e configurazione durata verificate nel browser. La prova di sospensione lunga/background è chiusa il 2026-07-16: test `@critical` con clock fittizio (Playwright `clock.fastForward`, scenario "coperchio chiuso") che verifica ticking live, salto di 12 minuti senza tick, reload a timer attivo e completamento a 00:00 oltre la scadenza — verde su Chromium desktop/mobile, Firefox e WebKit (`docs/verification/2026-07-16-timer-suspension.md`).
 
 **Scope**
 
@@ -663,7 +663,7 @@ Queste opzioni non hanno una data e non devono influenzare l'architettura MVP ol
 # Sequenza immediata
 
 1. Eseguire sessioni simulate con DM reali su Orizzonti 0–4 e registrare task success, ritrovamento, cattura e uso dei layout avanzati.
-2. Eseguire il gate WebKit nella CI Ubuntu predisposta e la prova Timer dopo sospensione lunga/background.
+2. ~~Eseguire il gate WebKit nella CI Ubuntu predisposta e la prova Timer dopo sospensione lunga/background.~~ **Chiuso 2026-07-16:** gate WebKit verde in locale e nella CI GitHub (PR #83, fix CSP `upgrade-insecure-requests`); prova Timer post-sospensione automatizzata nella suite `@critical` su tutta la matrice browser.
 3. Validare installazione e recovery offline della PWA su Android e iOS reali.
 4. Chiudere le righe non verdi della matrice di accettazione senza confondere implementazione e approvazione prodotto.
 5. Attivare un wrapper o un provider cloud solo se i dati d'uso superano i gate documentati di manutenzione, privacy e conflitto.

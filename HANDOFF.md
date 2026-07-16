@@ -1,6 +1,6 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-07-16 (sessione: adozione design system + prima iterazione product-loop)
+Aggiornato: 2026-07-16, iterazione 2 del product-loop (prova Timer post-sospensione)
 
 ## Stato corrente
 
@@ -8,8 +8,10 @@ Aggiornato: 2026-07-16 (sessione: adozione design system + prima iterazione prod
   "Arcana Screen Dungeon Master" (`arcana-screen/src/styles/tokens.css`), body
   font Inter → Work Sans, fix dei token mai definiti (`--as-wine`, `--as-display`)
   e del contrasto dark-theme di eyebrow/popover. Pushed su origin/dev.
-- Branch `test/webkit-e2e-gate` @ `9fd61b6` (+ commit docs): **fix del bug
-  cross-browser WebKit** — `upgrade-insecure-requests` nel meta CSP accecava
+- Branch `test/timer-suspension-e2e` (stacked su `test/webkit-e2e-gate`):
+  prova Timer post-sospensione automatizzata (M2.5 chiusa). PR-ready.
+- Branch `test/webkit-e2e-gate` @ `9fd61b6` (+ commit docs), **PR #83, CI tutta
+  verde WebKit incluso**: fix del bug cross-browser WebKit — `upgrade-insecure-requests` nel meta CSP accecava
   l'app su host HTTP (WebKit forza l'upgrade anche su localhost). Direttiva
   spostata solo in `public/_headers`. **PR-ready, non mergiato** (policy loop:
   il merge su dev è una decisione utente → docket D1).
@@ -28,19 +30,18 @@ Aggiornato: 2026-07-16 (sessione: adozione design system + prima iterazione prod
 
 ## §next-decidable (in ordine)
 
-1. **Prova Timer dopo sospensione lunga/background** (ROADMAP Sequenza immediata
-   item 2, seconda metà — l'unica parte ancora aperta dell'item). Slice: test
-   e2e/harness che simula sospensione (clock skew / page freeze) e verifica il
-   ricalcolo da timestamp.
-2. **Conferma lane WebKit nella CI GitHub**: push/PR del branch
-   `test/webkit-e2e-gate` esercita il workflow `Quality gate` con la matrice
-   browser. Osservare il run, chiudere l'item 2 prima metà anche in CI.
-3. Righe acceptance-matrix non verdi legate a WebKit (`docs/specs/acceptance-matrix.md`)
-   da riesaminare dopo il merge del fix.
-4. Residui design-system: vedi docket D3–D5.
+1. **Righe acceptance-matrix non verdi** (`docs/specs/acceptance-matrix.md`):
+   riesaminare le righe `missing/red/partial/blocked` dopo il merge dei fix,
+   distinguendo implementazione da approvazione prodotto (ROADMAP Sequenza
+   immediata item 4). Nessuna riga TIM esiste: la prova timer vive in ROADMAP
+   M2.5 + docs/verification.
+2. Residui design-system (docket D2–D5): il candidato più concreto è D2
+   (input bianchi in dark theme), una slice piccola e verificabile con axe.
+3. Dependabot PR react/@types-react: Quality gate rosso (docket D7) — triage.
 
-Item 1 e 3 della Sequenza immediata (sessioni con DM reali, PWA su device
-reali) restano human-gated: non decidibili in loop.
+Chiusi in questa iterazione: WebKit CI lane (PR #83 tutta verde, D6) e prova
+Timer post-sospensione (test @critical su 4 engine, 37+3 in matrice).
+Item 1 e 3 della Sequenza immediata restano human-gated.
 
 ## Protocollo
 
