@@ -24,6 +24,7 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 - `--as-wine` and `--as-display` were referenced but never defined: the capture "Review N" badge background was invisible and review/source accents fell back to inherited ink. They now map to the token layer (with a dark-theme lift for the wine accent).
 - Dark theme: eyebrows/section labels now lift to `#f0c463` and several popovers (oracle, party glance) use dark surfaces instead of leftover light parchment.
 - Portable backups now include M4 templates, reference packs and appearance preferences while still accepting schema 1 files.
+- Dark theme: the initiative, batch-initiative, mint-NPC and add-combatant inputs kept a hardcoded white background under parchment-cream ink (~1.35:1, unreadable). They now use the raised-surface token (`--as-surface-raised`), identical in light theme and 10.2:1 in dark.
 
 ## [1.0.0-rc.1] — 2026-07-13
 
