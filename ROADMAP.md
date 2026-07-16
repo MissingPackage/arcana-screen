@@ -6,7 +6,7 @@ Stato (verificato 2026-07-14): Orizzonti 1–4 implementati.
 
 **Stato reale misurato (2026-07-14, non aspirazionale):**
 
-- Unit/component: **86/86 verdi** (`npm run test:ci` = build + lint + 86 Vitest + budget).
+- Unit/component: **136/136 verdi** (`npm run test:ci` = build + lint + Vitest + budget; conteggio aggiornato 2026-07-16).
 - E2e Playwright (`test:e2e:critical`): **33 passati + 3 skip intenzionali** sull'intera matrice, **WebKit incluso** (aggiornato 2026-07-16). Il bug cross-browser Safari è stato individuato e corretto: era `upgrade-insecure-requests` nel meta CSP — WebKit (a differenza di Chromium/Firefox) forza l'upgrade anche su localhost, quindi ogni asset falliva il TLS handshake e l'app restava bianca su qualsiasi host HTTP. La direttiva ora vive solo in `public/_headers` (deploy HTTPS). Evidenza: `docs/verification/2026-07-16-webkit-gate.md`. Resta aperta la conferma del lane WebKit nella CI GitHub.
 - **Accessibilità:** il gate axe era in realtà **RED** (93 violazioni di contrasto sul testo muted, regressione introdotta dal re-skin Prepare). **Corretto il 2026-07-14** (`--ink-muted`/`--as-muted` → `#586678`, ora AA ≥ 4.5:1); ora verde su Chromium/Firefox/mobile.
 - **Budget performance:** alzato il 2026-07-14 a **560 KiB JS / 110 KiB CSS** (era 500/100) per accogliere le icone per-entità; attuale 528.9/96.3.
