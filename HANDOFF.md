@@ -1,6 +1,6 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-07-16, iterazione 2 del product-loop (prova Timer post-sospensione)
+Aggiornato: 2026-07-16, iterazione 3 del product-loop (fix D2 input dark theme, PR #85)
 
 ## Stato corrente
 
@@ -30,17 +30,18 @@ Aggiornato: 2026-07-16, iterazione 2 del product-loop (prova Timer post-sospensi
 
 ## §next-decidable (in ordine)
 
-1. **Righe acceptance-matrix non verdi** (`docs/specs/acceptance-matrix.md`):
-   riesaminare le righe `missing/red/partial/blocked` dopo il merge dei fix,
-   distinguendo implementazione da approvazione prodotto (ROADMAP Sequenza
-   immediata item 4). Nessuna riga TIM esiste: la prova timer vive in ROADMAP
-   M2.5 + docs/verification.
-2. Residui design-system (docket D2–D5): il candidato più concreto è D2
-   (input bianchi in dark theme), una slice piccola e verificabile con axe.
-3. Dependabot PR react/@types-react: Quality gate rosso (docket D7) — triage.
+1. Triage completo D7: log del job `quality` fallito sulla PR dependabot
+   react/@types-react (run 29520178703) — capire la rottura e proporre fix o
+   chiusura della PR.
+2. Osservare la CI di PR #85: attesa rossa SOLO sul lane WebKit finché #83 non
+   è mergiata; se fallisce altro, è una regressione da indagare.
+3. **Righe acceptance-matrix non verdi**: riesame dopo il merge dei fix
+   (gated su D1/D8).
+4. Residui design-system rimanenti: D3 (color-scheme), D4 (literal sweep),
+   D5 (numeri budget in ROADMAP).
 
-Chiusi in questa iterazione: WebKit CI lane (PR #83 tutta verde, D6) e prova
-Timer post-sospensione (test @critical su 4 engine, 37+3 in matrice).
+Chiusi: D6 (WebKit CI lane, PR #83), prova Timer (PR #84), D2 (input dark
+theme, PR #85 — merge in D8).
 Item 1 e 3 della Sequenza immediata restano human-gated.
 
 ## Protocollo
