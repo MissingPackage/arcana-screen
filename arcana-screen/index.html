@@ -9,7 +9,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="A local-first, customizable screen for tabletop game masters." />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' ws: wss:; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
+    <!-- upgrade-insecure-requests lives in public/_headers only: WebKit (unlike
+         Chromium/Firefox) upgrades localhost subresources too, which blanks the
+         app on any plain-HTTP host (vite preview, the e2e suite). All assets are
+         same-origin relative, so on HTTPS the directive is redundant here. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' ws: wss:; object-src 'none'; base-uri 'self'; form-action 'self'" />
     <title>ArcanaScreen</title>
   </head>
   <body class="light-theme">

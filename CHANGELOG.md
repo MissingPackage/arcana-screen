@@ -20,6 +20,7 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 
 ### Fixed
 
+- WebKit/Safari rendered a blank app on any plain-HTTP host (local preview, the e2e suite): unlike Chromium/Firefox, WebKit applies `upgrade-insecure-requests` to localhost subresources, so every asset request failed its TLS handshake. The directive now lives only in the production `_headers` file; with all assets same-origin relative, HTTPS deployments lose nothing. The WebKit e2e lane passes for the first time (8/8 + 1 skip).
 - `--as-wine` and `--as-display` were referenced but never defined: the capture "Review N" badge background was invisible and review/source accents fell back to inherited ink. They now map to the token layer (with a dark-theme lift for the wine accent).
 - Dark theme: eyebrows/section labels now lift to `#f0c463` and several popovers (oracle, party glance) use dark surfaces instead of leftover light parchment.
 - Portable backups now include M4 templates, reference packs and appearance preferences while still accepting schema 1 files.
