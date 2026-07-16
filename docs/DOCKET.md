@@ -13,11 +13,14 @@ non li assorbe. Quando Linear è raggiungibile, migrare gli item aperti.
   scrollbar/controlli. Decidere se adottarlo.
 - D4b [2026-07-16] [merge] Mergiare PR #87 (sweep letterali session.css, axe
   dark del cockpit a zero violazioni). Indipendente dalle altre PR.
-- D11 [2026-07-16] [bug/dark-theme] `.screen-mode__button` (header shell,
-  index.css) fallisce il contrasto axe in dark theme — unico nodo residuo dopo
-  la sweep D4. Slice piccola; insieme: axe dark completo della shell Prepare
-  (mai scansionata). Include anche la sweep profonda di index.css (~2900 righe)
-  che resta fuori da D4.
+- D11b [2026-07-16] [merge] Mergiare PR #88 (fix toggle Prepare/Run in dark,
+  bug di specificità, 1.24:1 → 7.9:1). Con TUTTE le PR integrate lo scan axe
+  dark dell'intera app (4 Focus + Prepare) dà ZERO violazioni.
+- D12 [2026-07-16] [design/coverage] Sweep profonda dei letterali di index.css
+  (~2900 righe, shell/Prepare) — residuo di D11, slice grande separata.
+- D13 [2026-07-16] [ci/proposta] Aggiungere una variante dark del test axe
+  alla suite @critical: i bug D2/D4/D11 erano tutti invisibili al gate attuale
+  (scansiona solo light). Piccola, alto valore di guardia.
 - D10 [2026-07-16] [decisione/ci] `.github/worklows/project-update.yml` (typo:
   "worklows") esiste dal commit di setup 342ae79 e NON è mai stato eseguito —
   GitHub legge solo `workflows/`. Automazione project-board su ogni push/PR:
@@ -35,6 +38,10 @@ non li assorbe. Quando Linear è raggiungibile, migrare gli item aperti.
   evidenza full-matrix ottenuta su merge locale di integrazione (37+3, 0 failed).
 
 ## Chiusi
+
+- D11 (prima metà) [2026-07-16 → 2026-07-16] Toggle Prepare/Run in dark: fix su
+  PR #88 (regola dark-scoped sullo stato attivo; era un conflitto di
+  specificità 0-3-2 vs 0-3-1). Shell Prepare in dark: 0 violazioni axe.
 
 - D4 [2026-07-16 → 2026-07-16] [design/coverage] Sweep session.css su PR #87:
   hex unici 71 → 44, gold-wash token, axe dark cockpit 0 violazioni

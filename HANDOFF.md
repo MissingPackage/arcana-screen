@@ -1,6 +1,6 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-07-16, iterazione 7: **loop FERMO by design** — lavoro non-gated esaurito, tutto attende merge/ruling dell'utente. Riavviabile con `/loop /product-loop`.
+Aggiornato: 2026-07-16, iterazione 8 (loop riavviato dall'utente): D11 prima metà chiusa via PR #88; con tutte le PR integrate, axe dark = 0 su tutta l'app.
 
 ## Stato corrente
 
@@ -30,18 +30,14 @@ Aggiornato: 2026-07-16, iterazione 7: **loop FERMO by design** — lavoro non-ga
 
 ## §next-decidable (in ordine)
 
-Lavoro non-gated ESAURITO salvo D11 (contrasto dark del toggle Prepare/Run
-nell'header + axe dark della shell Prepare + sweep profonda index.css — slice
-media, ultima candidata). Tutto il resto è gated:
-
-- Merge: D1 (#83 → #84), D8 (#85), D8b (#86 + chiudere #80/#82), D4b (#87).
-- Ruling: D3 (color-scheme), D9 (dependabot groups), D10 (workflow
-  project-update mai eseguito).
-- Post-merge: riesame righe acceptance-matrix.
-
-Il loop si è fermato by design il 2026-07-16 (iterazione 7): nessun merge,
-ruling o autorizzazione a D11 al momento dello stop. D11 resta la prima slice
-se il loop riparte.
+1. **D12 — sweep profonda index.css** (~2900 righe, shell/Prepare): l'ultima
+   slice non-gated rimasta. Grande: valutare se spezzarla (token aliasing è
+   già fatto; restano i letterali nei componenti shell).
+2. **D13 — variante dark del test axe nella suite @critical**: piccola, chiude
+   il buco di guardia che ha nascosto D2/D4/D11. Fattibile subito.
+3. Merge attesi: D1 (#83→#84), D8 (#85), D8b (#86 + chiudere #80/#82),
+   D4b (#87), D11b (#88). Ruling: D3, D9, D10.
+4. Post-merge: riesame acceptance-matrix.
 
 ## Protocollo
 
