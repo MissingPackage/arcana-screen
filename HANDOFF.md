@@ -1,6 +1,6 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-07-16, iterazione 4 del product-loop (D7 risolto: bump react allineato, PR #86)
+Aggiornato: 2026-07-16, iterazione 5 del product-loop (verifier iter.4 PASS, D5 chiuso, D10 aperto)
 
 ## Stato corrente
 
@@ -30,19 +30,14 @@ Aggiornato: 2026-07-16, iterazione 4 del product-loop (D7 risolto: bump react al
 
 ## §next-decidable (in ordine)
 
-1. Osservare la CI di PR #86 (bump react allineato): attesa verde su quality
-   + 3 lane; WebKit rosso finché #83 non è mergiata (noto).
-2. D5 (slice piccola non gated): riconciliare i numeri di budget in ROADMAP
-   (dice 110 KiB CSS, lo script applica 130) — nota: la riga vive su questo
-   branch stack, il fix è un edit del ROADMAP già aggiornato qui; verificare
-   dove conviene farlo per non creare conflitti.
-3. **Righe acceptance-matrix non verdi**: riesame dopo il merge dei fix
-   (gated su D1/D8/D8b).
-4. Residui design-system: D3 (color-scheme, gated su ruling), D4 (literal
-   sweep — slice fattibile).
-Quasi tutto il lavoro non gated si sta esaurendo: se D4 non è prioritario,
-valutare stop-by-design del loop in attesa dei merge (D1/D8/D8b) e dei ruling
-(D3/D9).
+1. **D4 — literal sweep di session.css** (ultima slice non gated): tokenizzare
+   i residui a rischio-contrasto basso (famiglia #314c64/#526779, gold wash) con
+   gate axe + matrice. index.css profondo resta fuori (slice separata, grande).
+2. **Righe acceptance-matrix non verdi**: riesame dopo i merge (gated D1/D8/D8b).
+3. Ruling attesi: D3 (color-scheme), D9 (dependabot groups), D10 (workflow
+   project-update mai eseguito — typo "worklows").
+Dopo D4 il lavoro non-gated è esaurito → stop-by-design del loop, in attesa di
+merge e ruling.
 
 Chiusi: D6 (PR #83 CI), Timer (PR #84), D2 (PR #85), D7 (PR #86 — merge in
 D8b). PR #85 CI confermata: rossa solo sul lane WebKit, come previsto.

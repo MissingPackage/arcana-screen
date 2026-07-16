@@ -15,8 +15,10 @@ non li assorbe. Quando Linear è raggiungibile, migrare gli item aperti.
   session.css (famiglia `#314c64`/`#526779`, gold wash `#fff8e7/#fff8e8/#fffaf0`,
   cerchietti beat `#b98618`) e la sweep profonda di index.css (~2900 righe).
   Candidato per /pattern-coverage.
-- D5 [2026-07-16] [docs] ROADMAP riga budget dice "560 KiB JS / 110 KiB CSS" ma
-  lo script applica 130 KiB CSS (CLAUDE.md corretto). Riconciliare.
+- D10 [2026-07-16] [decisione/ci] `.github/worklows/project-update.yml` (typo:
+  "worklows") esiste dal commit di setup 342ae79 e NON è mai stato eseguito —
+  GitHub legge solo `workflows/`. Automazione project-board su ogni push/PR:
+  decidere se spostarla nella dir giusta (si attiverebbe di colpo) o eliminarla.
 - D8b [2026-07-16] [merge] Mergiare PR #86 (bump react allineato 19.2.7) e poi
   CHIUDERE le PR dependabot #80 e #82 come superate (ciascuna da sola ha
   versioni react/react-dom disallineate e non potrà mai essere verde).
@@ -30,6 +32,9 @@ non li assorbe. Quando Linear è raggiungibile, migrare gli item aperti.
   evidenza full-matrix ottenuta su merge locale di integrazione (37+3, 0 failed).
 
 ## Chiusi
+
+- D5 [2026-07-16 → 2026-07-16] [docs] Numeri budget in ROADMAP riconciliati con
+  lo script (560 JS / 130 CSS, attuali 119.0 CSS / 191.8 max JS).
 
 - D7 [2026-07-16 → 2026-07-16] [deps] Gate rosso PR dependabot react: root cause
   `react 19.2.7 vs react-dom 19.1.0` (dependabot ha spezzato il bump in #80/#82,
