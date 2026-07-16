@@ -34,7 +34,7 @@ non li assorbe. Quando Linear è raggiungibile, migrare gli item aperti.
 ## Chiusi
 
 - D5 [2026-07-16 → 2026-07-16] [docs] Numeri budget in ROADMAP riconciliati con
-  lo script (560 JS / 130 CSS, attuali 119.0 CSS / 191.8 max JS).
+  lo script (560 JS / 130 CSS; attuali: 119.0 CSS, max JS = chunk react, 191.8 su react 19.1.0 / 198.8 su 19.2.7). Correzione post-verifier: la prima stesura citava solo 191.8.
 
 - D7 [2026-07-16 → 2026-07-16] [deps] Gate rosso PR dependabot react: root cause
   `react 19.2.7 vs react-dom 19.1.0` (dependabot ha spezzato il bump in #80/#82,

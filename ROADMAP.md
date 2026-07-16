@@ -9,7 +9,7 @@ Stato (verificato 2026-07-14): Orizzonti 1–4 implementati.
 - Unit/component: **136/136 verdi** (`npm run test:ci` = build + lint + Vitest + budget; conteggio aggiornato 2026-07-16).
 - E2e Playwright (`test:e2e:critical`): **33 passati + 3 skip intenzionali** sull'intera matrice, **WebKit incluso** (aggiornato 2026-07-16). Il bug cross-browser Safari è stato individuato e corretto: era `upgrade-insecure-requests` nel meta CSP — WebKit (a differenza di Chromium/Firefox) forza l'upgrade anche su localhost, quindi ogni asset falliva il TLS handshake e l'app restava bianca su qualsiasi host HTTP. La direttiva ora vive solo in `public/_headers` (deploy HTTPS). Evidenza: `docs/verification/2026-07-16-webkit-gate.md`. Resta aperta la conferma del lane WebKit nella CI GitHub.
 - **Accessibilità:** il gate axe era in realtà **RED** (93 violazioni di contrasto sul testo muted, regressione introdotta dal re-skin Prepare). **Corretto il 2026-07-14** (`--ink-muted`/`--as-muted` → `#586678`, ora AA ≥ 4.5:1); ora verde su Chromium/Firefox/mobile.
-- **Budget performance:** la fonte di verità è `scripts/check-performance-budget.mjs`: **560 KiB per chunk JS / 130 KiB CSS** (CSS alzato a 130 nel commit `2b21d92` con lo split dei vendor chunk; la nota precedente diceva 110 ed era stantia). Attuale 2026-07-16: CSS 119.0, chunk JS più grande 191.8 (react).
+- **Budget performance:** la fonte di verità è `scripts/check-performance-budget.mjs`: **560 KiB per chunk JS / 130 KiB CSS** (CSS alzato a 130 nel commit `2b21d92` con lo split dei vendor chunk; la nota precedente diceva 110 ed era stantia). Attuale 2026-07-16: CSS 119.0; il chunk JS più grande è react — 191.8 con react 19.1.0, 198.8 col bump 19.2.7 (PR #86) — ampio margine sul limite.
 
 L'accettazione prodotto resta separata dall'implementazione: nessun orizzonte è accettato finché `docs/specs/acceptance-matrix.md` contiene righe `missing`, `red`, `partial` o `blocked` — e molte righe restano `manual-pass` (evidenza datata, non suite automatica). In Orizzonte 4 cloud sync resta intenzionalmente disattivato e il wrapper mobile è una decisione documentata, non un binario fittizio.
 
@@ -480,7 +480,7 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Done quando:** i browser dichiarati superano la matrice di test e nessun dato utente viene trasmesso senza consenso esplicito.
 
-**Evidenza M3:** Chromium desktop, Chromium mobile e Firefox verdi localmente (25 test, 2 skip intenzionali); WebKit/Safari engine è un gate CI con `playwright install --with-deps`. Bundle entro il budget (alzato il 2026-07-14 a 560 KiB JS / 110 KiB CSS per le icone per-entità; attuale 528.9/96.3), nessuna vulnerabilità npm nota, nessuna richiesta cross-origin nel flusso core, privacy policy e CSP/headers versionati.
+**Evidenza M3:** Chromium desktop, Chromium mobile e Firefox verdi localmente (25 test, 2 skip intenzionali); WebKit/Safari engine è un gate CI con `playwright install --with-deps`. Bundle entro il budget (alzato il 2026-07-14 a 560 KiB JS / 110 KiB CSS per le icone per-entità; attuale 528.9/96.3 — snapshot storico del 2026-07-14, il CSS è stato poi alzato a 130 in `2b21d92`), nessuna vulnerabilità npm nota, nessuna richiesta cross-origin nel flusso core, privacy policy e CSP/headers versionati.
 
 ## M3.4 — Release web
 
