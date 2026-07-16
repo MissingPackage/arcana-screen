@@ -62,7 +62,7 @@ arcana-screen/                      # repo root (README, LICENSE, ROADMAP.md, CH
 | State | Zustand | ^5.0.3 |
 | CSS | TailwindCSS (v4) | ^4.1.4 |
 | Icons | @phosphor-icons/react | ^2.1.10 |
-| Fonts | @fontsource (Cinzel, Inter) | ^5.x |
+| Fonts | @fontsource (Cinzel, Work Sans) | ^5.x |
 | Drag & drop | react-dnd | ^16.0.1 (legacy Prepare grid only) |
 | Toasts | react-hot-toast | ^2.5.2 |
 | Unit/component tests | Vitest + Testing Library | ^4.1.10 |
@@ -100,7 +100,7 @@ npm run preview           # serve the production build (used by Playwright webSe
 
 ## Design system
 
-The intended language (both modes should share it): deep-navy header/dock (`#061f36`), warm parchment plane (`#fbf7ee`), muted gold (`#e5ad32`) reserved for active/primary state, **Cinzel** for headings + **Inter** for body (bundled via `@fontsource`, CSP-safe), Phosphor outline icons (no emoji), thin borders, ~8px radii, minimal shadow, state signalled by text/shape/position not only colour. Tokens: `session.css` (`--as-*`, `.arcana-session`) is the reference; `index.css` (`--ink`, `--ink-muted`, `--line`, …) mirrors it for the shell/Prepare. **Muted text is `#586678`** (do not lighten below WCAG AA 4.5:1 on parchment).
+The intended language (both modes should share it): deep-navy header/dock (`#061f36`), warm parchment plane (`#fbf7ee`), muted gold (`#e5ad32`) reserved for active/primary state, **Cinzel** for headings + **Work Sans** for body (bundled via `@fontsource`, CSP-safe), Phosphor outline icons (no emoji), thin borders, ~8px radii, minimal shadow, state signalled by text/shape/position not only colour. Tokens: **`src/styles/tokens.css`** is the canonical layer (ported 2026-07-16 from the Claude Design project "Arcana Screen Dungeon Master": colors incl. `.dark-theme`, typography, spacing/radii, elevation, motion, all `--as-*`); `session.css` and `index.css` consume it — `index.css` legacy names (`--ink`, `--ink-muted`, `--line`, …) are aliases onto `--as-*`. Alias gotcha: a `var()` inside a custom property substitutes where it is **declared**, so theme-dependent aliases must be re-declared under `body.dark-theme` (see index.css). **Muted text is `#586678`** (do not lighten below WCAG AA 4.5:1 on parchment).
 
 ## Adding a tool/widget
 

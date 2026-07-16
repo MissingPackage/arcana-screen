@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@fontsource/cinzel": "^5.2.8",
-    "@fontsource/inter": "^5.2.8",
+    "@fontsource/work-sans": "^5.2.8",
     "@phosphor-icons/react": "^2.1.10",
     "react": "^19.0.0",
     "react-dnd": "^16.0.1",

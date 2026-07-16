@@ -14,7 +14,14 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 
 ### Changed
 
+- Adopted the canonical design-token layer from the Claude Design project (`src/styles/tokens.css`): colors, typography, spacing, elevation and motion now flow from one `--as-*` source consumed by both the Run cockpit and the Prepare shell.
+- Body typeface switched from Inter to Work Sans per the design system (Cinzel unchanged); fonts remain self-hosted via `@fontsource` (CSP `font-src 'self'`).
 - Release candidates must pass the automated quality, accessibility, security and browser gates.
+
+### Fixed
+
+- `--as-wine` and `--as-display` were referenced but never defined: the capture "Review N" badge background was invisible and review/source accents fell back to inherited ink. They now map to the token layer (with a dark-theme lift for the wine accent).
+- Dark theme: eyebrows/section labels now lift to `#f0c463` and several popovers (oracle, party glance) use dark surfaces instead of leftover light parchment.
 - Portable backups now include M4 templates, reference packs and appearance preferences while still accepting schema 1 files.
 
 ## [1.0.0-rc.1] — 2026-07-13

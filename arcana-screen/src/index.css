@@ -4,20 +4,23 @@
    ============================== */
 
    @import "tailwindcss";
+   @import "./styles/tokens.css";
 
    @custom-variant dark (&:where(.dark-theme, .dark-theme *));
-   
+
    :root {
-     /* Palette ArcanaScreen */
-     --deep-blue: #061f36;
+     /* Palette ArcanaScreen — legacy names aliased to the design-system
+        tokens (src/styles/tokens.css). Theme-dependent values resolve per
+        element, so the .dark-theme overrides in tokens.css flow through. */
+     --deep-blue: var(--as-navy);
      --arcane-blue: #3A506B;
-     --muted-gold: #e5ad32;
+     --muted-gold: var(--as-gold);
      --stone-grey: #B0B0B0;
-     --parchment-white: #fbf7ee;
+     --parchment-white: #fbf7ee; /* always-light: used as text on navy in dark theme — not the themed paper plane */
      --background-light: #fbf7ee;
      --background-dark: #061f36;
      --text-main-light: var(--deep-blue);
-     --text-main-dark: var(--parchment-white);
+     --text-main-dark: #fbf7ee;
      --font-title-light: var(--deep-blue);
      --font-title-dark: var(--muted-gold);
      --font-secondary: var(--stone-grey);
@@ -26,29 +29,29 @@
      --accent: var(--arcane-blue);
      --accent-hover: #5C80A0;
      --highlight: var(--muted-gold);
-     --input-bg-light: #ffffff;
-     --input-bg-dark: #123957;
+     --input-bg-light: var(--as-surface-raised);
+     --input-bg-dark: var(--as-navy-soft);
      --border-light: #d3c5a5;
      --border-dark: var(--arcane-blue);
-     /* Prepare/shell tokens - aligned with the Run (.arcana-session) palette */
-     --paper-deep: #f3ebdc;
-     --ink: #122b49;
-     --ink-muted: #586678;
-     --line: #ddd4c3;
-     --line-strong: #b9ad98;
+     /* Prepare/shell tokens - same values as the Run (.arcana-session) palette */
+     --paper-deep: var(--as-paper-deep);
+     --ink: var(--as-ink);
+     --ink-muted: var(--as-ink-muted);
+     --line: var(--as-line);
+     --line-strong: var(--as-line-strong);
    }
    
    /* Utility font classes */
    .font-title {
      color: var(--font-title-light);
-     font-family: 'Cinzel', Georgia, 'Times New Roman', serif;
+     font-family: var(--as-font-display);
    }
    body.dark-theme .font-title {
      color: var(--font-title-dark);
   }
    .font-main {
      color: var(--text-main-light);
-     font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+     font-family: var(--as-font-body);
    }
    body.dark-theme .font-main {
      color: var(--text-main-dark);
@@ -69,9 +72,9 @@
      margin: 0;
      padding: 0;
      min-height: 100vh;
-     font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-     line-height: 1.5;
-     transition: background-color 0.5s ease, color 0.5s ease;
+     font-family: var(--as-font-body);
+     line-height: var(--as-leading);
+     transition: background-color var(--as-duration-theme) ease, color var(--as-duration-theme) ease;
    }
 
    #root {
@@ -84,9 +87,9 @@
      left: 0.5rem;
      z-index: 10000;
      padding: 0.75rem 1rem;
-     color: #102b49;
-     background: #f8d887;
-     border: 2px solid #102b49;
+     color: var(--as-gold-contrast);
+     background: var(--as-gold-pale);
+     border: 2px solid var(--as-gold-contrast);
      border-radius: 0.4rem;
      font-weight: 700;
      transform: translateY(-160%);
@@ -97,9 +100,9 @@
    }
 
    :where(button, input, textarea, select, a[href], [tabindex]:not([tabindex='-1'])):focus-visible {
-     outline: 3px solid #d9b310;
+     outline: 3px solid var(--as-focus-shell);
      outline-offset: 3px;
-     box-shadow: 0 0 0 2px #102b49;
+     box-shadow: 0 0 0 2px var(--as-gold-contrast);
    }
 
    :where(button, input, textarea, select, a[href], summary) {
@@ -114,8 +117,8 @@
    
    body.light-theme {
      --bg-page: var(--background-light);
-     --surface: #fffdf8;
-     --surface-raised: #ffffff;
+     --surface: var(--as-surface);
+     --surface-raised: var(--as-surface-raised);
      --border: var(--line);
      --text-muted: var(--ink-muted);
      background-color: var(--background-light);
@@ -129,16 +132,20 @@
    /* === TEMA DARK (Blu Arcano) === */
    
    body.dark-theme {
+     /* Dark values for --as-* come from tokens.css (.dark-theme scope).
+        The legacy aliases must be RE-declared here: a var() inside a custom
+        property substitutes where it is declared, so the :root copies locked
+        in the light values (html never carries .dark-theme). */
+     --paper-deep: var(--as-paper-deep);
+     --ink: var(--as-ink);
+     --ink-muted: var(--as-ink-muted);
+     --line: var(--as-line);
+     --line-strong: var(--as-line-strong);
      --bg-page: var(--background-dark);
-     --surface: #182b3e;
-     --surface-raised: #263553;
+     --surface: var(--as-surface);
+     --surface-raised: var(--as-surface-raised);
      --border: var(--line-strong);
      --text-muted: var(--ink-muted);
-     --paper-deep: #0c1824;
-     --ink: #f5ead2;
-     --ink-muted: #a9b8c6;
-     --line: #34495d;
-     --line-strong: #536779;
      background-color: var(--background-dark);
      color: var(--text-main-dark);
      background-image: url('/texture_arcane_finale.png');
@@ -150,7 +157,7 @@
    /* === TIPOGRAFIA === */
    
    h1, h2 {
-     font-family: 'Cinzel', Georgia, 'Times New Roman', serif;
+     font-family: var(--as-font-display);
      color: var(--font-title-light);
    }
    body.dark-theme h1, body.dark-theme h2 {
@@ -158,7 +165,7 @@
    }
    
    h3, h4, h5, h6, p, span, label, div, button, input, textarea, select {
-     font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+     font-family: var(--as-font-body);
    }
    
    /* === BOTTONI === */
@@ -524,7 +531,7 @@
    .screen-manager__panel-title {
      margin: 0;
      color: var(--ink, var(--deep-blue));
-     font-family: 'Cinzel', Georgia, 'Times New Roman', serif;
+     font-family: var(--as-font-display);
      font-size: 1.05rem;
      font-weight: 600;
    }
@@ -762,7 +769,7 @@
    .arcana-header .app-header__brand h1 {
      margin: 0;
      color: #f8d887;
-     font-family: 'Cinzel', Georgia, serif;
+     font-family: var(--as-font-display);
      font-size: 1.25rem;
      font-weight: 500;
      letter-spacing: 0.02em;
@@ -927,7 +934,7 @@
      border-left: 1px solid var(--line);
      transform: rotate(45deg);
    }
-   .party-setup__head h2 { margin: 0; font-family: 'Cinzel', Georgia, serif; font-size: 1.05rem; font-weight: 600; }
+   .party-setup__head h2 { margin: 0; font-family: var(--as-font-display); font-size: 1.05rem; font-weight: 600; }
    .party-setup__head p { margin: 0.2rem 0 0; color: var(--ink-muted); font-size: 0.82rem; }
    .party-setup__list { display: grid; gap: 0.6rem; margin: 0; padding: 0; list-style: none; }
    .party-member {
@@ -1084,7 +1091,7 @@
      margin: 0;
      overflow: hidden;
      color: var(--ink);
-     font-family: 'Cinzel', Georgia, 'Times New Roman', serif;
+     font-family: var(--as-font-display);
      font-size: 1rem;
      font-weight: 600;
      text-overflow: ellipsis;
@@ -1738,7 +1745,7 @@
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  font-family: 'Cinzel', Georgia, serif;
+  font-family: var(--as-font-display);
   font-size: 1.25rem;
   letter-spacing: 0.03em;
 }
@@ -2818,7 +2825,7 @@ body.reduce-motion *::after {
    }
 
    .resource-counter__value {
-     font-family: Cinzel, serif;
+     font-family: var(--as-font-display);
      font-size: 3.5rem;
      font-weight: 700;
    }
@@ -2866,7 +2873,7 @@ body.reduce-motion *::after {
 
    .note-preview__content h3 {
      margin: 0.75rem 0 0.25rem;
-     font-family: Cinzel, serif;
+     font-family: var(--as-font-display);
      font-size: 1rem;
    }
 

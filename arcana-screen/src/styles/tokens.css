@@ -1,0 +1,247 @@
+/* ============================================================
+   ArcanaScreen — Design tokens
+   Ported from the Claude Design project "Arcana Screen Dungeon
+   Master" (ds/tokens/*). This file is the single source of truth
+   for color, type, spacing, elevation and motion; session.css and
+   index.css consume these variables and keep only component rules.
+   Deviation from the DS source: fonts are self-hosted via
+   @fontsource (CSP font-src 'self'), not Google Fonts.
+   ============================================================ */
+
+/* ---- Webfonts (ds/tokens/fonts.css) ----
+   Cinzel    → display: brand, headings, initiative score, timer.
+   Work Sans → body: controls, tables, captures, long-form notes. */
+@import '@fontsource/work-sans/latin-400.css';
+@import '@fontsource/work-sans/latin-400-italic.css';
+@import '@fontsource/work-sans/latin-500.css';
+@import '@fontsource/work-sans/latin-600.css';
+@import '@fontsource/work-sans/latin-700.css';
+@import '@fontsource/cinzel/latin-500.css';
+@import '@fontsource/cinzel/latin-600.css';
+@import '@fontsource/cinzel/latin-700.css';
+
+/* ============================================================
+   Color (ds/tokens/colors.css)
+   Two planes and one accent.
+     • NAVY  is command chrome — the screen/paravento the DM sits behind.
+     • PAPER is the work surface — the page notes are written on.
+     • GOLD  is reserved. It means one thing only: the LIVE MARKER —
+       current position / active Focus / primary live action.
+   Everything structural is drawn with hairlines, not shadow.
+   ============================================================ */
+
+:root {
+  /* ---- Command / navy (the screen) ---- */
+  --as-navy: #061f36;          /* header, utility dock, presenter blackout */
+  --as-navy-soft: #123957;     /* raised navy: secondary buttons on chrome */
+  --as-navy-select: #0c2a45;   /* inputs/selects sitting on the navy header */
+  --as-navy-line: #547089;     /* hairline borders on navy */
+
+  /* ---- Gold — the reserved live accent ---- */
+  --as-gold: #e5ad32;          /* THE marker fill: active/current/live */
+  --as-gold-pale: #f8d887;     /* brand wordmark, soft gold surfaces */
+  --as-gold-strong: #c68a15;   /* gold strokes / active borders */
+  --as-gold-line: #9f7420;     /* gold hairline where navy meets gold */
+  --as-gold-ink: #875900;      /* eyebrow / section-label text on paper */
+  --as-gold-contrast: #102b49; /* ink used ON a gold fill (navy, not black) */
+
+  /* ---- Paper / parchment (the page) ---- */
+  --as-paper: #fbf7ee;         /* the content plane */
+  --as-paper-deep: #f3ebdc;    /* sunken parchment: rails, capture strip */
+  --as-surface: #fffdf8;       /* a raised leaf on the paper (cards, inputs) */
+  --as-surface-raised: #ffffff;
+  --as-surface-sunken: #f8f1e5;/* margin notes, focus-context column */
+
+  /* ---- Ink / text ---- */
+  --as-ink: #122b49;           /* primary text + headings */
+  --as-ink-muted: #586678;     /* labels, meta, secondary */
+  --as-ink-soft: #425971;      /* long-form notebook body */
+
+  /* ---- Lines (structure lives here, not in shadow) ---- */
+  --as-line: #ddd4c3;          /* thin separators */
+  --as-line-strong: #b9ad98;   /* control borders / stronger rules */
+
+  /* ---- Semantic status ---- */
+  --as-success: #16893f;       /* healthy HP, saved, kept */
+  --as-success-ink: #146c33;   /* success text on paper */
+  --as-danger: #8a3d38;        /* remove, critical, destructive */
+  --as-warning: #9a5a0f;       /* bloodied (HP < half) text */
+  --as-warning-bar: #b5651d;   /* bloodied HP bar fill */
+  --as-turn: #f6d783;          /* "TURN" tag — a soft echo of the marker */
+  --as-turn-ink: #6d4a05;
+
+  /* ---- Focus rings ---- */
+  --as-focus: #68a8d8;         /* on-paper focus ring (session surfaces) */
+  --as-focus-shell: #d9b310;   /* on-chrome focus ring (shell) */
+
+  /* ============ SEMANTIC ALIASES — prefer these in components ============ */
+  --as-bg: var(--as-paper);
+  --as-text: var(--as-ink);
+  --as-text-muted: var(--as-ink-muted);
+  --as-heading: var(--as-ink);
+  --as-eyebrow: var(--as-gold-ink);
+
+  --as-accent: var(--as-gold);              /* the live marker */
+  --as-accent-strong: var(--as-gold-strong);
+  --as-accent-contrast: var(--as-gold-contrast);
+
+  --as-command: var(--as-navy);
+  --as-command-soft: var(--as-navy-soft);
+  --as-command-text: #f7ead0;               /* warm off-white on navy */
+
+  --as-border: var(--as-line);
+  --as-border-strong: var(--as-line-strong);
+  --as-focus-ring: var(--as-focus);
+}
+
+/* ============================================================
+   Dark theme — "Blu Arcano". The paper cools to slate-navy and
+   the ink warms to parchment; gold stays exactly as loud.
+   The app toggles class .dark-theme on <body> (themeStore).
+   ============================================================ */
+.dark-theme {
+  --as-paper: #101d2b;
+  --as-paper-deep: #0c1824;
+  --as-surface: #182b3e;
+  --as-surface-raised: #263553;
+  --as-surface-sunken: #142335;
+
+  --as-ink: #f5ead2;
+  --as-ink-muted: #a9b8c6;
+  --as-ink-soft: #cdd8e2;
+
+  --as-line: #34495d;
+  --as-line-strong: #536779;
+
+  --as-gold-ink: #f0c463;        /* eyebrows must lift off dark paper */
+  --as-success-ink: #7fd39b;
+}
+
+/* ============================================================
+   Typography (ds/tokens/typography.css)
+   Two families, sharply divided by job:
+     • DISPLAY (Cinzel)  — brand, scene titles, section headings,
+       and the two glanced numbers: initiative score and countdown.
+     • BODY (Work Sans)  — everything you operate.
+   Sizes are px (the cockpit is a fixed instrument).
+   ============================================================ */
+
+:root {
+  --as-font-display: 'Cinzel', Georgia, 'Times New Roman', serif;
+  --as-font-body: 'Work Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* ---- Type scale (px) ---- */
+  --as-text-eyebrow: 10px;  /* uppercase section labels */
+  --as-text-xs: 11px;       /* meta, hints, chip text */
+  --as-text-sm: 12px;       /* dense controls, table cells */
+  --as-text-base: 13px;     /* default UI / capture input */
+  --as-text-md: 15px;       /* comfortable body, recap lines */
+  --as-text-lg: 18px;       /* small headings, scene sub-titles */
+  --as-text-xl: 22px;       /* panel titles (h2) */
+  --as-text-2xl: 25px;      /* scene headings, initiative score, timer */
+  --as-text-3xl: 32px;      /* hero / brand-scale display */
+  --as-text-display: 50px;  /* read-aloud presenter blackout */
+
+  /* ---- Weights ---- */
+  --as-weight-regular: 400;
+  --as-weight-medium: 500;
+  --as-weight-semibold: 600;
+  --as-weight-bold: 700;
+
+  /* ---- Tracking ---- */
+  --as-tracking-eyebrow: 0.12em;  /* the wide-set uppercase label */
+  --as-tracking-caps: 0.06em;     /* smaller all-caps runs */
+  --as-tracking-brand: 0.02em;    /* Cinzel wordmark */
+
+  /* ---- Line heights ---- */
+  --as-leading-tight: 1.4;
+  --as-leading: 1.5;
+  --as-leading-relaxed: 1.6;
+}
+
+/* ============================================================
+   Spacing, radii & border widths (ds/tokens/spacing.css)
+   The cockpit is drawn tight; radii stay small (8px ceiling) so
+   surfaces read as leaves of paper, never as pill-soft web cards.
+   ============================================================ */
+
+:root {
+  --as-space-0: 0;
+  --as-space-1: 4px;
+  --as-space-2: 6px;
+  --as-space-3: 8px;
+  --as-space-4: 10px;
+  --as-space-5: 12px;
+  --as-space-6: 14px;
+  --as-space-7: 18px;
+  --as-space-8: 22px;
+  --as-space-9: 28px;
+  --as-space-10: 36px;
+
+  --as-radius-xs: 3px;    /* checkboxes, tiny tags */
+  --as-radius-sm: 4px;    /* inline inputs, condition chips */
+  --as-radius-md: 5px;    /* icon buttons, dock controls */
+  --as-radius-lg: 6px;    /* buttons, cards, selects */
+  --as-radius-xl: 8px;    /* panels, toggles */
+  --as-radius-2xl: 10px;  /* overlays, popovers, review trays */
+  --as-radius-pill: 999px;
+  --as-radius-circle: 50%;
+
+  --as-border-width: 1px;         /* the hairline that draws structure */
+  --as-border-width-accent: 3px;  /* the live-marker left border / underline */
+
+  /* ---- Control heights (touch-safe: never below 24px, live ≥ 34px) ---- */
+  --as-control-sm: 30px;
+  --as-control-md: 34px;
+  --as-control-lg: 42px;   /* header controls, dock controls */
+  --as-control-xl: 48px;   /* primary live action */
+}
+
+/* ============================================================
+   Elevation (ds/tokens/elevation.css)
+   Restraint is the rule. Shadow is spent only where something
+   LIFTS OFF the plane: popovers, panels, overlays.
+   ============================================================ */
+
+:root {
+  /* A leaf of paper barely lifted (margin notes, minted card) */
+  --as-shadow-card: 0 2px 4px rgba(18, 43, 73, 0.08);
+
+  /* A popover opened from the dock (dice tray, timer, oracle) */
+  --as-shadow-popover: 0 12px 32px rgba(4, 20, 34, 0.28);
+
+  /* A floating panel (party glance) */
+  --as-shadow-panel: 0 14px 34px rgba(4, 20, 34, 0.26);
+
+  /* A modal tray over the whole session (capture review, recap) */
+  --as-shadow-overlay: 0 18px 55px rgba(24, 33, 42, 0.25);
+
+  /* The gold marker as a ring — used on a just-minted / newly-live thing */
+  --as-ring-accent: 0 0 0 1px rgba(229, 173, 50, 0.55);
+}
+
+/* ============================================================
+   Motion (ds/tokens/motion.css)
+   The signature move is "ink-settle" (owned by session.css).
+   Nothing loops, nothing bounces; everything yields to
+   prefers-reduced-motion.
+   ============================================================ */
+
+:root {
+  --as-ease: cubic-bezier(0.22, 0.68, 0.34, 1); /* ink-settle glide */
+  --as-ease-inout: ease-in-out;
+  --as-ease-out: ease-out;
+
+  --as-duration-fast: 150ms;    /* hover, press */
+  --as-duration: 300ms;         /* tour, drawer, overlays */
+  --as-duration-settle: 360ms;  /* the Focus ink-settle */
+  --as-duration-theme: 500ms;   /* light ⇄ dark cross-fade */
+}
+
+/* ---- Base accents (ds/tokens/base.css, selectively) ----
+   index.css owns element defaults; the DS selection color applies
+   globally: gold, with navy ink — never black on gold. */
+::selection {
+  background: var(--as-gold-pale);
+  color: var(--as-gold-contrast);
+}
