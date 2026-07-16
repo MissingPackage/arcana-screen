@@ -407,7 +407,7 @@
 .npc-avatar { display: grid; width: 36px; height: 36px; place-items: center; border: 1px solid var(--as-line-strong); border-radius: 50%; }
 .npc-list h3 { margin: 0; font-size: 13px; }
 .npc-list p { margin: 2px 0 0; font-size: 10px; }
-.npc-list button { align-self: start; padding: 4px 7px !important; border: 1px solid #c6ad77 !important; border-radius: 4px !important; color: var(--as-gold-ink) !important; background: #fff4d4 !important; font-size: 9px !important; }
+.npc-list button { align-self: start; padding: 4px 7px !important; border: 1px solid var(--as-line-strong) !important; border-radius: 4px !important; color: var(--as-gold-ink) !important; background: var(--as-gold-wash) !important; font-size: 9px !important; }
 .section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .mint-npc-form { display: flex; align-items: center; gap: 6px; }
 .arcana-session .mint-npc-form input { width: 118px; padding: 5px 8px; color: var(--as-ink); background: var(--as-surface-raised); border: 1px solid var(--as-line-strong); border-radius: 5px; font-size: 11px; }
