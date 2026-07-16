@@ -1,6 +1,6 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-07-16, iterazione 5 del product-loop (verifier iter.4 PASS, D5 chiuso, D10 aperto)
+Aggiornato: 2026-07-16, iterazione 6 del product-loop (D4 chiuso via PR #87; loop verso stop-by-design)
 
 ## Stato corrente
 
@@ -30,18 +30,17 @@ Aggiornato: 2026-07-16, iterazione 5 del product-loop (verifier iter.4 PASS, D5 
 
 ## §next-decidable (in ordine)
 
-1. **D4 — literal sweep di session.css** (ultima slice non gated): tokenizzare
-   i residui a rischio-contrasto basso (famiglia #314c64/#526779, gold wash) con
-   gate axe + matrice. index.css profondo resta fuori (slice separata, grande).
-2. **Righe acceptance-matrix non verdi**: riesame dopo i merge (gated D1/D8/D8b).
-3. Ruling attesi: D3 (color-scheme), D9 (dependabot groups), D10 (workflow
-   project-update mai eseguito — typo "worklows").
-Dopo D4 il lavoro non-gated è esaurito → stop-by-design del loop, in attesa di
-merge e ruling.
+Lavoro non-gated ESAURITO salvo D11 (contrasto dark del toggle Prepare/Run
+nell'header + axe dark della shell Prepare + sweep profonda index.css — slice
+media, ultima candidata). Tutto il resto è gated:
 
-Chiusi: D6 (PR #83 CI), Timer (PR #84), D2 (PR #85), D7 (PR #86 — merge in
-D8b). PR #85 CI confermata: rossa solo sul lane WebKit, come previsto.
-Item 1 e 3 della Sequenza immediata restano human-gated.
+- Merge: D1 (#83 → #84), D8 (#85), D8b (#86 + chiudere #80/#82), D4b (#87).
+- Ruling: D3 (color-scheme), D9 (dependabot groups), D10 (workflow
+  project-update mai eseguito).
+- Post-merge: riesame righe acceptance-matrix.
+
+Se D11 non viene autorizzata/prioritizzata, il loop si ferma by design al
+prossimo giro.
 
 ## Protocollo
 

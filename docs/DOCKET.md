@@ -11,10 +11,13 @@ non li assorbe. Quando Linear è raggiungibile, migrare gli item aperti.
 - D3 [2026-07-16] [design/decisione] Il DS definisce `color-scheme: light/dark`
   (colors.css); non adottato per non cambiare il rendering nativo di
   scrollbar/controlli. Decidere se adottarlo.
-- D4 [2026-07-16] [design/coverage] Letterali non tokenizzati residui:
-  session.css (famiglia `#314c64`/`#526779`, gold wash `#fff8e7/#fff8e8/#fffaf0`,
-  cerchietti beat `#b98618`) e la sweep profonda di index.css (~2900 righe).
-  Candidato per /pattern-coverage.
+- D4b [2026-07-16] [merge] Mergiare PR #87 (sweep letterali session.css, axe
+  dark del cockpit a zero violazioni). Indipendente dalle altre PR.
+- D11 [2026-07-16] [bug/dark-theme] `.screen-mode__button` (header shell,
+  index.css) fallisce il contrasto axe in dark theme — unico nodo residuo dopo
+  la sweep D4. Slice piccola; insieme: axe dark completo della shell Prepare
+  (mai scansionata). Include anche la sweep profonda di index.css (~2900 righe)
+  che resta fuori da D4.
 - D10 [2026-07-16] [decisione/ci] `.github/worklows/project-update.yml` (typo:
   "worklows") esiste dal commit di setup 342ae79 e NON è mai stato eseguito —
   GitHub legge solo `workflows/`. Automazione project-board su ogni push/PR:
@@ -32,6 +35,10 @@ non li assorbe. Quando Linear è raggiungibile, migrare gli item aperti.
   evidenza full-matrix ottenuta su merge locale di integrazione (37+3, 0 failed).
 
 ## Chiusi
+
+- D4 [2026-07-16 → 2026-07-16] [design/coverage] Sweep session.css su PR #87:
+  hex unici 71 → 44, gold-wash token, axe dark cockpit 0 violazioni
+  (evidenza: docs/verification/2026-07-16-dark-theme-sweep.md).
 
 - D5 [2026-07-16 → 2026-07-16] [docs] Numeri budget in ROADMAP riconciliati con
   lo script (560 JS / 130 CSS; attuali: 119.0 CSS, max JS = chunk react, 191.8 su react 19.1.0 / 198.8 su 19.2.7). Correzione post-verifier: la prima stesura citava solo 191.8.
