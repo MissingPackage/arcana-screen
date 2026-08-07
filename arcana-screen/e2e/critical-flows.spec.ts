@@ -90,7 +90,7 @@ test("@critical has no automatic WCAG 2.2 A/AA violations in the core shell", as
 
 test("@critical has no automatic WCAG 2.2 A/AA violations in dark theme", async ({
   page,
-}, testInfo) => {
+}) => {
   // The light-only scan above was blind to three real dark-theme contrast bugs
   // (docket D2/D4/D11): each was a custom surface that went dark while a nested
   // piece stayed light — invisible unless the same surfaces are scanned dark.
@@ -119,15 +119,7 @@ test("@critical has no automatic WCAG 2.2 A/AA violations in dark theme", async 
     expect(found, surface).toEqual([]);
   };
 
-  // WebKit does not always restyle the legacy Prepare grid when body.dark-theme
-  // is added: its text keeps light-theme ink (#586678, #122b49) on the now-dark
-  // surfaces, so the grid reads dark-on-dark until a reload. Confirmed against
-  // Chromium, which restyles correctly. Real defect, tracked as docket D17 —
-  // this one surface is exempt on WebKit only; every other surface and engine
-  // stays strict, and this exemption goes away when D17 closes.
-  if (testInfo.project.name !== "webkit-desktop") {
-    await violationsOn("Prepare");
-  }
+  await violationsOn("Prepare");
 
   await page.getByRole("button", { name: "Run", exact: true }).click();
   await expect(
