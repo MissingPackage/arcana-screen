@@ -10,13 +10,24 @@ gli item aperti.
 
 ## Aperti
 
+- D21 [2026-08-07] [deps/ci] **BLOCCANTE PER TUTTI I MERGE.** Lo step CI "Audit
+  all dependencies" (`npm run check:security` = `npm audit --audit-level=high`)
+  esce **1 su qualsiasi branch, `dev` compreso**: quattro advisory pubblicate
+  contro versioni gia' pinnate — `brace-expansion`, `js-yaml`, `undici` (high) e
+  `postcss` (moderate). Verificato che NON sono state introdotte dal bump react:
+  le versioni sono identiche fra `origin/dev` e `deps/react-19.2.8`. La
+  produzione e' pulita — `npm audit --omit=dev --audit-level=moderate` esce 0 —
+  quindi il rischio reale e' limitato al tooling di build/test, ma il gate
+  blocca comunque ogni PR, incluse quelle di D18 e D20. Tutte e quattro hanno
+  `fixAvailable`. Prossima slice del loop.
 - D20 [2026-08-07] [merge] Mergiare **PR #99** (bump combinato react/react-dom
   19.2.8 + types) e poi CHIUDERE #93 e #94 come superate — sono lo stesso
   guasto di D7: ciascuna da sola disallinea react e react-dom, tutte le suite
   muoiono all'import, `quality=FAILURE` su entrambe e nessuna delle due potra'
   diventare verde. Gate della #99 in locale: `test:ci` 136/136, e2e 37+3 con 0
   failed (37 e non 41 perche' il branch parte da `dev` e non contiene il gate
-  dark, che vive su `test/dark-axe-critical`).
+  dark, che vive su `test/dark-axe-critical`). **La CI della #99 e' rossa per
+  D21, non per il bump**: cade sullo step di audit, che `test:ci` non esegue.
 - D18 [2026-08-07] [merge] Mergiare `test/dark-axe-critical` (gate dark + ripristino
   della fix D11). Gate: `test:ci` 136/136, matrice e2e 41+3 con 0 failed.
 - D15 [2026-08-07] [docs] `docs/specs/acceptance-matrix.md` è stantia: cita

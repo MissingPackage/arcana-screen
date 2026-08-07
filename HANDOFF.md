@@ -20,6 +20,10 @@ tutti, e HANDOFF/DOCKET erano rimasti indietro di tre settimane. Ruling
 - Gate ri-verificati il 2026-08-07 su `test/dark-axe-critical` (che parte dal
   tip di `dev`): `test:ci` 136/136 + lint 0 errori + CSS 119.6/130 KiB; e2e
   **41 passed + 3 skip, 0 failed** su tutta la matrice, WebKit incluso.
+- **`test:ci` NON equivale al gate CI.** Il workflow `Quality gate` esegue in
+  più `npm run check:security` (audit di tutte le dipendenze) e la matrice
+  browser. Un `test:ci` verde non ha mai implicato una CI verde, ed è così che
+  la #99 è passata in locale ed è caduta su GitHub.
 - Trappola operativa aggravata: il webServer Playwright è `npm run preview`, che
   serve `dist`. Una modifica a CSS/TS **non** si vede finché non si rifà
   `npm run build`, e `reuseExistingServer` ricicla un preview stantio. Il worktree
@@ -47,8 +51,12 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 
 ## §next-decidable (in ordine)
 
-1. **D15** — riesame di `docs/specs/acceptance-matrix.md`, stantia.
-2. Ruling dell'utente aperti: **D18** (merge di `test/dark-axe-critical`),
+1. **D21** — sbloccare la CI: `check:security` esce 1 su ogni branch, `dev`
+   incluso, e blocca tutti i merge. Quattro advisory su dipendenze di sviluppo,
+   tutte con fix disponibile. **Va prima di ogni altra cosa**: finche' e' rosso,
+   nessuna PR puo' essere mergiata con la CI verde.
+2. **D15** — riesame di `docs/specs/acceptance-matrix.md`, stantia.
+3. Ruling dell'utente aperti: **D18** (merge di `test/dark-axe-critical`),
    **D20** (merge della PR #99 + chiusura di #93/#94), **D16** (revoca dei
    secret orfani, incluso il PAT `TOKEN`).
 
