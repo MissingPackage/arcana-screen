@@ -8,7 +8,8 @@ riparte da **D13**.
 
 ## Stato corrente
 
-- `origin/dev` @ `22bb1e2`. Contiene tutte le PR feature del ciclo precedente:
+- `origin/dev` @ `5817277` (i due commit dei ruling del 2026-08-07 sono sopra
+  `22bb1e2`). Il tip contiene tutte le PR feature del ciclo precedente:
   #83 (fix CSP WebKit), #84 (prova Timer post-sospensione), #85 (input dark),
   #86 (react allineato 19.2.7), #87 (sweep session.css), #88 (toggle
   Prepare/Run dark), #89 (token shell header). Sopra ci sono solo bump
@@ -53,6 +54,21 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 4. **D15** — riesame di `docs/specs/acceptance-matrix.md`, stantia.
 5. Ruling dell'utente ancora aperti: **D18** (merge di `test/dark-axe-critical`)
    e **D16** (revoca dei secret orfani, incluso il PAT `TOKEN`).
+
+## Ruling di protocollo presi il 2026-08-07 (loop-verifier iterazione 11)
+
+- **Residue-routing, eccezione a verbale.** Il ripristino della fix D11 è stato
+  assorbito nella slice D13 invece di finire a docket. Regola confermata con
+  un'eccezione esplicita: se il deliverable della slice è un *gate* e il gate è
+  rosso per un difetto pre-esistente, il difetto minimo che lo rende verde
+  entra nella slice — altrimenti si consegna un gate rosso, che è peggio.
+  L'eccezione va sempre giustificata nel corpo del commit.
+- **Contraddizione di policy sui branch.** `CLAUDE.md` di progetto dice "commit
+  + push su `origin/dev` a ogni unità di lavoro"; la direttiva del loop dice
+  "nessun merge su dev, PR-ready è lo stato obiettivo". Vince **la direttiva del
+  loop** per il lavoro di slice: si lavora su feature branch e il merge resta
+  ruling dell'utente. La riga di `CLAUDE.md` va letta come riferita ai commit di
+  documentazione/protocollo fuori dal loop.
 
 ## Protocollo
 
