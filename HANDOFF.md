@@ -1,7 +1,8 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-08-07, iterazione 17 — **loop fermo by design**, lavoro
-non-gated esaurito. Iterazioni: 17 (D15, PR #101), 16 (D21, PR #100), 15 (D14,
+Aggiornato: 2026-08-07, dopo i merge. `dev` @ `1c1ff4f` contiene lo sblocco
+della CI, react 19.2.8 e il gate axe dark con i suoi tre fix. Loop fermo:
+lavoro non-gated esaurito. Iterazioni: 17 (D15, PR #101), 16 (D21, PR #100), 15 (D14,
 PR #99), 14 (D3), 13 (D17), 12 (diagnosi D17), 11 (D13). Il loop era fermo by design dal
 2026-07-16 (it. 10) in attesa dei merge dell'utente: i merge sono avvenuti
 tutti, e HANDOFF/DOCKET erano rimasti indietro di tre settimane. Ruling
@@ -17,9 +18,10 @@ tutti, e HANDOFF/DOCKET erano rimasti indietro di tre settimane. Ruling
   dependabot di CI actions.
 - Applicato il 2026-08-07: gruppo `react` in `.github/dependabot.yml` (D9) ed
   eliminazione di `.github/worklows/` (D10). Motivazioni per esteso nel docket.
-- Gate ri-verificati il 2026-08-07 su `test/dark-axe-critical` (che parte dal
-  tip di `dev`): `test:ci` 136/136 + lint 0 errori + CSS 119.6/130 KiB; e2e
-  **41 passed + 3 skip, 0 failed** su tutta la matrice, WebKit incluso.
+- Gate su `dev` dopo i merge: `test:ci` 136/136 + lint 0 errori + CSS
+  119.6/130 KiB; `check:security` exit 0; e2e **41 passed + 3 skip, 0 failed**
+  su tutta la matrice, WebKit incluso. La CI di GitHub è verde su tutti e
+  cinque i job — verificata su ciascuna PR prima del merge.
 - **`test:ci` NON equivale al gate CI.** Il workflow `Quality gate` esegue in
   più `npm run check:security` (audit di tutte le dipendenze) e la matrice
   browser. Un `test:ci` verde non ha mai implicato una CI verde, ed è così che
@@ -51,16 +53,15 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 
 ## §next-decidable (in ordine)
 
-Lavoro non-gated: **ESAURITO** (D15 chiuso). Il loop si ferma by design per la
-terza volta: tutto ciò che resta dipende da un merge dell'utente.
+I merge hanno riaperto lavoro non-gated: il gate dark è in `dev`, quindi la
+riga *Accessibility/input* della matrice può essere promossa. Il loop può
+ripartire con `/loop /product-loop`.
 
-1. Ruling dell'utente aperti, **in quest'ordine**: **D22** (merge PR #100 —
-   sblocca la CI, va per prima), poi **D20** (merge PR #99 + chiusura di
-   #93/#94) e **D18** (merge di `test/dark-axe-critical`); **D23** (merge PR
-   #101, documentazione, indipendente); infine **D16** (revoca dei secret
-   orfani, incluso il PAT `TOKEN`).
-2. Post-merge, primo item del loop: promuovere la riga *Accessibility/input*
-   della matrice, che potrà citare il dark solo quando D18 sarà in `dev`.
+1. **Promuovere la riga *Accessibility/input*** della matrice di accettazione:
+   ora che il gate dark è in `dev`, può citarlo. Va coordinato con la PR #101,
+   che tocca lo stesso file ed è ancora aperta.
+2. Ruling dell'utente ancora aperti: **D23** (merge PR #101, documentazione) e
+   **D16** (revoca dei secret orfani, incluso il PAT `TOKEN`).
 
 ## Ruling di protocollo presi il 2026-08-07 (loop-verifier iterazione 11)
 

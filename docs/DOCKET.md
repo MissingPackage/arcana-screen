@@ -12,20 +12,6 @@ gli item aperti.
 
 - D23 [2026-08-07] [merge] PR #101, revisione dell'acceptance-matrix. Solo
   documentazione, indipendente dalle altre.
-- D22 [2026-08-07] [merge] **DA MERGIARE PER PRIMA.** PR #100 sblocca
-  `check:security`, che usciva 1 su ogni branch e bloccava qualunque merge.
-  Finché non entra, né #99 né `test/dark-axe-critical` possono avere la CI
-  verde.
-- D20 [2026-08-07] [merge] Mergiare **PR #99** (bump combinato react/react-dom
-  19.2.8 + types) e poi CHIUDERE #93 e #94 come superate — sono lo stesso
-  guasto di D7: ciascuna da sola disallinea react e react-dom, tutte le suite
-  muoiono all'import, `quality=FAILURE` su entrambe e nessuna delle due potra'
-  diventare verde. Gate della #99 in locale: `test:ci` 136/136, e2e 37+3 con 0
-  failed (37 e non 41 perche' il branch parte da `dev` e non contiene il gate
-  dark, che vive su `test/dark-axe-critical`). **La CI della #99 e' rossa per
-  D21, non per il bump**: cade sullo step di audit, che `test:ci` non esegue.
-- D18 [2026-08-07] [merge] Mergiare `test/dark-axe-critical` (gate dark + ripristino
-  della fix D11). Gate: `test:ci` 136/136, matrice e2e 41+3 con 0 failed.
 - D16 [2026-08-07] [security] Il repo ha 7 secret creati il 2025-04-26 per il
   workflow project-board eliminato in D10: `TOKEN` (verosimilmente un PAT),
   `PROJECT_ID`, `STATUS_FIELD_ID`, `IN_PROGRESS_OPTION_ID`,
@@ -35,6 +21,17 @@ gli item aperti.
   ignoto e nessun consumatore.
 
 ## Chiusi
+
+- D22 / D20 / D18 [2026-08-07 → 2026-08-07] [merge] **Mergiati tutti e tre in
+  `dev` su autorizzazione esplicita dell'utente**, in quest'ordine e ciascuno
+  con la CI verde come precondizione: **#100** (sblocco di `check:security`),
+  **#99** (react 19.2.8 combinato), **#103** (gate axe dark + fix D11/D17/D3,
+  aperta da `test/dark-axe-critical`). #99 e #103 sono state aggiornate da `dev`
+  prima del merge e il lockfile riconciliato con npm invece che dal merge
+  testuale — verificato che react e react-dom restassero allineati e che
+  `check:security` restasse a 0. Coda di D20: **#93 e #94 si sono chiuse da
+  sole**, dependabot le ha ritirate appena react ha raggiunto 19.2.8 in `dev`;
+  non è stato necessario chiuderle a mano.
 
 - D15 [2026-08-07 → 2026-08-07] [docs] Acceptance-matrix riallineata (**PR
   #101**). Era ferma a prima dei merge del 2026-07-16: citava come aperti la
