@@ -101,15 +101,21 @@ gli item aperti.
   attivato un job **rotto per costruzione su ogni push di ogni branch**.
   Strascico → D16 (secret orfani).
 
-- D3 [2026-07-16 → 2026-08-07] [design] **RULING: adottare `color-scheme`.**
-  Oggi non compare da nessuna parte in `src/`. Senza di esso il chrome nativo
-  (scrollbar, caret, autofill, controlli interni) resta chiaro sotto dark
-  theme: è esattamente la classe di difetto di D2/D4/D11, che erano tutti
-  "superficie custom scura, pezzo nativo chiaro". Adozione scoped (light di
-  default, `dark` sotto `body.dark-theme`), da implementare **dopo D13** in
-  modo che sia la suite axe dark a fare da gate. Se la verifica mostra una
-  regressione sugli input appena corretti in D2, il ruling si rovescia e resta
-  a verbale il perché.
+- D3 [2026-07-16 → 2026-08-07] [design] **RULING: adottato, e implementato.**
+  Il DS lo definiva; la port del token layer l'aveva lasciato indietro. Senza,
+  il chrome nativo (scrollbar, caret, autofill, interni dei select) restava
+  chiaro sotto dark: stessa classe di difetto di D2/D4/D11. Implementato in
+  `tokens.css`: `color-scheme: light` su `:root`, `dark` su `.dark-theme`, più
+  `html:has(body.dark-theme)` — senza quest'ultima la scrollbar della finestra
+  restava chiara, perché segue l'elemento radice mentre la classe di tema vive
+  su `body` (misurato: `html` restava `light` con `body` già `dark`).
+  Verifica: su tutte e quattro le lane `body`/`html`/`input` passano tutti da
+  `light` a `dark`; il tema light è invariato per costruzione (`color-scheme:
+  light` è ciò che il browser assume comunque). Gli input di D2 **non**
+  regrediscono: 11.23:1 in dark, 14.08:1 in light. Il ruling prevedeva di
+  rovesciarsi in caso di regressione sugli input: non si è verificata.
+  Limite noto: axe non ispeziona il chrome nativo, quindi il gate dark è
+  necessario ma non sufficiente — la prova è la misura dei computed style.
 
 - D1 / D4b / D8 / D8b / D11b / D12b [2026-07-16 → 2026-07-16] [merge] Tutti
   mergiati in `dev` il 2026-07-16 dall'utente: #83 (fix CSP WebKit), #87

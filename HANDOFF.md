@@ -1,8 +1,8 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-08-07, iterazione 13 (**D17 chiusa**: dark theme ora si
-applica su WebKit senza reload, esenzione rimossa dal gate). Iterazioni
-precedenti: 12 (diagnosi D17), 11 (D13 chiusa). Il loop era fermo by design dal
+Aggiornato: 2026-08-07, iterazione 14 (**D3 chiusa**: `color-scheme` adottato,
+chrome nativo allineato al tema). Iterazioni precedenti: 13 (D17 chiusa), 12
+(diagnosi D17), 11 (D13 chiusa). Il loop era fermo by design dal
 2026-07-16 (it. 10) in attesa dei merge dell'utente: i merge sono avvenuti
 tutti, e HANDOFF/DOCKET erano rimasti indietro di tre settimane. Ruling
 `[decisione]`/`[design]`/`[ci]`/`[deps]` presi dal loop (D3, D9, D10).
@@ -47,11 +47,9 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 
 ## §next-decidable (in ordine)
 
-1. **D3** — adozione di `color-scheme` scoped (ruling già preso), ora con il
-   gate axe dark stretto su tutte e quattro le lane a fare da rete.
-2. **D14** — bump combinato react/react-dom 19.2.8, poi chiudere #93/#94.
-3. **D15** — riesame di `docs/specs/acceptance-matrix.md`, stantia.
-4. Ruling dell'utente ancora aperti: **D18** (merge di `test/dark-axe-critical`)
+1. **D14** — bump combinato react/react-dom 19.2.8, poi chiudere #93/#94.
+2. **D15** — riesame di `docs/specs/acceptance-matrix.md`, stantia.
+3. Ruling dell'utente ancora aperti: **D18** (merge di `test/dark-axe-critical`)
    e **D16** (revoca dei secret orfani, incluso il PAT `TOKEN`).
 
 ## Ruling di protocollo presi il 2026-08-07 (loop-verifier iterazione 11)
