@@ -10,19 +10,22 @@ gli item aperti.
 
 ## Aperti
 
-- D13 [2026-07-16] [ci] Variante dark del test axe nella suite `@critical` (i
-  bug D2/D4/D11 erano invisibili al gate light-only). **SBLOCCATA il
-  2026-08-07**: era merge-gated su #85/#87/#88, tutte e tre ora in `dev`.
-  Prossimo item del loop.
-- D14 [2026-08-07] [deps] D7 si sta ripetendo: dependabot ha di nuovo spezzato
-  il bump react in #93 (react 19.2.8) e #94 (react-dom 19.2.8), entrambe
-  `quality=FAILURE`. Serve un bump combinato come fu #86, poi chiudere #93/#94
-  come superate. Il fix strutturale (D9) è già in `dev` ma agisce solo sui bump
-  futuri, non su PR già aperte.
-- D15 [2026-08-07] [docs] `docs/specs/acceptance-matrix.md` è stantia: cita
-  ancora "WebKit CI pending" e "long suspension open", entrambi chiusi il
-  2026-07-16. Riesame delle 16 `partial` / 3 `missing` / 2 `red` / 2 `blocked`
-  alla luce di quanto è stato realmente mergiato.
+- D23 [2026-08-07] [merge] PR #101, revisione dell'acceptance-matrix. Solo
+  documentazione, indipendente dalle altre.
+- D22 [2026-08-07] [merge] **DA MERGIARE PER PRIMA.** PR #100 sblocca
+  `check:security`, che usciva 1 su ogni branch e bloccava qualunque merge.
+  Finché non entra, né #99 né `test/dark-axe-critical` possono avere la CI
+  verde.
+- D20 [2026-08-07] [merge] Mergiare **PR #99** (bump combinato react/react-dom
+  19.2.8 + types) e poi CHIUDERE #93 e #94 come superate — sono lo stesso
+  guasto di D7: ciascuna da sola disallinea react e react-dom, tutte le suite
+  muoiono all'import, `quality=FAILURE` su entrambe e nessuna delle due potra'
+  diventare verde. Gate della #99 in locale: `test:ci` 136/136, e2e 37+3 con 0
+  failed (37 e non 41 perche' il branch parte da `dev` e non contiene il gate
+  dark, che vive su `test/dark-axe-critical`). **La CI della #99 e' rossa per
+  D21, non per il bump**: cade sullo step di audit, che `test:ci` non esegue.
+- D18 [2026-08-07] [merge] Mergiare `test/dark-axe-critical` (gate dark + ripristino
+  della fix D11). Gate: `test:ci` 136/136, matrice e2e 41+3 con 0 failed.
 - D16 [2026-08-07] [security] Il repo ha 7 secret creati il 2025-04-26 per il
   workflow project-board eliminato in D10: `TOKEN` (verosimilmente un PAT),
   `PROJECT_ID`, `STATUS_FIELD_ID`, `IN_PROGRESS_OPTION_ID`,
@@ -32,6 +35,80 @@ gli item aperti.
   ignoto e nessun consumatore.
 
 ## Chiusi
+
+- D15 [2026-08-07 → 2026-08-07] [docs] Acceptance-matrix riallineata (**PR
+  #101**). Era ferma a prima dei merge del 2026-07-16: citava come aperti la
+  prova Timer post-sospensione (automatizzata dal PR #84) e il lane WebKit
+  (verde in CI dal PR #83). Effetto: `partial` 8 → 6, `manual-pass` 11 → 12,
+  `green` 3 → 4. **Correzione di un errore mio**: avevo riportato "3 missing,
+  2 red, 2 blocked" nel digest dell'iterazione 11 — sono zero tutte e tre. Quel
+  conteggio veniva da un grep che pescava la legenda e la frase di chiusura
+  invece delle celle. Il quadro di accettazione è migliore di come l'avevo
+  descritto. Registrato anche cosa tiene ferme le righe `partial`: quasi mai il
+  codice — evidenza browser solo `manual-pass`, UI di validazione incompleta,
+  audit moderato mancante, deploy di produzione mai eseguito.
+
+- D21 [2026-08-07 → 2026-08-07] [deps/ci] Gate di sicurezza sbloccato con
+  **PR #100**. Quattro advisory pubblicate contro versioni già pinnate
+  (`brace-expansion`, `js-yaml`, `undici` high; `postcss` moderate): non erano
+  le dipendenze a essere cambiate, erano le advisory a essere nuove — ecco
+  perché il rosso è comparso senza che nessuno toccasse nulla. `npm audit fix`
+  senza `--force`: solo lockfile, 6 pacchetti transitivi patch/minor, 0
+  aggiunti, 0 rimossi, `package.json` invariato. `check:security` passa da
+  exit 1 a exit 0; l'audit di produzione era già 0 e resta 0, quindi il rischio
+  era confinato al tooling. Gate: `test:ci` 136/136, e2e 37+3 con 0 failed.
+
+- D14 [2026-08-07 → 2026-08-07] [deps] Recidiva dello split bump react
+  risolta con un bump combinato manuale sul branch `deps/react-19.2.8`, come fu
+  la PR #86 per 19.2.7 → **PR #99**. Branch creato **da `origin/dev`** e non
+  impilato su `test/dark-axe-critical`: e' l'applicazione diretta della lezione
+  di D11, dove una PR impilata su un'altra non ancora mergiata ne ha revertito
+  la fix al merge. Verificato che `react` e `react-dom` risolvano alla stessa
+  versione nel lockfile — e' esattamente il controllo che il guasto di D7
+  richiedeva e che nessuno faceva. Il merge e la chiusura di #93/#94 → D20.
+
+- D17 [2026-08-07 → 2026-08-07] [bug/webkit] **CHIUSO.** WebKit non ri-risolve i
+  `var()` dei discendenti quando una custom property cambia su un antenato: dopo
+  il toggle dark la griglia Prepare restava inchiostro light su fondo scuro
+  (1.16:1 sui pulsanti del notebook) fino a un reload. Escluse per misura tre
+  ipotesi: non è la cascade (la custom property è già corretta su `body`), non è
+  l'alias gotcha di CLAUDE.md (gli alias sono già ri-dichiarati), non è
+  l'indirezione a due livelli (regola col token diretto `var(--as-ink-muted)`:
+  fallisce identicamente). Otto rimedi falliti, uno funziona: detach/reattach di
+  `body` in `applyThemeToDOM`. Costo misurato su tutta la matrice: focus,
+  selezione di testo e scroll dei contenitori interni **tutti preservati** — la
+  regressione di accessibilità che temevo non esiste. L'esenzione WebKit è stata
+  rimossa dal gate dark: ora stretto su tutte e quattro le lane. Gate: `test:ci`
+  136/136, e2e 41+3 con 0 failed; controprova di non-vacuità: disattivando il
+  rimedio WebKit torna rosso con le stesse violazioni. Due precisazioni dal
+  loop-verifier, entrambe recepite: (a) `applyThemeToDOM` è chiamata anche da
+  `onRehydrateStorage`, quindi il rimedio gira **a ogni caricamento** oltre che
+  a ogni toggle — il gate di performance all'avvio resta verde, ma un controllo
+  di FOUC all'idratazione non è coperto da nessun gate (→ D19); (b) la lettura
+  di `offsetHeight` **fra** le due scritture di `display` è portante: misurato,
+  rimuovendola il gate dark torna rosso su WebKit. Il commento nel codice ora lo
+  dice esplicitamente, perché elencava la lettura fra i rimedi falliti e si
+  prestava a essere cancellata come codice morto.
+
+- D13 [2026-07-16 → 2026-08-07] [ci] Gate axe dark nella suite `@critical`
+  (branch `test/dark-axe-critical`): scansiona Prepare, i 4 Focus in Run e lo
+  stato dopo reload, con il tema attivato dal vero controllo di UI. Due
+  scoperte durante l'implementazione, entrambe a verbale nel commit: (1) senza
+  emulare `prefers-reduced-motion` axe campiona i colori a metà transizione e
+  produce violazioni fantasma **diverse a ogni run e a ogni engine** — è la
+  ragione per cui la prima diagnosi ("10 bug dark su WebKit/mobile") era
+  sbagliata; (2) la fix D11 era regredita. Evidenza: `test:ci` 136/136, lint 0
+  errori, CSS 119.5/130 KiB, matrice e2e **41 passed + 3 skip, 0 failed**
+  (erano 37+3), test dark stabile su `--repeat-each=2` × 4 progetti.
+
+- D11 (regressione) [2026-08-07] Il fix del toggle Prepare/Run in dark (PR #88,
+  commit 76d4db4) è stato **cancellato dalla PR #89**: il suo branch conteneva
+  `ea0d9eb` "move the header-toggle dark fix out of this PR", che rimuoveva
+  l'hunk perché apparteneva a un'altra slice — ma il branch era stato creato
+  sopra #88 e la #89 è stata mergiata dopo, quindi la rimozione è diventata un
+  revert. Ripristinato su `test/dark-axe-critical`. Lezione strutturale: era
+  esattamente il tipo di regressione silenziosa che il gate D13 ora intercetta,
+  e nessun gate l'aveva vista per tre settimane.
 
 - D9 [2026-07-16 → 2026-08-07] [ci] **RULING: adottato.** Gruppo `react` in
   `.github/dependabot.yml`. Dettaglio che la proposta originale non copriva:
@@ -54,15 +131,31 @@ gli item aperti.
   attivato un job **rotto per costruzione su ogni push di ogni branch**.
   Strascico → D16 (secret orfani).
 
-- D3 [2026-07-16 → 2026-08-07] [design] **RULING: adottare `color-scheme`.**
-  Oggi non compare da nessuna parte in `src/`. Senza di esso il chrome nativo
-  (scrollbar, caret, autofill, controlli interni) resta chiaro sotto dark
-  theme: è esattamente la classe di difetto di D2/D4/D11, che erano tutti
-  "superficie custom scura, pezzo nativo chiaro". Adozione scoped (light di
-  default, `dark` sotto `body.dark-theme`), da implementare **dopo D13** in
-  modo che sia la suite axe dark a fare da gate. Se la verifica mostra una
-  regressione sugli input appena corretti in D2, il ruling si rovescia e resta
-  a verbale il perché.
+- D3 [2026-07-16 → 2026-08-07] [design] **RULING: adottato, e implementato.**
+  Il DS lo definiva; la port del token layer l'aveva lasciato indietro. Senza,
+  il chrome nativo (scrollbar, caret, autofill, interni dei select) restava
+  chiaro sotto dark: stessa classe di difetto di D2/D4/D11. Implementato in
+  `tokens.css`: `color-scheme: light` su `:root`, `dark` su `.dark-theme`, più
+  `html:has(body.dark-theme)` — senza quest'ultima la scrollbar della finestra
+  restava chiara, perché segue l'elemento radice mentre la classe di tema vive
+  su `body` (misurato: `html` restava `light` con `body` già `dark`).
+  Verifica: su tutte e quattro le lane `body`/`html`/`input` passano tutti da
+  `light` a `dark`. Gli input di D2 **non** regrediscono: `.widget-sidebar__search`
+  misura 11.23:1 in dark e 14.08:1 in light (l'elemento va nominato, altrimenti
+  il numero non è riproducibile). Il ruling prevedeva di rovesciarsi in caso di
+  regressione sugli input: non si è verificata.
+  CORREZIONE post-verifier: la prima stesura diceva che il tema light è
+  invariato "per costruzione, perché `color-scheme: light` è ciò che il browser
+  assume comunque". **È falso**: il valore iniziale è `normal`, non `light` —
+  misurato, prima del commit era `normal` su html/body/input in entrambi i temi.
+  La conclusione regge lo stesso, ma per misura e non per deduzione: con OS dark
+  emulato e app in tema light, 16/16 screenshot byte-identici prima/dopo su
+  tutte e quattro le lane, e nessun `prefers-color-scheme` nei bundle.
+  Limiti noti: (a) axe non ispeziona il chrome nativo, quindi il gate dark è
+  necessario ma non sufficiente; (b) la scrollbar della finestra **non** è stata
+  osservata a pixel — headless usa overlay scrollbar. Ciò che è provato è il
+  `color-scheme` calcolato su `html`; che ne discenda una scrollbar scura è
+  un'inferenza, per quanto solida (nulla in `src/` stila le scrollbar).
 
 - D1 / D4b / D8 / D8b / D11b / D12b [2026-07-16 → 2026-07-16] [merge] Tutti
   mergiati in `dev` il 2026-07-16 dall'utente: #83 (fix CSP WebKit), #87
