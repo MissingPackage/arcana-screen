@@ -10,6 +10,8 @@ gli item aperti.
 
 ## Aperti
 
+- D23 [2026-08-07] [merge] PR #101, revisione dell'acceptance-matrix. Solo
+  documentazione, indipendente dalle altre.
 - D22 [2026-08-07] [merge] **DA MERGIARE PER PRIMA.** PR #100 sblocca
   `check:security`, che usciva 1 su ogni branch e bloccava qualunque merge.
   Finché non entra, né #99 né `test/dark-axe-critical` possono avere la CI
@@ -24,16 +26,6 @@ gli item aperti.
   D21, non per il bump**: cade sullo step di audit, che `test:ci` non esegue.
 - D18 [2026-08-07] [merge] Mergiare `test/dark-axe-critical` (gate dark + ripristino
   della fix D11). Gate: `test:ci` 136/136, matrice e2e 41+3 con 0 failed.
-- D15 [2026-08-07] [docs] `docs/specs/acceptance-matrix.md` è stantia: cita
-  ancora "WebKit CI pending" e "long suspension open", entrambi chiusi il
-  2026-07-16. Riesame delle 16 `partial` / 3 `missing` / 2 `red` / 2 `blocked`
-  alla luce di quanto è stato realmente mergiato.
-- D19 [2026-08-07] [ci/proposta] Nessun gate copre il FOUC all'idratazione: il
-  rimedio D17 nasconde e riespone `body` a ogni caricamento, e un flash sarebbe
-  invisibile sia ai test unitari sia ad axe. Valutare un controllo (screenshot
-  al primo frame, o asserzione che il tema sia già applicato prima del primo
-  paint) — oppure evitare del tutto il rimedio sul percorso di rehydrate, dove
-  probabilmente non serve perché gli elementi nascono già con la classe.
 - D16 [2026-08-07] [security] Il repo ha 7 secret creati il 2025-04-26 per il
   workflow project-board eliminato in D10: `TOKEN` (verosimilmente un PAT),
   `PROJECT_ID`, `STATUS_FIELD_ID`, `IN_PROGRESS_OPTION_ID`,
@@ -43,6 +35,18 @@ gli item aperti.
   ignoto e nessun consumatore.
 
 ## Chiusi
+
+- D15 [2026-08-07 → 2026-08-07] [docs] Acceptance-matrix riallineata (**PR
+  #101**). Era ferma a prima dei merge del 2026-07-16: citava come aperti la
+  prova Timer post-sospensione (automatizzata dal PR #84) e il lane WebKit
+  (verde in CI dal PR #83). Effetto: `partial` 8 → 6, `manual-pass` 11 → 12,
+  `green` 3 → 4. **Correzione di un errore mio**: avevo riportato "3 missing,
+  2 red, 2 blocked" nel digest dell'iterazione 11 — sono zero tutte e tre. Quel
+  conteggio veniva da un grep che pescava la legenda e la frase di chiusura
+  invece delle celle. Il quadro di accettazione è migliore di come l'avevo
+  descritto. Registrato anche cosa tiene ferme le righe `partial`: quasi mai il
+  codice — evidenza browser solo `manual-pass`, UI di validazione incompleta,
+  audit moderato mancante, deploy di produzione mai eseguito.
 
 - D21 [2026-08-07 → 2026-08-07] [deps/ci] Gate di sicurezza sbloccato con
   **PR #100**. Quattro advisory pubblicate contro versioni già pinnate

@@ -1,8 +1,8 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-08-07, iterazione 16 (**D21 chiusa**: PR #100 sblocca la CI).
-Iterazioni precedenti: 15 (D14, PR #99), 14 (D3), 13 (D17), 12 (diagnosi D17),
-11 (D13). Il loop era fermo by design dal
+Aggiornato: 2026-08-07, iterazione 17 — **loop fermo by design**, lavoro
+non-gated esaurito. Iterazioni: 17 (D15, PR #101), 16 (D21, PR #100), 15 (D14,
+PR #99), 14 (D3), 13 (D17), 12 (diagnosi D17), 11 (D13). Il loop era fermo by design dal
 2026-07-16 (it. 10) in attesa dei merge dell'utente: i merge sono avvenuti
 tutti, e HANDOFF/DOCKET erano rimasti indietro di tre settimane. Ruling
 `[decisione]`/`[design]`/`[ci]`/`[deps]` presi dal loop (D3, D9, D10).
@@ -51,11 +51,16 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 
 ## §next-decidable (in ordine)
 
-1. **D15** — riesame di `docs/specs/acceptance-matrix.md`, stantia.
-2. Ruling dell'utente aperti, **in quest'ordine**: **D22** (merge PR #100 —
+Lavoro non-gated: **ESAURITO** (D15 chiuso). Il loop si ferma by design per la
+terza volta: tutto ciò che resta dipende da un merge dell'utente.
+
+1. Ruling dell'utente aperti, **in quest'ordine**: **D22** (merge PR #100 —
    sblocca la CI, va per prima), poi **D20** (merge PR #99 + chiusura di
-   #93/#94) e **D18** (merge di `test/dark-axe-critical`), infine **D16**
-   (revoca dei secret orfani, incluso il PAT `TOKEN`).
+   #93/#94) e **D18** (merge di `test/dark-axe-critical`); **D23** (merge PR
+   #101, documentazione, indipendente); infine **D16** (revoca dei secret
+   orfani, incluso il PAT `TOKEN`).
+2. Post-merge, primo item del loop: promuovere la riga *Accessibility/input*
+   della matrice, che potrà citare il dark solo quando D18 sarà in `dev`.
 
 ## Ruling di protocollo presi il 2026-08-07 (loop-verifier iterazione 11)
 
