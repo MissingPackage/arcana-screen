@@ -21,6 +21,12 @@ gli item aperti.
   ancora "WebKit CI pending" e "long suspension open", entrambi chiusi il
   2026-07-16. Riesame delle 16 `partial` / 3 `missing` / 2 `red` / 2 `blocked`
   alla luce di quanto è stato realmente mergiato.
+- D19 [2026-08-07] [ci/proposta] Nessun gate copre il FOUC all'idratazione: il
+  rimedio D17 nasconde e riespone `body` a ogni caricamento, e un flash sarebbe
+  invisibile sia ai test unitari sia ad axe. Valutare un controllo (screenshot
+  al primo frame, o asserzione che il tema sia già applicato prima del primo
+  paint) — oppure evitare del tutto il rimedio sul percorso di rehydrate, dove
+  probabilmente non serve perché gli elementi nascono già con la classe.
 - D16 [2026-08-07] [security] Il repo ha 7 secret creati il 2025-04-26 per il
   workflow project-board eliminato in D10: `TOKEN` (verosimilmente un PAT),
   `PROJECT_ID`, `STATUS_FIELD_ID`, `IN_PROGRESS_OPTION_ID`,
@@ -44,7 +50,15 @@ gli item aperti.
   regressione di accessibilità che temevo non esiste. L'esenzione WebKit è stata
   rimossa dal gate dark: ora stretto su tutte e quattro le lane. Gate: `test:ci`
   136/136, e2e 41+3 con 0 failed; controprova di non-vacuità: disattivando il
-  rimedio WebKit torna rosso con le stesse violazioni.
+  rimedio WebKit torna rosso con le stesse violazioni. Due precisazioni dal
+  loop-verifier, entrambe recepite: (a) `applyThemeToDOM` è chiamata anche da
+  `onRehydrateStorage`, quindi il rimedio gira **a ogni caricamento** oltre che
+  a ogni toggle — il gate di performance all'avvio resta verde, ma un controllo
+  di FOUC all'idratazione non è coperto da nessun gate (→ D19); (b) la lettura
+  di `offsetHeight` **fra** le due scritture di `display` è portante: misurato,
+  rimuovendola il gate dark torna rosso su WebKit. Il commento nel codice ora lo
+  dice esplicitamente, perché elencava la lettura fra i rimedi falliti e si
+  prestava a essere cancellata come codice morto.
 
 - D13 [2026-07-16 → 2026-08-07] [ci] Gate axe dark nella suite `@critical`
   (branch `test/dark-axe-critical`): scansiona Prepare, i 4 Focus in Run e lo

@@ -18,10 +18,21 @@ interface ThemeState {
  *
  * Detaching and re-attaching body is the only remedy that works: eight others
  * were measured and failed (theme class on html, dummy custom property on html
- * or body, offsetHeight read, getComputedStyle read, re-appended <style>,
- * class remove+re-add, `contain: style`, toggling styleSheets.disabled).
- * Focus, text selection and inner scroll positions all survive it - verified on
- * Chromium, Firefox and WebKit desktop plus Chromium mobile.
+ * or body, a bare offsetHeight read, getComputedStyle read, re-appended
+ * <style>, class remove+re-add, `contain: style`, toggling
+ * styleSheets.disabled).
+ *
+ * DO NOT DELETE the offsetHeight read below. A bare read is useless (it is in
+ * the failed list above), but the read *between* the two display writes is what
+ * forces the flush while body is detached - remove it and the two writes
+ * coalesce, no re-attach happens, and WebKit goes back to stale ink. Measured:
+ * without that line the dark axe gate fails on webkit-desktop.
+ *
+ * Focus, text selection and inner scroll positions all survive the remedy -
+ * verified on Chromium, Firefox and WebKit desktop plus Chromium mobile. Note
+ * this runs on every theme toggle AND on every page load, since the persist
+ * middleware calls applyThemeToDOM from onRehydrateStorage; the startup
+ * performance gate covers that path and stays green.
  */
 function forceStyleReresolution() {
   const { body } = document;
