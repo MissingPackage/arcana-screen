@@ -10,13 +10,15 @@ gli item aperti.
 
 ## Aperti
 
+- D20 [2026-08-07] [merge] Mergiare **PR #99** (bump combinato react/react-dom
+  19.2.8 + types) e poi CHIUDERE #93 e #94 come superate — sono lo stesso
+  guasto di D7: ciascuna da sola disallinea react e react-dom, tutte le suite
+  muoiono all'import, `quality=FAILURE` su entrambe e nessuna delle due potra'
+  diventare verde. Gate della #99 in locale: `test:ci` 136/136, e2e 37+3 con 0
+  failed (37 e non 41 perche' il branch parte da `dev` e non contiene il gate
+  dark, che vive su `test/dark-axe-critical`).
 - D18 [2026-08-07] [merge] Mergiare `test/dark-axe-critical` (gate dark + ripristino
   della fix D11). Gate: `test:ci` 136/136, matrice e2e 41+3 con 0 failed.
-- D14 [2026-08-07] [deps] D7 si sta ripetendo: dependabot ha di nuovo spezzato
-  il bump react in #93 (react 19.2.8) e #94 (react-dom 19.2.8), entrambe
-  `quality=FAILURE`. Serve un bump combinato come fu #86, poi chiudere #93/#94
-  come superate. Il fix strutturale (D9) è già in `dev` ma agisce solo sui bump
-  futuri, non su PR già aperte.
 - D15 [2026-08-07] [docs] `docs/specs/acceptance-matrix.md` è stantia: cita
   ancora "WebKit CI pending" e "long suspension open", entrambi chiusi il
   2026-07-16. Riesame delle 16 `partial` / 3 `missing` / 2 `red` / 2 `blocked`
@@ -36,6 +38,15 @@ gli item aperti.
   ignoto e nessun consumatore.
 
 ## Chiusi
+
+- D14 [2026-08-07 → 2026-08-07] [deps] Recidiva dello split bump react
+  risolta con un bump combinato manuale sul branch `deps/react-19.2.8`, come fu
+  la PR #86 per 19.2.7 → **PR #99**. Branch creato **da `origin/dev`** e non
+  impilato su `test/dark-axe-critical`: e' l'applicazione diretta della lezione
+  di D11, dove una PR impilata su un'altra non ancora mergiata ne ha revertito
+  la fix al merge. Verificato che `react` e `react-dom` risolvano alla stessa
+  versione nel lockfile — e' esattamente il controllo che il guasto di D7
+  richiedeva e che nessuno faceva. Il merge e la chiusura di #93/#94 → D20.
 
 - D17 [2026-08-07 → 2026-08-07] [bug/webkit] **CHIUSO.** WebKit non ri-risolve i
   `var()` dei discendenti quando una custom property cambia su un antenato: dopo

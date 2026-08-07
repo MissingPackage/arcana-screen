@@ -1,8 +1,8 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-08-07, iterazione 14 (**D3 chiusa**: `color-scheme` adottato,
-chrome nativo allineato al tema). Iterazioni precedenti: 13 (D17 chiusa), 12
-(diagnosi D17), 11 (D13 chiusa). Il loop era fermo by design dal
+Aggiornato: 2026-08-07, iterazione 15 (**D14 chiusa**: PR #99, bump combinato
+react 19.2.8). Iterazioni precedenti: 14 (D3), 13 (D17), 12 (diagnosi D17),
+11 (D13). Il loop era fermo by design dal
 2026-07-16 (it. 10) in attesa dei merge dell'utente: i merge sono avvenuti
 tutti, e HANDOFF/DOCKET erano rimasti indietro di tre settimane. Ruling
 `[decisione]`/`[design]`/`[ci]`/`[deps]` presi dal loop (D3, D9, D10).
@@ -47,10 +47,10 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 
 ## §next-decidable (in ordine)
 
-1. **D14** — bump combinato react/react-dom 19.2.8, poi chiudere #93/#94.
-2. **D15** — riesame di `docs/specs/acceptance-matrix.md`, stantia.
-3. Ruling dell'utente ancora aperti: **D18** (merge di `test/dark-axe-critical`)
-   e **D16** (revoca dei secret orfani, incluso il PAT `TOKEN`).
+1. **D15** — riesame di `docs/specs/acceptance-matrix.md`, stantia.
+2. Ruling dell'utente aperti: **D18** (merge di `test/dark-axe-critical`),
+   **D20** (merge della PR #99 + chiusura di #93/#94), **D16** (revoca dei
+   secret orfani, incluso il PAT `TOKEN`).
 
 ## Ruling di protocollo presi il 2026-08-07 (loop-verifier iterazione 11)
 
