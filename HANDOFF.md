@@ -1,24 +1,33 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-07-16, iterazione 10: **loop FERMO by design (2ª volta)** — D12 chiuso (tranche 2 vuota per analisi), lavoro non-gated esaurito. Riparte con `/loop /product-loop`; primo item post-merge: D13 (test axe dark in suite). Nota operativa: vite-preview zombie su :4173 possono dare e2e tutti rossi — pkill vite prima di diagnosticare.
+Aggiornato: 2026-08-07, riallineamento post-merge. Il loop era fermo by design
+dal 2026-07-16 (it. 10) in attesa dei merge dell'utente: **i merge sono
+avvenuti tutti**, e HANDOFF/DOCKET erano rimasti indietro di tre settimane.
+Ruling `[decisione]`/`[design]`/`[ci]`/`[deps]` presi (D3, D9, D10). Il loop
+riparte da **D13**.
 
 ## Stato corrente
 
-- Branch `dev` @ `60ba9d7`: adottato il layer di token del progetto Claude Design
-  "Arcana Screen Dungeon Master" (`arcana-screen/src/styles/tokens.css`), body
-  font Inter → Work Sans, fix dei token mai definiti (`--as-wine`, `--as-display`)
-  e del contrasto dark-theme di eyebrow/popover. Pushed su origin/dev.
-- Branch `test/timer-suspension-e2e` (stacked su `test/webkit-e2e-gate`):
-  prova Timer post-sospensione automatizzata (M2.5 chiusa). PR-ready.
-- Branch `test/webkit-e2e-gate` @ `9fd61b6` (+ commit docs), **PR #83, CI tutta
-  verde WebKit incluso**: fix del bug cross-browser WebKit — `upgrade-insecure-requests` nel meta CSP accecava
-  l'app su host HTTP (WebKit forza l'upgrade anche su localhost). Direttiva
-  spostata solo in `public/_headers`. **PR-ready, non mergiato** (policy loop:
-  il merge su dev è una decisione utente → docket D1).
-- Gate (verificati 2026-07-16, loop-verifier PASS): `test:ci` verde (136/136
-  Vitest, lint 0 errori, CSS 119.0/130 KiB); e2e **33 passed + 3 skip, 0 failed
-  sull'intera matrice WebKit incluso** — prima volta. Evidenza:
-  `docs/verification/2026-07-16-webkit-gate.md`.
+- `origin/dev` @ `22bb1e2`. Contiene tutte le PR feature del ciclo precedente:
+  #83 (fix CSP WebKit), #84 (prova Timer post-sospensione), #85 (input dark),
+  #86 (react allineato 19.2.7), #87 (sweep session.css), #88 (toggle
+  Prepare/Run dark), #89 (token shell header). Sopra ci sono solo bump
+  dependabot di CI actions.
+- Applicato il 2026-08-07: gruppo `react` in `.github/dependabot.yml` (D9) ed
+  eliminazione di `.github/worklows/` (D10). Motivazioni per esteso nel docket.
+- **Gate NON ri-verificati su questo `dev`.** L'ultima evidenza verde
+  (`test:ci` 136/136, e2e 37+3 su tutta la matrice WebKit inclusa) è del
+  2026-07-16 e precede i bump dependabot successivi. Prima di qualsiasi claim
+  serve una passata fresca.
+- Recidiva viva: #93/#94 (react/react-dom 19.2.8) sono di nuovo uno split bump
+  rotto, entrambe `quality=FAILURE` → D14.
+
+## Attenzione al branch
+
+Il checkout principale `/home/claude/progetti/arcana-screen` è su
+`test/timer-suspension-e2e` e il suo `dev` locale è fermo a `60ba9d7`: leggere
+i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
+`origin/dev`, o fare `git fetch && git checkout dev && git pull` prima.
 
 ## Ambiente (questo host sandbox, non il workstation Fedora)
 
@@ -27,19 +36,23 @@ Aggiornato: 2026-07-16, iterazione 10: **loop FERMO by design (2ª volta)** — 
 - `gh` autenticato (MissingPackage); identità git configurata repo-local.
 - Linear MCP **non autenticato** in sessioni non interattive: il docket file
   `docs/DOCKET.md` è il tracker operativo finché Linear non è raggiungibile.
+- Nota operativa: vite-preview zombie su :4173 possono dare e2e tutti rossi —
+  `pkill vite` prima di diagnosticare.
 
 ## §next-decidable (in ordine)
 
-Lavoro non-gated: ESAURITO (D12 chiuso — tranche 2 vuota per analisi).
-
-1. Merge attesi: D1 (#83→#84), D8 (#85), D8b (#86 + chiudere #80/#82),
-   D4b (#87), D11b (#88), D12b (#89). Ruling: D3, D9, D10.
-2. Post-merge, primo item del loop: **D13** — variante dark del test axe nella
-   suite @critical (rosso prima dei merge di #85/#87/#88, per questo è gated).
-3. Post-merge: riesame acceptance-matrix.
+1. **D13** — variante dark del test axe nella suite `@critical`. Sbloccata.
+2. **D14** — bump combinato react/react-dom 19.2.8, poi chiudere #93/#94.
+3. **D3** — adozione di `color-scheme` scoped, con la suite axe dark di D13
+   come gate (quindi dopo D13).
+4. **D15** — riesame di `docs/specs/acceptance-matrix.md`, stantia.
+5. Ruling dell'utente ancora aperto: **D16** (revoca dei secret orfani, incluso
+   il PAT `TOKEN`) — tocca credenziali, il loop non le tocca.
 
 ## Protocollo
 
 Loop attivo: `/loop /product-loop` (self-paced). Ogni iterazione: re-anchor da
 questo file + `docs/DOCKET.md` → una slice → gate completi → loop-verifier →
-digest. Merge su dev e decisioni di scope: solo l'utente.
+digest. **Merge su `dev` e cambi di scope: solo l'utente.** Tutti gli altri
+ruling (design, ci, deps, decisioni tecniche): li prende il loop, li esegue e
+li riporta a verbale nel docket — non si chiedono.
