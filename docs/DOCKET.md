@@ -10,10 +10,18 @@ gli item aperti.
 
 ## Aperti
 
-- D13 [2026-07-16] [ci] Variante dark del test axe nella suite `@critical` (i
-  bug D2/D4/D11 erano invisibili al gate light-only). **SBLOCCATA il
-  2026-08-07**: era merge-gated su #85/#87/#88, tutte e tre ora in `dev`.
-  Prossimo item del loop.
+- D17 [2026-08-07] [bug/webkit] **WebKit non ri-stila la griglia Prepare legacy
+  quando viene aggiunta `body.dark-theme`**: il testo resta all'inchiostro light
+  (`#586678`, `#122b49`) su superfici ormai scure — dark-on-dark, illeggibile
+  fino a un reload. Chromium ri-stila correttamente lo stesso markup (misurato:
+  toggle → `rgb(169,184,198)` su Chromium vs `rgb(88,102,120)` su WebKit).
+  Sospetto principale: l'alias gotcha già documentato in CLAUDE.md — un `var()`
+  dentro una custom property si sostituisce dove è **dichiarato**, quindi gli
+  alias theme-dependent vanno ri-dichiarati sotto `body.dark-theme`; `session.css`
+  lo fa (Run passa su WebKit), la griglia legacy no. Finché è aperto, la
+  scansione di Prepare è esente sul solo WebKit nel gate dark (D13).
+- D18 [2026-08-07] [merge] Mergiare `test/dark-axe-critical` (gate dark + ripristino
+  della fix D11). Gate: `test:ci` 136/136, matrice e2e 41+3 con 0 failed.
 - D14 [2026-08-07] [deps] D7 si sta ripetendo: dependabot ha di nuovo spezzato
   il bump react in #93 (react 19.2.8) e #94 (react-dom 19.2.8), entrambe
   `quality=FAILURE`. Serve un bump combinato come fu #86, poi chiudere #93/#94
@@ -32,6 +40,26 @@ gli item aperti.
   ignoto e nessun consumatore.
 
 ## Chiusi
+
+- D13 [2026-07-16 → 2026-08-07] [ci] Gate axe dark nella suite `@critical`
+  (branch `test/dark-axe-critical`): scansiona Prepare, i 4 Focus in Run e lo
+  stato dopo reload, con il tema attivato dal vero controllo di UI. Due
+  scoperte durante l'implementazione, entrambe a verbale nel commit: (1) senza
+  emulare `prefers-reduced-motion` axe campiona i colori a metà transizione e
+  produce violazioni fantasma **diverse a ogni run e a ogni engine** — è la
+  ragione per cui la prima diagnosi ("10 bug dark su WebKit/mobile") era
+  sbagliata; (2) la fix D11 era regredita. Evidenza: `test:ci` 136/136, lint 0
+  errori, CSS 119.5/130 KiB, matrice e2e **41 passed + 3 skip, 0 failed**
+  (erano 37+3), test dark stabile su `--repeat-each=2` × 4 progetti.
+
+- D11 (regressione) [2026-08-07] Il fix del toggle Prepare/Run in dark (PR #88,
+  commit 76d4db4) è stato **cancellato dalla PR #89**: il suo branch conteneva
+  `ea0d9eb` "move the header-toggle dark fix out of this PR", che rimuoveva
+  l'hunk perché apparteneva a un'altra slice — ma il branch era stato creato
+  sopra #88 e la #89 è stata mergiata dopo, quindi la rimozione è diventata un
+  revert. Ripristinato su `test/dark-axe-critical`. Lezione strutturale: era
+  esattamente il tipo di regressione silenziosa che il gate D13 ora intercetta,
+  e nessun gate l'aveva vista per tre settimane.
 
 - D9 [2026-07-16 → 2026-08-07] [ci] **RULING: adottato.** Gruppo `react` in
   `.github/dependabot.yml`. Dettaglio che la proposta originale non copriva:

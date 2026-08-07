@@ -1,6 +1,6 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-08-07, riallineamento post-merge. Il loop era fermo by design
+Aggiornato: 2026-08-07, iterazione 11 (D13 chiusa). Riallineamento post-merge. Il loop era fermo by design
 dal 2026-07-16 (it. 10) in attesa dei merge dell'utente: **i merge sono
 avvenuti tutti**, e HANDOFF/DOCKET erano rimasti indietro di tre settimane.
 Ruling `[decisione]`/`[design]`/`[ci]`/`[deps]` presi (D3, D9, D10). Il loop
@@ -15,10 +15,13 @@ riparte da **D13**.
   dependabot di CI actions.
 - Applicato il 2026-08-07: gruppo `react` in `.github/dependabot.yml` (D9) ed
   eliminazione di `.github/worklows/` (D10). Motivazioni per esteso nel docket.
-- **Gate NON ri-verificati su questo `dev`.** L'ultima evidenza verde
-  (`test:ci` 136/136, e2e 37+3 su tutta la matrice WebKit inclusa) è del
-  2026-07-16 e precede i bump dependabot successivi. Prima di qualsiasi claim
-  serve una passata fresca.
+- Gate ri-verificati il 2026-08-07 su `test/dark-axe-critical` (che parte dal
+  tip di `dev`): `test:ci` 136/136 + lint 0 errori + CSS 119.5/130 KiB; e2e
+  **41 passed + 3 skip, 0 failed** su tutta la matrice, WebKit incluso.
+- Trappola operativa aggravata: il webServer Playwright è `npm run preview`, che
+  serve `dist`. Una modifica a CSS/TS **non** si vede finché non si rifà
+  `npm run build`, e `reuseExistingServer` ricicla un preview stantio. Il worktree
+  parte senza `node_modules`: `npm ci` prima di qualsiasi gate.
 - Recidiva viva: #93/#94 (react/react-dom 19.2.8) sono di nuovo uno split bump
   rotto, entrambe `quality=FAILURE` → D14.
 
@@ -41,13 +44,15 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 
 ## §next-decidable (in ordine)
 
-1. **D13** — variante dark del test axe nella suite `@critical`. Sbloccata.
+1. **D17** — WebKit non ri-stila la griglia Prepare legacy al passaggio a dark.
+   Bug reale e user-visible; probabile alias gotcha delle custom property. È la
+   slice successiva del loop.
 2. **D14** — bump combinato react/react-dom 19.2.8, poi chiudere #93/#94.
-3. **D3** — adozione di `color-scheme` scoped, con la suite axe dark di D13
-   come gate (quindi dopo D13).
+3. **D3** — adozione di `color-scheme` scoped, ora con il gate axe dark di D13
+   a fare da rete.
 4. **D15** — riesame di `docs/specs/acceptance-matrix.md`, stantia.
-5. Ruling dell'utente ancora aperto: **D16** (revoca dei secret orfani, incluso
-   il PAT `TOKEN`) — tocca credenziali, il loop non le tocca.
+5. Ruling dell'utente ancora aperti: **D18** (merge di `test/dark-axe-critical`)
+   e **D16** (revoca dei secret orfani, incluso il PAT `TOKEN`).
 
 ## Protocollo
 
