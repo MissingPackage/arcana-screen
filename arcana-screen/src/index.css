@@ -812,8 +812,16 @@
    }
 
    .arcana-header button.screen-mode__button[aria-pressed='true'] {
-     color: #102b49;
+     color: var(--as-gold-contrast);
      background: #f5cf72;
+   }
+
+   /* The dark-theme base rule above (body.dark-theme … .screen-mode__button,
+      specificity 0-3-2) outranks the active rule (0-3-1): without this, the
+      pressed toggle kept cream text on its gold fill in dark — 1.24:1.
+      Restored after PR #89 reverted PR #88's hunk by merging on top of it. */
+   body.dark-theme .arcana-header button.screen-mode__button[aria-pressed='true'] {
+     color: var(--as-gold-contrast);
    }
 
    .arcana-header .screen-manager__saved { color: #8fe1a8; white-space: nowrap; }
