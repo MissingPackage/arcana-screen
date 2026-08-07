@@ -10,34 +10,6 @@ gli item aperti.
 
 ## Aperti
 
-- D17 [2026-08-07] [bug/webkit] **WebKit non ri-risolve i `var()` dei discendenti
-  quando una custom property cambia su un antenato.** Al toggle dark il testo
-  della griglia Prepare resta all'inchiostro light (`#586678`, `#122b49`) su
-  superfici ormai scure — dark-on-dark, illeggibile fino a un reload.
-  DIAGNOSI (iterazione 12, misurata su webkit-desktop vs chromium-desktop):
-  - Non è un problema di cascade. Dopo il toggle la custom property **è già
-    corretta su `body`** (`--ink-muted: #a9b8c6`, `--as-ink-muted: #a9b8c6`);
-    è il `color` risolto sull'elemento che resta al valore light. Chromium lo
-    aggiorna subito, WebKit no.
-  - Non è l'alias gotcha di CLAUDE.md: gli alias legacy **sono** già
-    ri-dichiarati sotto `body.dark-theme` (index.css:134-148).
-  - Non è l'indirezione a due livelli: una regola iniettata che usa il token
-    diretto `var(--as-ink-muted)` fallisce **allo stesso modo** (ipotesi
-    testata e refutata).
-  - Non è timing/transizione: persiste dopo più round-trip e con
-    `prefers-reduced-motion` attivo.
-  - Si sblocca con un reload, o forzando un re-attach del DOM.
-  RIMEDI PROVATI, 8 candidati, **uno solo funziona**: classe anche su `html`;
-  custom property fittizia su `html`; idem su `body`; lettura di `offsetHeight`;
-  `getComputedStyle`; `<style>` riappeso in `head`; rimozione+riaggiunta della
-  classe → tutti FALLISCONO. Funziona solo `display:none` + reflow + ripristino.
-  NODO APERTO (serve un ruling ponderato, non di fretta): il re-attach costa un
-  flicker e **azzera il focus attivo** — regressione di accessibilità su un'azione
-  che un DM può fare in sessione. Alternative da valutare nella prossima slice:
-  re-attach con salvataggio/ripristino esplicito di focus e scroll; oppure
-  accettare il difetto su Safari documentandolo. Finché è aperto, la scansione
-  di Prepare è esente sul solo WebKit nel gate dark (D13), e il resto della
-  matrice resta stretto.
 - D18 [2026-08-07] [merge] Mergiare `test/dark-axe-critical` (gate dark + ripristino
   della fix D11). Gate: `test:ci` 136/136, matrice e2e 41+3 con 0 failed.
 - D14 [2026-08-07] [deps] D7 si sta ripetendo: dependabot ha di nuovo spezzato
@@ -58,6 +30,21 @@ gli item aperti.
   ignoto e nessun consumatore.
 
 ## Chiusi
+
+- D17 [2026-08-07 → 2026-08-07] [bug/webkit] **CHIUSO.** WebKit non ri-risolve i
+  `var()` dei discendenti quando una custom property cambia su un antenato: dopo
+  il toggle dark la griglia Prepare restava inchiostro light su fondo scuro
+  (1.16:1 sui pulsanti del notebook) fino a un reload. Escluse per misura tre
+  ipotesi: non è la cascade (la custom property è già corretta su `body`), non è
+  l'alias gotcha di CLAUDE.md (gli alias sono già ri-dichiarati), non è
+  l'indirezione a due livelli (regola col token diretto `var(--as-ink-muted)`:
+  fallisce identicamente). Otto rimedi falliti, uno funziona: detach/reattach di
+  `body` in `applyThemeToDOM`. Costo misurato su tutta la matrice: focus,
+  selezione di testo e scroll dei contenitori interni **tutti preservati** — la
+  regressione di accessibilità che temevo non esiste. L'esenzione WebKit è stata
+  rimossa dal gate dark: ora stretto su tutte e quattro le lane. Gate: `test:ci`
+  136/136, e2e 41+3 con 0 failed; controprova di non-vacuità: disattivando il
+  rimedio WebKit torna rosso con le stesse violazioni.
 
 - D13 [2026-07-16 → 2026-08-07] [ci] Gate axe dark nella suite `@critical`
   (branch `test/dark-axe-critical`): scansiona Prepare, i 4 Focus in Run e lo

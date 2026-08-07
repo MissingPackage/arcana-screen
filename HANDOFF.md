@@ -1,11 +1,11 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-08-07, iterazione 12 (D17 diagnosticata, rimedio non ancora
-scelto — hand-back pulito, nessun codice a metà). Iterazione 11 (D13 chiusa). Riallineamento post-merge. Il loop era fermo by design
-dal 2026-07-16 (it. 10) in attesa dei merge dell'utente: **i merge sono
-avvenuti tutti**, e HANDOFF/DOCKET erano rimasti indietro di tre settimane.
-Ruling `[decisione]`/`[design]`/`[ci]`/`[deps]` presi (D3, D9, D10). Il loop
-riparte da **D13**.
+Aggiornato: 2026-08-07, iterazione 13 (**D17 chiusa**: dark theme ora si
+applica su WebKit senza reload, esenzione rimossa dal gate). Iterazioni
+precedenti: 12 (diagnosi D17), 11 (D13 chiusa). Il loop era fermo by design dal
+2026-07-16 (it. 10) in attesa dei merge dell'utente: i merge sono avvenuti
+tutti, e HANDOFF/DOCKET erano rimasti indietro di tre settimane. Ruling
+`[decisione]`/`[design]`/`[ci]`/`[deps]` presi dal loop (D3, D9, D10).
 
 ## Stato corrente
 
@@ -42,21 +42,16 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 - Linear MCP **non autenticato** in sessioni non interattive: il docket file
   `docs/DOCKET.md` è il tracker operativo finché Linear non è raggiungibile.
 - Nota operativa: vite-preview zombie su :4173 possono dare e2e tutti rossi —
-  `pkill vite` prima di diagnosticare.
+  `pkill -f '[v]ite'` prima di diagnosticare (il pattern nudo `vite` uccide la
+  shell stessa).
 
 ## §next-decidable (in ordine)
 
-1. **D17** — **diagnosi chiusa, rimedio aperto.** WebKit non ri-risolve i
-   `var()` dei discendenti quando una custom property cambia su un antenato;
-   8 rimedi provati, funziona solo il re-attach del DOM, che però azzera il
-   focus. La prossima slice implementa il re-attach **con salvataggio e
-   ripristino di focus e scroll**, e rimuove l'esenzione WebKit dal gate dark:
-   il gate stesso è il criterio di successo. Tutta l'evidenza è in D17.
+1. **D3** — adozione di `color-scheme` scoped (ruling già preso), ora con il
+   gate axe dark stretto su tutte e quattro le lane a fare da rete.
 2. **D14** — bump combinato react/react-dom 19.2.8, poi chiudere #93/#94.
-3. **D3** — adozione di `color-scheme` scoped, ora con il gate axe dark di D13
-   a fare da rete.
-4. **D15** — riesame di `docs/specs/acceptance-matrix.md`, stantia.
-5. Ruling dell'utente ancora aperti: **D18** (merge di `test/dark-axe-critical`)
+3. **D15** — riesame di `docs/specs/acceptance-matrix.md`, stantia.
+4. Ruling dell'utente ancora aperti: **D18** (merge di `test/dark-axe-critical`)
    e **D16** (revoca dei secret orfani, incluso il PAT `TOKEN`).
 
 ## Ruling di protocollo presi il 2026-08-07 (loop-verifier iterazione 11)
