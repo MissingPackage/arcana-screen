@@ -10,16 +10,34 @@ gli item aperti.
 
 ## Aperti
 
-- D17 [2026-08-07] [bug/webkit] **WebKit non ri-stila la griglia Prepare legacy
-  quando viene aggiunta `body.dark-theme`**: il testo resta all'inchiostro light
-  (`#586678`, `#122b49`) su superfici ormai scure — dark-on-dark, illeggibile
-  fino a un reload. Chromium ri-stila correttamente lo stesso markup (misurato:
-  toggle → `rgb(169,184,198)` su Chromium vs `rgb(88,102,120)` su WebKit).
-  Sospetto principale: l'alias gotcha già documentato in CLAUDE.md — un `var()`
-  dentro una custom property si sostituisce dove è **dichiarato**, quindi gli
-  alias theme-dependent vanno ri-dichiarati sotto `body.dark-theme`; `session.css`
-  lo fa (Run passa su WebKit), la griglia legacy no. Finché è aperto, la
-  scansione di Prepare è esente sul solo WebKit nel gate dark (D13).
+- D17 [2026-08-07] [bug/webkit] **WebKit non ri-risolve i `var()` dei discendenti
+  quando una custom property cambia su un antenato.** Al toggle dark il testo
+  della griglia Prepare resta all'inchiostro light (`#586678`, `#122b49`) su
+  superfici ormai scure — dark-on-dark, illeggibile fino a un reload.
+  DIAGNOSI (iterazione 12, misurata su webkit-desktop vs chromium-desktop):
+  - Non è un problema di cascade. Dopo il toggle la custom property **è già
+    corretta su `body`** (`--ink-muted: #a9b8c6`, `--as-ink-muted: #a9b8c6`);
+    è il `color` risolto sull'elemento che resta al valore light. Chromium lo
+    aggiorna subito, WebKit no.
+  - Non è l'alias gotcha di CLAUDE.md: gli alias legacy **sono** già
+    ri-dichiarati sotto `body.dark-theme` (index.css:134-148).
+  - Non è l'indirezione a due livelli: una regola iniettata che usa il token
+    diretto `var(--as-ink-muted)` fallisce **allo stesso modo** (ipotesi
+    testata e refutata).
+  - Non è timing/transizione: persiste dopo più round-trip e con
+    `prefers-reduced-motion` attivo.
+  - Si sblocca con un reload, o forzando un re-attach del DOM.
+  RIMEDI PROVATI, 8 candidati, **uno solo funziona**: classe anche su `html`;
+  custom property fittizia su `html`; idem su `body`; lettura di `offsetHeight`;
+  `getComputedStyle`; `<style>` riappeso in `head`; rimozione+riaggiunta della
+  classe → tutti FALLISCONO. Funziona solo `display:none` + reflow + ripristino.
+  NODO APERTO (serve un ruling ponderato, non di fretta): il re-attach costa un
+  flicker e **azzera il focus attivo** — regressione di accessibilità su un'azione
+  che un DM può fare in sessione. Alternative da valutare nella prossima slice:
+  re-attach con salvataggio/ripristino esplicito di focus e scroll; oppure
+  accettare il difetto su Safari documentandolo. Finché è aperto, la scansione
+  di Prepare è esente sul solo WebKit nel gate dark (D13), e il resto della
+  matrice resta stretto.
 - D18 [2026-08-07] [merge] Mergiare `test/dark-axe-critical` (gate dark + ripristino
   della fix D11). Gate: `test:ci` 136/136, matrice e2e 41+3 con 0 failed.
 - D14 [2026-08-07] [deps] D7 si sta ripetendo: dependabot ha di nuovo spezzato

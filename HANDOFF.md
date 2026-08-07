@@ -1,6 +1,7 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-08-07, iterazione 11 (D13 chiusa). Riallineamento post-merge. Il loop era fermo by design
+Aggiornato: 2026-08-07, iterazione 12 (D17 diagnosticata, rimedio non ancora
+scelto — hand-back pulito, nessun codice a metà). Iterazione 11 (D13 chiusa). Riallineamento post-merge. Il loop era fermo by design
 dal 2026-07-16 (it. 10) in attesa dei merge dell'utente: **i merge sono
 avvenuti tutti**, e HANDOFF/DOCKET erano rimasti indietro di tre settimane.
 Ruling `[decisione]`/`[design]`/`[ci]`/`[deps]` presi (D3, D9, D10). Il loop
@@ -45,9 +46,12 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 
 ## §next-decidable (in ordine)
 
-1. **D17** — WebKit non ri-stila la griglia Prepare legacy al passaggio a dark.
-   Bug reale e user-visible; probabile alias gotcha delle custom property. È la
-   slice successiva del loop.
+1. **D17** — **diagnosi chiusa, rimedio aperto.** WebKit non ri-risolve i
+   `var()` dei discendenti quando una custom property cambia su un antenato;
+   8 rimedi provati, funziona solo il re-attach del DOM, che però azzera il
+   focus. La prossima slice implementa il re-attach **con salvataggio e
+   ripristino di focus e scroll**, e rimuove l'esenzione WebKit dal gate dark:
+   il gate stesso è il criterio di successo. Tutta l'evidenza è in D17.
 2. **D14** — bump combinato react/react-dom 19.2.8, poi chiudere #93/#94.
 3. **D3** — adozione di `color-scheme` scoped, ora con il gate axe dark di D13
    a fare da rete.
