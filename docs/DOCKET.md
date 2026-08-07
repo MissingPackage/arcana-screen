@@ -110,12 +110,22 @@ gli item aperti.
   restava chiara, perché segue l'elemento radice mentre la classe di tema vive
   su `body` (misurato: `html` restava `light` con `body` già `dark`).
   Verifica: su tutte e quattro le lane `body`/`html`/`input` passano tutti da
-  `light` a `dark`; il tema light è invariato per costruzione (`color-scheme:
-  light` è ciò che il browser assume comunque). Gli input di D2 **non**
-  regrediscono: 11.23:1 in dark, 14.08:1 in light. Il ruling prevedeva di
-  rovesciarsi in caso di regressione sugli input: non si è verificata.
-  Limite noto: axe non ispeziona il chrome nativo, quindi il gate dark è
-  necessario ma non sufficiente — la prova è la misura dei computed style.
+  `light` a `dark`. Gli input di D2 **non** regrediscono: `.widget-sidebar__search`
+  misura 11.23:1 in dark e 14.08:1 in light (l'elemento va nominato, altrimenti
+  il numero non è riproducibile). Il ruling prevedeva di rovesciarsi in caso di
+  regressione sugli input: non si è verificata.
+  CORREZIONE post-verifier: la prima stesura diceva che il tema light è
+  invariato "per costruzione, perché `color-scheme: light` è ciò che il browser
+  assume comunque". **È falso**: il valore iniziale è `normal`, non `light` —
+  misurato, prima del commit era `normal` su html/body/input in entrambi i temi.
+  La conclusione regge lo stesso, ma per misura e non per deduzione: con OS dark
+  emulato e app in tema light, 16/16 screenshot byte-identici prima/dopo su
+  tutte e quattro le lane, e nessun `prefers-color-scheme` nei bundle.
+  Limiti noti: (a) axe non ispeziona il chrome nativo, quindi il gate dark è
+  necessario ma non sufficiente; (b) la scrollbar della finestra **non** è stata
+  osservata a pixel — headless usa overlay scrollbar. Ciò che è provato è il
+  `color-scheme` calcolato su `html`; che ne discenda una scrollbar scura è
+  un'inferenza, per quanto solida (nulla in `src/` stila le scrollbar).
 
 - D1 / D4b / D8 / D8b / D11b / D12b [2026-07-16 → 2026-07-16] [merge] Tutti
   mergiati in `dev` il 2026-07-16 dall'utente: #83 (fix CSP WebKit), #87

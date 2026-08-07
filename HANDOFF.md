@@ -18,7 +18,7 @@ tutti, e HANDOFF/DOCKET erano rimasti indietro di tre settimane. Ruling
 - Applicato il 2026-08-07: gruppo `react` in `.github/dependabot.yml` (D9) ed
   eliminazione di `.github/worklows/` (D10). Motivazioni per esteso nel docket.
 - Gate ri-verificati il 2026-08-07 su `test/dark-axe-critical` (che parte dal
-  tip di `dev`): `test:ci` 136/136 + lint 0 errori + CSS 119.5/130 KiB; e2e
+  tip di `dev`): `test:ci` 136/136 + lint 0 errori + CSS 119.6/130 KiB; e2e
   **41 passed + 3 skip, 0 failed** su tutta la matrice, WebKit incluso.
 - Trappola operativa aggravata: il webServer Playwright è `npm run preview`, che
   serve `dist`. Una modifica a CSS/TS **non** si vede finché non si rifà
