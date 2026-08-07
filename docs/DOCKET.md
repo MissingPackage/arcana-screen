@@ -10,16 +10,10 @@ gli item aperti.
 
 ## Aperti
 
-- D21 [2026-08-07] [deps/ci] **BLOCCANTE PER TUTTI I MERGE.** Lo step CI "Audit
-  all dependencies" (`npm run check:security` = `npm audit --audit-level=high`)
-  esce **1 su qualsiasi branch, `dev` compreso**: quattro advisory pubblicate
-  contro versioni gia' pinnate — `brace-expansion`, `js-yaml`, `undici` (high) e
-  `postcss` (moderate). Verificato che NON sono state introdotte dal bump react:
-  le versioni sono identiche fra `origin/dev` e `deps/react-19.2.8`. La
-  produzione e' pulita — `npm audit --omit=dev --audit-level=moderate` esce 0 —
-  quindi il rischio reale e' limitato al tooling di build/test, ma il gate
-  blocca comunque ogni PR, incluse quelle di D18 e D20. Tutte e quattro hanno
-  `fixAvailable`. Prossima slice del loop.
+- D22 [2026-08-07] [merge] **DA MERGIARE PER PRIMA.** PR #100 sblocca
+  `check:security`, che usciva 1 su ogni branch e bloccava qualunque merge.
+  Finché non entra, né #99 né `test/dark-axe-critical` possono avere la CI
+  verde.
 - D20 [2026-08-07] [merge] Mergiare **PR #99** (bump combinato react/react-dom
   19.2.8 + types) e poi CHIUDERE #93 e #94 come superate — sono lo stesso
   guasto di D7: ciascuna da sola disallinea react e react-dom, tutte le suite
@@ -49,6 +43,16 @@ gli item aperti.
   ignoto e nessun consumatore.
 
 ## Chiusi
+
+- D21 [2026-08-07 → 2026-08-07] [deps/ci] Gate di sicurezza sbloccato con
+  **PR #100**. Quattro advisory pubblicate contro versioni già pinnate
+  (`brace-expansion`, `js-yaml`, `undici` high; `postcss` moderate): non erano
+  le dipendenze a essere cambiate, erano le advisory a essere nuove — ecco
+  perché il rosso è comparso senza che nessuno toccasse nulla. `npm audit fix`
+  senza `--force`: solo lockfile, 6 pacchetti transitivi patch/minor, 0
+  aggiunti, 0 rimossi, `package.json` invariato. `check:security` passa da
+  exit 1 a exit 0; l'audit di produzione era già 0 e resta 0, quindi il rischio
+  era confinato al tooling. Gate: `test:ci` 136/136, e2e 37+3 con 0 failed.
 
 - D14 [2026-08-07 → 2026-08-07] [deps] Recidiva dello split bump react
   risolta con un bump combinato manuale sul branch `deps/react-19.2.8`, come fu

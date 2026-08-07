@@ -1,7 +1,7 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-08-07, iterazione 15 (**D14 chiusa**: PR #99, bump combinato
-react 19.2.8). Iterazioni precedenti: 14 (D3), 13 (D17), 12 (diagnosi D17),
+Aggiornato: 2026-08-07, iterazione 16 (**D21 chiusa**: PR #100 sblocca la CI).
+Iterazioni precedenti: 15 (D14, PR #99), 14 (D3), 13 (D17), 12 (diagnosi D17),
 11 (D13). Il loop era fermo by design dal
 2026-07-16 (it. 10) in attesa dei merge dell'utente: i merge sono avvenuti
 tutti, e HANDOFF/DOCKET erano rimasti indietro di tre settimane. Ruling
@@ -51,14 +51,11 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 
 ## §next-decidable (in ordine)
 
-1. **D21** — sbloccare la CI: `check:security` esce 1 su ogni branch, `dev`
-   incluso, e blocca tutti i merge. Quattro advisory su dipendenze di sviluppo,
-   tutte con fix disponibile. **Va prima di ogni altra cosa**: finche' e' rosso,
-   nessuna PR puo' essere mergiata con la CI verde.
-2. **D15** — riesame di `docs/specs/acceptance-matrix.md`, stantia.
-3. Ruling dell'utente aperti: **D18** (merge di `test/dark-axe-critical`),
-   **D20** (merge della PR #99 + chiusura di #93/#94), **D16** (revoca dei
-   secret orfani, incluso il PAT `TOKEN`).
+1. **D15** — riesame di `docs/specs/acceptance-matrix.md`, stantia.
+2. Ruling dell'utente aperti, **in quest'ordine**: **D22** (merge PR #100 —
+   sblocca la CI, va per prima), poi **D20** (merge PR #99 + chiusura di
+   #93/#94) e **D18** (merge di `test/dark-axe-critical`), infine **D16**
+   (revoca dei secret orfani, incluso il PAT `TOKEN`).
 
 ## Ruling di protocollo presi il 2026-08-07 (loop-verifier iterazione 11)
 
