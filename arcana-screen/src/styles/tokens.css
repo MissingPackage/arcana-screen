@@ -31,6 +31,13 @@
    ============================================================ */
 
 :root {
+  /* Tells the UA which palette the native chrome should use: scrollbars,
+     caret, autofill, spinners, the internals of selects. Without it the
+     parchment theme is fine but the dark theme keeps light native parts on
+     dark surfaces - the same defect class as D2/D4/D11, which were all
+     "custom surface dark, nested native piece light" (docket D3). */
+  color-scheme: light;
+
   /* ---- Command / navy (the screen) ---- */
   --as-navy: #061f36;          /* header, utility dock, presenter blackout */
   --as-navy-soft: #123957;     /* raised navy: secondary buttons on chrome */
@@ -99,7 +106,19 @@
    the ink warms to parchment; gold stays exactly as loud.
    The app toggles class .dark-theme on <body> (themeStore).
    ============================================================ */
+/* The theme class lives on body, but the viewport's own scrollbar follows the
+   root element, so body alone would leave a light scrollbar framing the dark
+   app. Measured: without this html keeps color-scheme:light while body is
+   dark. */
+html:has(body.dark-theme) {
+  color-scheme: dark;
+}
+
 .dark-theme {
+  /* Inherited, so every descendant's native chrome follows: scrollbars inside
+     main, caret, autofill, select internals. */
+  color-scheme: dark;
+
   --as-paper: #101d2b;
   --as-paper-deep: #0c1824;
   --as-surface: #182b3e;

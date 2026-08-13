@@ -1,24 +1,35 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-08-07, riallineamento post-merge. Il loop era fermo by design
-dal 2026-07-16 (it. 10) in attesa dei merge dell'utente: **i merge sono
-avvenuti tutti**, e HANDOFF/DOCKET erano rimasti indietro di tre settimane.
-Ruling `[decisione]`/`[design]`/`[ci]`/`[deps]` presi (D3, D9, D10). Il loop
-riparte da **D13**.
+Aggiornato: 2026-08-07, dopo i merge. `dev` @ `1c1ff4f` contiene lo sblocco
+della CI, react 19.2.8 e il gate axe dark con i suoi tre fix. Loop fermo:
+lavoro non-gated esaurito. Iterazioni: 17 (D15, PR #101), 16 (D21, PR #100), 15 (D14,
+PR #99), 14 (D3), 13 (D17), 12 (diagnosi D17), 11 (D13). Il loop era fermo by design dal
+2026-07-16 (it. 10) in attesa dei merge dell'utente: i merge sono avvenuti
+tutti, e HANDOFF/DOCKET erano rimasti indietro di tre settimane. Ruling
+`[decisione]`/`[design]`/`[ci]`/`[deps]` presi dal loop (D3, D9, D10).
 
 ## Stato corrente
 
-- `origin/dev` @ `22bb1e2`. Contiene tutte le PR feature del ciclo precedente:
+- `origin/dev` @ `5817277` (i due commit dei ruling del 2026-08-07 sono sopra
+  `22bb1e2`). Il tip contiene tutte le PR feature del ciclo precedente:
   #83 (fix CSP WebKit), #84 (prova Timer post-sospensione), #85 (input dark),
   #86 (react allineato 19.2.7), #87 (sweep session.css), #88 (toggle
   Prepare/Run dark), #89 (token shell header). Sopra ci sono solo bump
   dependabot di CI actions.
 - Applicato il 2026-08-07: gruppo `react` in `.github/dependabot.yml` (D9) ed
   eliminazione di `.github/worklows/` (D10). Motivazioni per esteso nel docket.
-- **Gate NON ri-verificati su questo `dev`.** L'ultima evidenza verde
-  (`test:ci` 136/136, e2e 37+3 su tutta la matrice WebKit inclusa) è del
-  2026-07-16 e precede i bump dependabot successivi. Prima di qualsiasi claim
-  serve una passata fresca.
+- Gate su `dev` dopo i merge: `test:ci` 136/136 + lint 0 errori + CSS
+  119.6/130 KiB; `check:security` exit 0; e2e **41 passed + 3 skip, 0 failed**
+  su tutta la matrice, WebKit incluso. La CI di GitHub è verde su tutti e
+  cinque i job — verificata su ciascuna PR prima del merge.
+- **`test:ci` NON equivale al gate CI.** Il workflow `Quality gate` esegue in
+  più `npm run check:security` (audit di tutte le dipendenze) e la matrice
+  browser. Un `test:ci` verde non ha mai implicato una CI verde, ed è così che
+  la #99 è passata in locale ed è caduta su GitHub.
+- Trappola operativa aggravata: il webServer Playwright è `npm run preview`, che
+  serve `dist`. Una modifica a CSS/TS **non** si vede finché non si rifà
+  `npm run build`, e `reuseExistingServer` ricicla un preview stantio. Il worktree
+  parte senza `node_modules`: `npm ci` prima di qualsiasi gate.
 - Recidiva viva: #93/#94 (react/react-dom 19.2.8) sono di nuovo uno split bump
   rotto, entrambe `quality=FAILURE` → D14.
 
@@ -37,17 +48,35 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 - Linear MCP **non autenticato** in sessioni non interattive: il docket file
   `docs/DOCKET.md` è il tracker operativo finché Linear non è raggiungibile.
 - Nota operativa: vite-preview zombie su :4173 possono dare e2e tutti rossi —
-  `pkill vite` prima di diagnosticare.
+  `pkill -f '[v]ite'` prima di diagnosticare (il pattern nudo `vite` uccide la
+  shell stessa).
 
 ## §next-decidable (in ordine)
 
-1. **D13** — variante dark del test axe nella suite `@critical`. Sbloccata.
-2. **D14** — bump combinato react/react-dom 19.2.8, poi chiudere #93/#94.
-3. **D3** — adozione di `color-scheme` scoped, con la suite axe dark di D13
-   come gate (quindi dopo D13).
-4. **D15** — riesame di `docs/specs/acceptance-matrix.md`, stantia.
-5. Ruling dell'utente ancora aperto: **D16** (revoca dei secret orfani, incluso
-   il PAT `TOKEN`) — tocca credenziali, il loop non le tocca.
+I merge hanno riaperto lavoro non-gated: il gate dark è in `dev`, quindi la
+riga *Accessibility/input* della matrice può essere promossa. Il loop può
+ripartire con `/loop /product-loop`.
+
+1. **Promuovere la riga *Accessibility/input*** della matrice di accettazione:
+   ora che il gate dark è in `dev`, può citarlo. Va coordinato con la PR #101,
+   che tocca lo stesso file ed è ancora aperta.
+2. Ruling dell'utente ancora aperti: **D23** (merge PR #101, documentazione) e
+   **D16** (revoca dei secret orfani, incluso il PAT `TOKEN`).
+
+## Ruling di protocollo presi il 2026-08-07 (loop-verifier iterazione 11)
+
+- **Residue-routing, eccezione a verbale.** Il ripristino della fix D11 è stato
+  assorbito nella slice D13 invece di finire a docket. Regola confermata con
+  un'eccezione esplicita: se il deliverable della slice è un *gate* e il gate è
+  rosso per un difetto pre-esistente, il difetto minimo che lo rende verde
+  entra nella slice — altrimenti si consegna un gate rosso, che è peggio.
+  L'eccezione va sempre giustificata nel corpo del commit.
+- **Contraddizione di policy sui branch.** `CLAUDE.md` di progetto dice "commit
+  + push su `origin/dev` a ogni unità di lavoro"; la direttiva del loop dice
+  "nessun merge su dev, PR-ready è lo stato obiettivo". Vince **la direttiva del
+  loop** per il lavoro di slice: si lavora su feature branch e il merge resta
+  ruling dell'utente. La riga di `CLAUDE.md` va letta come riferita ai commit di
+  documentazione/protocollo fuori dal loop.
 
 ## Protocollo
 
