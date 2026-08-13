@@ -11,8 +11,9 @@ tutti, e HANDOFF/DOCKET erano rimasti indietro di tre settimane. Ruling
 
 ## Stato corrente
 
-- `origin/dev` @ `5817277` (i due commit dei ruling del 2026-08-07 sono sopra
-  `22bb1e2`). Il tip contiene tutte le PR feature del ciclo precedente:
+- `origin/dev` @ `79ca398` (2026-08-13; sopra `22bb1e2` ci sono i ruling del
+  2026-08-07 e le iterazioni 18–19). Il tip contiene tutte le PR feature del
+  ciclo precedente:
   #83 (fix CSP WebKit), #84 (prova Timer post-sospensione), #85 (input dark),
   #86 (react allineato 19.2.7), #87 (sweep session.css), #88 (toggle
   Prepare/Run dark), #89 (token shell header). Sopra ci sono solo bump
@@ -76,11 +77,14 @@ la cui riga "Next (iter. 20)" è in sospeso da luglio.
 
 1. **D27 — a 390px il pulsante *Next Turn* è irraggiungibile** (P0
    responsive, pre-esistente, scoperto alla iter. 20 allargando il gate axe).
-   Il dock navy è dipinto sopra l'initiative footer: "Up next" legge 2.86:1 e
-   il pulsante primario del combattimento cade fuori dal viewport
+   L'initiative footer **eccede il proprio spazio** e finisce dentro la banda
+   del dock, che gli è dipinto sopra: "Up next" legge **2.85:1** (axe) e il
+   pulsante primario del combattimento cade fuori dal viewport
    (`elementFromPoint` → `null`). Sul device reale al tavolo il DM non può far
-   avanzare il turno. Misure complete nel docket. È **layout responsive, non un
-   colore**: slice dedicata, con giudizio designer, e alla fine va tolta la
+   avanzare il turno. Misure complete, **con il contesto di emulazione**, nel
+   docket — l'elemento da correggere è l'overflow del footer, non il dock. È
+   **layout responsive, non un colore**: slice dedicata, con giudizio designer,
+   e alla fine va tolta la
    guard mobile in `e2e/critical-flows.spec.ts` (che oggi esclude la scansione
    axe light dell'editor su mobile proprio per questo).
 2. **D29 — completamento di pattern sullo stato non-cromatico** (11 siti,

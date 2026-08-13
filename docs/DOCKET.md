@@ -17,15 +17,29 @@ gli item aperti.
 
 - D27 [2026-08-13] [bug/responsive] **P0 — a 390px il dock copre il footer del
   tracker e il pulsante *Next Turn* è irraggiungibile.** Misurato su `dev`
-  pulito (f6991a3, worktree separato, build + probe a 390×844, quindi
-  **pre-esistente**, non causato dalla slice dei toggle): `.utility-dock`
-  occupa y 621→844 con fondo `#061f36`, `.initiative-footer` sta a y 821→914,
-  ed `elementFromPoint` sul testo "Up next: …" restituisce il **dock**, che ci
-  è dipinto sopra. Il testo legge `#586678` su `#061f36` = **2.86:1**. Il
-  pulsante *Next Turn* cade a y 870→914, fuori da un viewport alto 844:
-  `elementFromPoint` restituisce `null`. Su un telefono il DM non può far
-  avanzare il turno — non è un difetto di contrasto, è il controllo primario
-  del combattimento fuori portata. Scoperto perché la scansione axe è stata
+  pulito (**pre-esistente**, non causato dalla slice dei toggle: riprodotto
+  senza nemmeno aprire il live editor). **Contesto delle misure, perché senza
+  non sono riproducibili:** progetto `chromium-mobile`, cioè `devices['Pixel 5']`
+  con viewport 390×844 — non un chromium nudo ridimensionato a 390, che dà una
+  geometria diversa.
+  - `.utility-dock` y **621→844**, fondo `#061f36`; `.initiative-footer` y
+    **821→914**. Il footer **eccede il proprio spazio** e finisce dentro la
+    banda del dock.
+  - Ordine di sovrapposizione, misurato con `elementsFromPoint` al **centro
+    dello `<strong>`** di "Up next" (y≈841, dentro la banda del dock): il primo
+    elemento restituito è **`FOOTER.utility-dock`** — il dock è dipinto
+    **sopra** il testo. Sotto y 844 il testo non è più coperto, ma è comunque
+    fuori dal viewport. (Il punto di campionamento va citato: prendendone uno
+    sotto 844 la pila risulta invertita, ed è così che due misure oneste
+    possono contraddirsi.)
+  - Contrasto: `#586678` su `#061f36`; **axe riporta 2.85:1** (valore preso dal
+    report axe, non da un calcolo a mano).
+  - Il pulsante *Next Turn* cade a y **870→914**, fuori da un viewport alto
+    844: `elementFromPoint` al suo centro restituisce **`null`**.
+  Su un telefono il DM non può far avanzare il turno — non è un difetto di
+  contrasto, è il controllo primario del combattimento fuori portata. Per chi
+  lo aggiusterà: l'elemento da guardare è **l'overflow del footer/panel**, non
+  il dock, che è statico e sta dove deve. Scoperto perché la scansione axe è stata
   allargata al live editor. Finché non è chiuso, la prova axe **light** su
   mobile salta l'editor (guard commentata in `e2e/critical-flows.spec.ts`; la
   prova dark lo copre su tutte e quattro le lane). Da fare in una slice
@@ -40,9 +54,14 @@ gli item aperti.
   e non regge controlli da 24px. **Ciò che il ruling costa, detto per intero:**
   l'editor è la stessa posizione contro cui il DM ha un P1 ancora aperto
   (ledger iter. 18: "lontani dalla riga toccata, editor in fondo, fuori dallo
-  scroll"), quindi la slice sposta il P0 in un punto già contestato. Misurato a
-  390px: i toggle cadono a `top: 966` in un viewport da 844 → su telefono non è
-  "un tap", è scorri-e-tap. La chiusura naturale è il P1 già a ledger —
+  scroll"), quindi la slice sposta il gap in un punto già contestato. Misurato
+  in **entrambi** i contesti, perché danno numeri diversi e citarne uno solo
+  come "a 390px" è esattamente l'imprecisione che il verifier ha contestato: su
+  `chromium-mobile` (Pixel 5, 390×844) i toggle cadono a `top: 1026` in un
+  viewport da 844 e misurano **44×44px**; su un chromium nudo a 390×844,
+  `top: 966` e **41×26px**. In entrambi i casi su telefono non è "un tap", è
+  scorri-e-tap — ma sul device vero i target sono 44px, non 25,5. La chiusura
+  naturale è il P1 già a ledger —
   **editor ancorato alla riga selezionata / pinnato in alto** — che vale sia
   per i toggle sia per Earlier/Later. Non promosso a fatto compiuto: il DM
   potrà bocciare la posizione.
