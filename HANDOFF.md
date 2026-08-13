@@ -69,47 +69,35 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 
 ## §next-decidable (in ordine)
 
-Fatto il 2026-08-13 (D24): la riga *Accessibility/input* è promossa, sul branch
-della PR #101 — aggiornato da `dev`, con la CI sbloccata. Con questo il lavoro
-**operativo** non-gated è di nuovo esaurito, e il prossimo passo torna a essere
-di **prodotto**: viene dal ledger `docs/review/2026-07-13-design-review-loop.md`,
-la cui riga "Next (iter. 20)" è in sospeso da luglio.
+Stato al 2026-08-13, dopo l'iterazione 20. Il lavoro di prodotto non-gated si
+e' fermato contro una decisione: la voce 1 **non e' piu' una slice che il loop
+possa prendere da solo**.
 
-1. **D27 — ⚑ SERVE UN RULING TUO, non è più una slice che il loop possa
-   prendere.** L'iterazione 20 l'ha diagnosticato e **non** l'ha corretto. Non
-   è "il pulsante Next Turn a 390px": sotto gli 820px il Run **non ha un
-   contenitore che scorra**, quindi ogni Focus lascia controlli fuori dallo
-   schermo — misurati **11 su Social a 390px**, 9 su Narrative, e da 1 a 9
-   anche a 768 e 820. La causa è che `.app-shell` è `100dvh` +
-   `overflow: hidden` e `index.css:738` rende il workspace `flex: 1`: la regola
-   `@media (max-width: 820px)` di `session.css` non vince mai. Due fix sono
-   state provate e **scartate** (una lascia il dock sopra la lista, l'altra
-   rompe l'header della shell anche in Prepare) — dettaglio nel docket, perché
-   la prossima iterazione non le rifaccia. **La scelta è di prodotto:** o il Run
-   diventa una colonna che scorre, o resta viewport-locked e si rinuncia
-   all'impilamento sotto gli 820. Tocca entrambe le modalità.
-   *(voce storica, superata dalla riga qui sopra:)* a 390px il pulsante
-   *Next Turn* è irraggiungibile (P0 responsive, pre-esistente).
-   L'initiative footer **eccede il proprio spazio** e finisce dentro la banda
-   del dock, che gli è dipinto sopra: "Up next" legge **2.85:1** (axe) e il
-   pulsante primario del combattimento cade fuori dal viewport
-   (`elementFromPoint` → `null`). Sul device reale al tavolo il DM non può far
-   avanzare il turno. Misure complete, **con il contesto di emulazione**, nel
-   docket — l'elemento da correggere è l'overflow del footer, non il dock. È
-   **layout responsive, non un colore**: slice dedicata, con giudizio designer,
-   e alla fine va tolta la
-   guard mobile in `e2e/critical-flows.spec.ts` (che oggi esclude la scansione
-   axe light dell'editor su mobile proprio per questo).
-2. **D29 — completamento di pattern sullo stato non-cromatico** (11 siti,
-   worklist per file:riga nel docket, fra cui il toggle Prepare/Run). Da fare
-   come **un** pattern ovunque in una passata sola, non a spizzichi.
-3. Ruling dell'utente ancora aperti: **D23** (merge PR #101, ora con due commit
-   in più) e **D16** (revoca dei secret orfani, incluso il PAT `TOKEN`).
-   Aggiunto: **PR #104** (toggle condizioni, iter. 20) è aperta con la **CI
-   verde su tutti e cinque i job**, WebKit incluso, e attende il merge —
-   che resta dell'utente.
+1. **D27 — ⚑ SERVE UN RULING DI PRODOTTO (tuo).** L'iterazione 20 l'ha
+   diagnosticato a fondo e **non** l'ha corretto, di proposito. Non e' "il
+   pulsante Next Turn a 390px": sotto gli 820px il Run **non ha un contenitore
+   che scorra**, quindi ogni Focus lascia controlli fuori dallo schermo —
+   misurati **11 su Social a 390px**, 9 su Narrative, 3 piu' 5 coperti su
+   Combat, e da 1 a 9 anche a 768 e 820. Causa: `.app-shell` e' `100dvh` +
+   `overflow: hidden` e `index.css:738` rende il workspace un `flex: 1`, quindi
+   la `@media (max-width: 820px)` di `session.css` non vince mai. Due fix
+   provate e **scartate** (una lascia il dock sopra la lista, l'altra rompe
+   l'header della shell anche in Prepare): sono a verbale nel docket perche' non
+   vengano rifatte. **La scelta:** o il Run diventa una colonna che scorre, o
+   resta viewport-locked rinunciando all'impilamento sotto gli 820. Tocca
+   entrambe le modalita', per questo non la prende il loop.
+2. **D29 — completamento del pattern "lo stato non e' mai solo colore"** (11
+   siti, worklist per file:riga nel docket, incluso il toggle Prepare/Run). E'
+   **l'unica slice sostanziale che non dipenda da una tua decisione**: se il
+   ruling su D27 non arriva, l'iterazione 22 fa questa.
+3. Ruling dell'utente ancora aperti: **D23** (merge PR #101), **D16** (revoca
+   dei secret orfani, incluso il PAT `TOKEN`) e il merge di **PR #104** (toggle
+   condizioni, CI verde su tutti e cinque i job, WebKit incluso).
 4. Se si rilancia la matrice e2e in container, leggere prima **D25**: quattro
    progetti insieme danno falsi rossi convincenti.
+5. Nota di numerazione: il ledger di prodotto conta le iterazioni **una avanti**
+   rispetto a questo file (ledger "Iter. 21" = iterazione 20 qui). Disallineamento
+   ereditato, non sanato per non riscrivere lo storico.
 
 ## Ruling di protocollo presi il 2026-08-07 (loop-verifier iterazione 11)
 
