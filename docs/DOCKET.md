@@ -15,6 +15,20 @@ gli item aperti.
   contiene ora anche la promozione della riga *Accessibility/input* e il merge
   di `dev`. Il merge resta ruling dell'utente.
 
+- D30 [2026-08-13 → 2026-08-13] [deps] **RULING preso dal loop: audit fix
+  lockfile-only per `nanoid`.** Recidiva esatta di D21: advisory **nuova**
+  (GHSA-2v37-7h3g-55p8, high) pubblicata contro una versione già pinnata
+  (`nanoid` 3.3.17, transitiva), quindi il gate `check:security` è diventato
+  rosso **senza che nessuno toccasse le dipendenze** — verificato che
+  `dev` stesso fosse rosso (exit 1) prima di attribuirlo alla PR #104.
+  `npm audit fix --package-lock-only`, senza `--force`: **3 righe di
+  lockfile**, `package.json` invariato, 3.3.17 → 3.3.18. `check:security`
+  torna a exit 0, `test:ci` 136/136. Corretto su `dev` e non dentro la PR
+  #104: è la lezione di D11/D14 — una fix impilata dentro una feature PR
+  è esattamente ciò che, al merge, ha già revertito una fix una volta.
+  Nota ricorrente: **`test:ci` non è il gate CI**; l'audit gira solo in CI,
+  quindi un verde locale non ha mai implicato un verde su GitHub.
+
 - D27 [2026-08-13] [bug/responsive] **P0 — a 390px il dock copre il footer del
   tracker e il pulsante *Next Turn* è irraggiungibile.** Misurato su `dev`
   pulito (**pre-esistente**, non causato dalla slice dei toggle: riprodotto
