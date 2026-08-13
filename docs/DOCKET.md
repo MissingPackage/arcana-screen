@@ -11,7 +11,21 @@ gli item aperti.
 ## Aperti
 
 - D23 [2026-08-07] [merge] PR #101, revisione dell'acceptance-matrix. Solo
-  documentazione, indipendente dalle altre.
+  documentazione, indipendente dalle altre. **Aggiornata il 2026-08-13** (D24):
+  contiene ora anche la promozione della riga *Accessibility/input* e il merge
+  di `dev`. Il merge resta ruling dell'utente.
+
+- D25 [2026-08-13] [ci/ops] **Trappola d'ambiente, misurata: la matrice
+  `@critical` completa dentro un solo container Playwright dà falsi rossi.**
+  Quattro progetti insieme (44 prove, 11 worker, un solo server `preview`) →
+  **14 failed** sparsi su firefox, webkit e chromium-mobile; **gli stessi test
+  rilanciati un progetto per volta nello stesso container passano tutti**. È
+  contesa di risorse, non regressione. Chi verifica WebKit da Fedora deve
+  separare i progetti o limitare `--workers`, altrimenti legge un rosso che non
+  esiste — ed è un rosso convincente, perché cade proprio sui gate axe. Da
+  valutare: fissare `workers` nel `playwright.config.ts` per il caso container,
+  oppure documentarlo nel runbook. Evidenza:
+  `docs/verification/2026-08-13-accessibility-matrix.md`.
 - D16 [2026-08-07] [security] Il repo ha 7 secret creati il 2025-04-26 per il
   workflow project-board eliminato in D10: `TOKEN` (verosimilmente un PAT),
   `PROJECT_ID`, `STATUS_FIELD_ID`, `IN_PROGRESS_OPTION_ID`,
@@ -21,6 +35,27 @@ gli item aperti.
   ignoto e nessun consumatore.
 
 ## Chiusi
+
+- D24 [2026-08-13 → 2026-08-13] [docs] **Riga *Accessibility/input* promossa**
+  (§next-decidable 1). La revisione del 2026-08-07 aveva posto una condizione
+  esplicita — "si potrà aggiornare solo dopo quel merge" — e il merge di #103
+  l'ha soddisfatta: la colonna *Browser* passa a verde automatico in entrambi i
+  temi su tutte e quattro le lane. La riga **resta `partial`**: manca l'audit
+  moderato con persone reali. Prova rifatta in locale invece di citare la CI:
+  `test:ci` 136/136, matrice **41 passed + 3 skip, 0 failed**, webkit nel
+  container `v1.61.1-noble` (su Fedora non parte per librerie mancanti).
+  Corretto per strada un errore di conteggio nella prosa del 2026-08-07, che
+  dava "11 manual-pass, 8 partial, 3 green" come conteggio *effettivo* mentre
+  erano i numeri **prima** delle sue stesse promozioni: ricontate le celle,
+  sono **12 / 6 / 4** — come il docket D15 già diceva correttamente. Il branch
+  è stato aggiornato da `dev` perché la CI della PR era rossa su
+  `check:security` per l'assenza di #100, non per il suo contenuto.
+  **Nota di protocollo:** il loop-verifier ha bocciato la prima stesura della
+  cella, che accorpava il gate **44px** alle prove cross-browser mentre gira
+  `test.skip`-ato su chromium-mobile soltanto. Overclaim corretto **prima del
+  push**, ed è esattamente il caso per cui il gate esiste: era un errore in
+  senso favorevole a sé stesso, in una cella che serve a impedire proprio
+  quello.
 
 - D22 / D20 / D18 [2026-08-07 → 2026-08-07] [merge] **Mergiati tutti e tre in
   `dev` su autorizzazione esplicita dell'utente**, in quest'ordine e ciascuno

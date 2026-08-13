@@ -1,8 +1,8 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-08-07, dopo i merge. `dev` @ `1c1ff4f` contiene lo sblocco
-della CI, react 19.2.8 e il gate axe dark con i suoi tre fix. Loop fermo:
-lavoro non-gated esaurito. Iterazioni: 17 (D15, PR #101), 16 (D21, PR #100), 15 (D14,
+Aggiornato: 2026-08-13, iterazione 18 (D24, PR #101 estesa). `dev` @ `e22c928`
+contiene lo sblocco della CI, react 19.2.8 e il gate axe dark con i suoi tre
+fix. Iterazioni: 18 (D24/D25, PR #101), 17 (D15, PR #101), 16 (D21, PR #100), 15 (D14,
 PR #99), 14 (D3), 13 (D17), 12 (diagnosi D17), 11 (D13). Il loop era fermo by design dal
 2026-07-16 (it. 10) in attesa dei merge dell'utente: i merge sono avvenuti
 tutti, e HANDOFF/DOCKET erano rimasti indietro di tre settimane. Ruling
@@ -51,17 +51,43 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
   `pkill -f '[v]ite'` prima di diagnosticare (il pattern nudo `vite` uccide la
   shell stessa).
 
+### Workstation Fedora (dove ha girato l'iterazione 18)
+
+- **WebKit non parte**: `browserType.launch` chiede `libicu74`/`libjpeg-turbo8`/
+  `libwoff1`/`gstreamer1.0-libav`, nomi di pacchetto Debian. Le 11 prove
+  `@critical` cadono tutte su `webkit-desktop` e **non è un difetto dell'app**.
+  Rimedio funzionante: l'immagine `mcr.microsoft.com/playwright:v1.61.1-noble`
+  con podman, già in cache locale —
+  `podman run --rm -v "$PWD":/work:Z -w /work --network host <img> bash -c "npx
+  playwright test --grep '@critical' --project=webkit-desktop"`.
+  **Un progetto per volta**: vedi D25.
+- `npm ci` prima dei gate vale anche qui: il `node_modules` locale precedeva
+  l'adozione di Work Sans e il build cadeva sulla risoluzione di
+  `@fontsource/work-sans`.
+
 ## §next-decidable (in ordine)
 
-I merge hanno riaperto lavoro non-gated: il gate dark è in `dev`, quindi la
-riga *Accessibility/input* della matrice può essere promossa. Il loop può
-ripartire con `/loop /product-loop`.
+Fatto il 2026-08-13 (D24): la riga *Accessibility/input* è promossa, sul branch
+della PR #101 — aggiornato da `dev`, con la CI sbloccata. Con questo il lavoro
+**operativo** non-gated è di nuovo esaurito, e il prossimo passo torna a essere
+di **prodotto**: viene dal ledger `docs/review/2026-07-13-design-review-loop.md`,
+la cui riga "Next (iter. 20)" è in sospeso da luglio.
 
-1. **Promuovere la riga *Accessibility/input*** della matrice di accettazione:
-   ora che il gate dark è in `dev`, può citarlo. Va coordinato con la PR #101,
-   che tocca lo stesso file ed è ancora aperta.
-2. Ruling dell'utente ancora aperti: **D23** (merge PR #101, documentazione) e
-   **D16** (revoca dei secret orfani, incluso il PAT `TOKEN`).
+1. **Toggle rapido delle condizioni sulla riga combattente** (iter. 20 del
+   ledger di prodotto, P0 del giudice DM). Oggi una condizione si aggiunge o
+   toglie **solo** dal campo testo comma-separated del live editor
+   (`RunWorkspace.tsx`, `changeConditions` → `value.split(',')`): interazione
+   sbagliata per il gioco dal vivo, ed è **il più grosso gap rimasto sulle
+   condizioni** secondo il DM. Slice da un'iterazione: un set breve di stati
+   frequenti (prone / poisoned / concentration / stunned / restrained) come
+   toggle, riusando le `.condition-chips` già a schermo. Attenzione: le chip
+   hanno un override dark-theme e una taglia compact — vanno preservati, e
+   **axe va eseguito anche in dark**, non solo light (lezione iter. 19, ora
+   coperta dal gate D13).
+2. Ruling dell'utente ancora aperti: **D23** (merge PR #101, ora con due commit
+   in più) e **D16** (revoca dei secret orfani, incluso il PAT `TOKEN`).
+3. Se si rilancia la matrice e2e in container, leggere prima **D25**: quattro
+   progetti insieme danno falsi rossi convincenti.
 
 ## Ruling di protocollo presi il 2026-08-07 (loop-verifier iterazione 11)
 
