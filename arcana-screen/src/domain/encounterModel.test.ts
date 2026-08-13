@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, removeCombatant, reorderTiedCombatant, sortCombatants, type EncounterState } from './encounterModel';
+import { adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, hasCondition, removeCombatant, reorderTiedCombatant, sortCombatants, toggleCondition, type EncounterState } from './encounterModel';
 
 const encounter = (): EncounterState => ({
   round: 3,
@@ -20,6 +20,33 @@ describe('Encounter model', () => {
 
     expect(sortCombatants(input).map((item) => item.id)).toEqual(['c', 'a', 'b']);
     expect(input.map((item) => item.id)).toEqual(['b', 'a', 'c']);
+  });
+
+  it('toggles a condition on and off without disturbing the others', () => {
+    const added = toggleCondition(encounter(), 'kael', 'Prone');
+    expect(added.combatants[0].conditions).toEqual(['Blessed', 'Prone']);
+
+    const removed = toggleCondition(added, 'kael', 'Prone');
+    // Blessed was typed by hand and must survive both taps: the toggle owns its
+    // own condition, not the combatant's whole condition list.
+    expect(removed.combatants[0].conditions).toEqual(['Blessed']);
+    expect(removed.combatants[1].conditions).toEqual([]);
+  });
+
+  it('clears a condition that was typed in a different case', () => {
+    const typed = { ...encounter() };
+    typed.combatants = [{ ...typed.combatants[0], conditions: ['prone'] }, typed.combatants[1]];
+
+    // Verbatim comparison would miss "prone" and add "Prone" beside it, leaving
+    // the combatant holding the same state twice and the toggle unable to clear it.
+    expect(hasCondition(typed.combatants[0], 'Prone')).toBe(true);
+    expect(toggleCondition(typed, 'kael', 'Prone').combatants[0].conditions).toEqual([]);
+  });
+
+  it('ignores a blank condition and an unknown combatant', () => {
+    const base = encounter();
+    expect(toggleCondition(base, 'kael', '   ')).toBe(base);
+    expect(toggleCondition(base, 'ghost', 'Prone').combatants).toEqual(base.combatants);
   });
 
   it('wraps to the first combatant and increments the round', () => {

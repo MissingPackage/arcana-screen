@@ -42,7 +42,7 @@ import {
   type FocusId,
   type FocusWorkspace,
 } from '../../domain/focusModel';
-import { addCombatant, adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, healCombatant, removeCombatant, reorderTiedCombatant, sortCombatants, type EncounterCombatant, type EncounterState } from '../../domain/encounterModel';
+import { QUICK_CONDITIONS, addCombatant, adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, hasCondition, healCombatant, removeCombatant, reorderTiedCombatant, sortCombatants, toggleCondition, type EncounterCombatant, type EncounterState } from '../../domain/encounterModel';
 import { mintNpc } from '../../domain/npcModel';
 import { usePartyStore } from '../../store/usePartyStore';
 import type { PartyMember } from '../../domain/partyModel';
@@ -561,6 +561,11 @@ function CombatView({
         : combatant),
     });
   };
+  const flipCondition = (condition: string) => {
+    if (!selected) return;
+    setUndo(encounter);
+    updateEncounter(toggleCondition(encounter, selected.id, condition));
+  };
   const resetEncounter = () => {
     setUndo(encounter);
     updateEncounter({ round: 1, currentIndex: null, combatants: [] });
@@ -654,7 +659,7 @@ function CombatView({
           <button type="button" onClick={() => updateEncounter(advanceTurn(encounter))}>Next Turn <ArrowRight size={22} /></button>
         </footer>
         {!selected && encounter.combatants.length > 0 && <p className="tracker-hint">Tap a combatant to adjust HP, temp HP and conditions. Tap its initiative to set the rolled value.{anyTied ? ' A linked badge marks tied initiatives — open one to nudge it earlier or later.' : ''}</p>}
-        {selected && <div className="combat-live-editor" role="region" aria-label={`Live controls for ${selected.name}`}><strong>{selected.name}</strong><span>HP {selected.hp} / {selected.maxHp} · Temp {selected.tempHp}</span><button type="button" onClick={() => changeHp(-5)}>−5 HP</button><button type="button" onClick={() => changeHp(-1)}>−1 HP</button><button type="button" onClick={() => changeHp(1)}>+1 HP</button><button type="button" onClick={() => changeHp(5)}>+5 HP</button><button type="button" onClick={() => changeTempHp(-1)}>−1 Temp</button><button type="button" onClick={() => changeTempHp(1)}>+1 Temp</button>{(selectedCanTieUp || selectedCanTieDown) && <span className="tie-move" role="group" aria-label={`Break the initiative tie for ${selected.name}`}><button type="button" disabled={!selectedCanTieUp} aria-label={`Move ${selected.name} earlier in the initiative tie`} onClick={() => reorderTie(selected.id, 'up')}><CaretUp size={13} /> Earlier</button><button type="button" disabled={!selectedCanTieDown} aria-label={`Move ${selected.name} later in the initiative tie`} onClick={() => reorderTie(selected.id, 'down')}><CaretDown size={13} /> Later</button></span>}<label>Conditions<input aria-label={`Conditions for ${selected.name}`} value={selected.conditions.join(', ')} onChange={(event) => changeConditions(event.target.value)} placeholder="Prone, poisoned…" /></label><button type="button" className="remove-combatant" aria-label={`Remove ${selected.name} from the encounter`} onClick={removeSelected}><Trash size={14} /> Remove</button></div>}
+        {selected && <div className="combat-live-editor" role="region" aria-label={`Live controls for ${selected.name}`}><strong>{selected.name}</strong><span>HP {selected.hp} / {selected.maxHp} · Temp {selected.tempHp}</span><button type="button" onClick={() => changeHp(-5)}>−5 HP</button><button type="button" onClick={() => changeHp(-1)}>−1 HP</button><button type="button" onClick={() => changeHp(1)}>+1 HP</button><button type="button" onClick={() => changeHp(5)}>+5 HP</button><button type="button" onClick={() => changeTempHp(-1)}>−1 Temp</button><button type="button" onClick={() => changeTempHp(1)}>+1 Temp</button>{(selectedCanTieUp || selectedCanTieDown) && <span className="tie-move" role="group" aria-label={`Break the initiative tie for ${selected.name}`}><button type="button" disabled={!selectedCanTieUp} aria-label={`Move ${selected.name} earlier in the initiative tie`} onClick={() => reorderTie(selected.id, 'up')}><CaretUp size={13} /> Earlier</button><button type="button" disabled={!selectedCanTieDown} aria-label={`Move ${selected.name} later in the initiative tie`} onClick={() => reorderTie(selected.id, 'down')}><CaretDown size={13} /> Later</button></span>}<div className="condition-toggles" role="group" aria-label={`Quick conditions for ${selected.name}`}>{QUICK_CONDITIONS.map((condition) => { const on = hasCondition(selected, condition); return <button key={condition} type="button" className="condition-toggle" aria-pressed={on} onClick={() => flipCondition(condition)}>{on && <Check size={11} weight="bold" />}{condition}</button>; })}</div><label>Conditions<input aria-label={`Conditions for ${selected.name}`} value={selected.conditions.join(', ')} onChange={(event) => changeConditions(event.target.value)} placeholder="Prone, poisoned…" /></label><button type="button" className="remove-combatant" aria-label={`Remove ${selected.name} from the encounter`} onClick={removeSelected}><Trash size={14} /> Remove</button></div>}
         <p className="sr-only" aria-live="polite">Round {encounter.round}, {encounter.combatants[activeIndex]?.name} is active.</p>
       </section>
       <aside className="combat-context">
