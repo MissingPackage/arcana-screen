@@ -15,6 +15,16 @@ gli item aperti.
   contiene ora anche la promozione della riga *Accessibility/input* e il merge
   di `dev`. Il merge resta ruling dell'utente.
 
+- D26 [2026-08-13] [docs/a11y] **Stessa specie di overclaim del 44px, ma
+  pre-esistente**: la cella *Accessibility/input* dice "keyboard/200%", mentre
+  `e2e/critical-flows.spec.ts:145` si intitola "200% reflow **equivalent**" e
+  verifica soltanto l'assenza di scroll orizzontale a un viewport di 640px —
+  più debole del reflow WCAG 1.4.10, che è l'equivalente a 320px. Non
+  introdotto da D24 e quindi non assorbito nella slice (residue-routing). Da
+  chiudere in due modi possibili: restringere la dicitura della cella come si è
+  fatto per i 44px, oppure irrobustire la prova a 320px e tenere la dicitura.
+  Trovato dal loop-verifier.
+
 - D25 [2026-08-13] [ci/ops] **Trappola d'ambiente, misurata: la matrice
   `@critical` completa dentro un solo container Playwright dà falsi rossi.**
   Quattro progetti insieme (44 prove, 11 worker, un solo server `preview`) →
