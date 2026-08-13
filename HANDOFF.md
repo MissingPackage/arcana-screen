@@ -1,8 +1,9 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-08-13, iterazione 18 (D24, PR #101 estesa). `dev` @ `e22c928`
-contiene lo sblocco della CI, react 19.2.8 e il gate axe dark con i suoi tre
-fix. Iterazioni: 18 (D24/D25, PR #101), 17 (D15, PR #101), 16 (D21, PR #100), 15 (D14,
+Aggiornato: 2026-08-13, iterazione 19 (toggle condizioni, branch
+`feat/quick-condition-toggles`, PR-ready non mergiato). `dev` contiene lo
+sblocco della CI, react 19.2.8 e il gate axe dark con i suoi tre
+fix. Iterazioni: 19 (D27/D28/D29), 18 (D24/D25, PR #101), 17 (D15, PR #101), 16 (D21, PR #100), 15 (D14,
 PR #99), 14 (D3), 13 (D17), 12 (diagnosi D17), 11 (D13). Il loop era fermo by design dal
 2026-07-16 (it. 10) in attesa dei merge dell'utente: i merge sono avvenuti
 tutti, e HANDOFF/DOCKET erano rimasti indietro di tre settimane. Ruling
@@ -73,20 +74,23 @@ della PR #101 — aggiornato da `dev`, con la CI sbloccata. Con questo il lavoro
 di **prodotto**: viene dal ledger `docs/review/2026-07-13-design-review-loop.md`,
 la cui riga "Next (iter. 20)" è in sospeso da luglio.
 
-1. **Toggle rapido delle condizioni sulla riga combattente** (iter. 20 del
-   ledger di prodotto, P0 del giudice DM). Oggi una condizione si aggiunge o
-   toglie **solo** dal campo testo comma-separated del live editor
-   (`RunWorkspace.tsx`, `changeConditions` → `value.split(',')`): interazione
-   sbagliata per il gioco dal vivo, ed è **il più grosso gap rimasto sulle
-   condizioni** secondo il DM. Slice da un'iterazione: un set breve di stati
-   frequenti (prone / poisoned / concentration / stunned / restrained) come
-   toggle, riusando le `.condition-chips` già a schermo. Attenzione: le chip
-   hanno un override dark-theme e una taglia compact — vanno preservati, e
-   **axe va eseguito anche in dark**, non solo light (lezione iter. 19, ora
-   coperta dal gate D13).
-2. Ruling dell'utente ancora aperti: **D23** (merge PR #101, ora con due commit
+1. **D27 — a 390px il pulsante *Next Turn* è irraggiungibile** (P0
+   responsive, pre-esistente, scoperto alla iter. 20 allargando il gate axe).
+   Il dock navy è dipinto sopra l'initiative footer: "Up next" legge 2.86:1 e
+   il pulsante primario del combattimento cade fuori dal viewport
+   (`elementFromPoint` → `null`). Sul device reale al tavolo il DM non può far
+   avanzare il turno. Misure complete nel docket. È **layout responsive, non un
+   colore**: slice dedicata, con giudizio designer, e alla fine va tolta la
+   guard mobile in `e2e/critical-flows.spec.ts` (che oggi esclude la scansione
+   axe light dell'editor su mobile proprio per questo).
+2. **D29 — completamento di pattern sullo stato non-cromatico** (11 siti,
+   worklist per file:riga nel docket, fra cui il toggle Prepare/Run). Da fare
+   come **un** pattern ovunque in una passata sola, non a spizzichi.
+3. Ruling dell'utente ancora aperti: **D23** (merge PR #101, ora con due commit
    in più) e **D16** (revoca dei secret orfani, incluso il PAT `TOKEN`).
-3. Se si rilancia la matrice e2e in container, leggere prima **D25**: quattro
+   Aggiunto: il branch `feat/quick-condition-toggles` (iter. 20) è PR-ready e
+   non mergiato — il merge resta dell'utente.
+4. Se si rilancia la matrice e2e in container, leggere prima **D25**: quattro
    progetti insieme danno falsi rossi convincenti.
 
 ## Ruling di protocollo presi il 2026-08-07 (loop-verifier iterazione 11)

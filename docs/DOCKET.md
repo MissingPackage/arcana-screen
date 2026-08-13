@@ -15,6 +15,63 @@ gli item aperti.
   contiene ora anche la promozione della riga *Accessibility/input* e il merge
   di `dev`. Il merge resta ruling dell'utente.
 
+- D27 [2026-08-13] [bug/responsive] **P0 — a 390px il dock copre il footer del
+  tracker e il pulsante *Next Turn* è irraggiungibile.** Misurato su `dev`
+  pulito (f6991a3, worktree separato, build + probe a 390×844, quindi
+  **pre-esistente**, non causato dalla slice dei toggle): `.utility-dock`
+  occupa y 621→844 con fondo `#061f36`, `.initiative-footer` sta a y 821→914,
+  ed `elementFromPoint` sul testo "Up next: …" restituisce il **dock**, che ci
+  è dipinto sopra. Il testo legge `#586678` su `#061f36` = **2.86:1**. Il
+  pulsante *Next Turn* cade a y 870→914, fuori da un viewport alto 844:
+  `elementFromPoint` restituisce `null`. Su un telefono il DM non può far
+  avanzare il turno — non è un difetto di contrasto, è il controllo primario
+  del combattimento fuori portata. Scoperto perché la scansione axe è stata
+  allargata al live editor. Finché non è chiuso, la prova axe **light** su
+  mobile salta l'editor (guard commentata in `e2e/critical-flows.spec.ts`; la
+  prova dark lo copre su tutte e quattro le lane). Da fare in una slice
+  dedicata, con giudizio designer: è layout responsive, non un colore.
+
+- D28 [2026-08-13] [design] **RULING preso dal loop: i toggle condizione stanno
+  nel live editor, non sulla riga.** Il §next-decidable chiedeva "sulla riga
+  combattente, riusando le `.condition-chips`". Motivo dello scostamento: i
+  controlli in-riga sono già stati provati e rimossi — alla iter. 15 erano
+  13×19px, sotto il minimo WCAG 2.5.8 di 24px, e alla iter. 18 il tie-reorder è
+  stato spostato nell'editor esattamente per questo; la riga in compact è ~38px
+  e non regge controlli da 24px. **Ciò che il ruling costa, detto per intero:**
+  l'editor è la stessa posizione contro cui il DM ha un P1 ancora aperto
+  (ledger iter. 18: "lontani dalla riga toccata, editor in fondo, fuori dallo
+  scroll"), quindi la slice sposta il P0 in un punto già contestato. Misurato a
+  390px: i toggle cadono a `top: 966` in un viewport da 844 → su telefono non è
+  "un tap", è scorri-e-tap. La chiusura naturale è il P1 già a ledger —
+  **editor ancorato alla riga selezionata / pinnato in alto** — che vale sia
+  per i toggle sia per Earlier/Later. Non promosso a fatto compiuto: il DM
+  potrà bocciare la posizione.
+
+- D29 [2026-08-13] [design/coverage] **Copertura di pattern: INCOMPLETE sullo
+  stato non-cromatico.** Sweep meccanico su tutti i 184 `<button>` di `src/`:
+  (a) lo stato binario è leggibile a macchina (`aria-pressed`/checkbox) in
+  **23/28** siti — mancano `RunWorkspace.tsx:220` (beat toggle, il vero analogo
+  dei toggle condizione), `:259`, `:439`, `:379` (pill attitudine, senza
+  `aria-label`) e `QuickReference.tsx:109`; (b) la disclosure è leggibile in
+  **14/19** — mancano `RunWorkspace.tsx:653` (che diverge dal fratello
+  `:584`, il quale invece ce l'ha), `QuickCaptureBar.tsx:59`,
+  `SidebarHeader.tsx:15`, `WidgetHelpButton.tsx:40`, `QuickCapture.tsx:109`;
+  (c) la regola di CLAUDE.md "lo stato non è mai solo colore" è rispettata in
+  **16/27**: 11 siti usano solo il colore, fra cui il **toggle Prepare/Run**
+  (`index.css:461` e `:814`), `.combatant-identity[aria-pressed]`
+  (`session.css:514`) e i quick-dice (`index.css:2092/2093`). Non assorbito:
+  sono pattern pre-esistenti, e la regola è "completa UN pattern ovunque", non
+  molti a metà. La duplicazione introdotta dalla slice invece **è stata
+  chiusa** (una sola dichiarazione per oracle/dice/condizioni). Nota per chi lo
+  farà: `index.css:2433` serve due famiglie di controlli di cui una già
+  conforme — vanno separati i selettori prima di toccarla. Da valutare anche il
+  suggerimento dello sweep: un test che legge i CSS e pretende almeno una
+  proprietà non-cromatica per ogni regola di stato, così smette di essere un
+  lavoro da rilettura umana. **Contraddizione da sanare:**
+  `.codex/product-design/horizon-0-prototype/design-qa.md:33` afferma "State is
+  never communicated by color alone" — falso in 11 punti; un documento che
+  certifica una proprietà che il codice non ha continuerà a nasconderli.
+
 - D26 [2026-08-13] [docs/a11y] **Stessa specie di overclaim del 44px, ma
   pre-esistente**: la cella *Accessibility/input* dice "keyboard/200%", mentre
   `e2e/critical-flows.spec.ts:145` si intitola "200% reflow **equivalent**" e
