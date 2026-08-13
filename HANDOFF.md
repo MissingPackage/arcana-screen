@@ -3,7 +3,7 @@
 Aggiornato: 2026-08-13, iterazione 19 (toggle condizioni, branch
 `feat/quick-condition-toggles`, PR-ready non mergiato). `dev` contiene lo
 sblocco della CI, react 19.2.8 e il gate axe dark con i suoi tre
-fix. Iterazioni: 19 (D27/D28/D29), 18 (D24/D25, PR #101), 17 (D15, PR #101), 16 (D21, PR #100), 15 (D14,
+fix. Iterazioni: 19 (D27/D28/D29/D30, PR #104), 18 (D24/D25, PR #101), 17 (D15, PR #101), 16 (D21, PR #100), 15 (D14,
 PR #99), 14 (D3), 13 (D17), 12 (diagnosi D17), 11 (D13). Il loop era fermo by design dal
 2026-07-16 (it. 10) in attesa dei merge dell'utente: i merge sono avvenuti
 tutti, e HANDOFF/DOCKET erano rimasti indietro di tre settimane. Ruling
@@ -92,8 +92,9 @@ la cui riga "Next (iter. 20)" è in sospeso da luglio.
    come **un** pattern ovunque in una passata sola, non a spizzichi.
 3. Ruling dell'utente ancora aperti: **D23** (merge PR #101, ora con due commit
    in più) e **D16** (revoca dei secret orfani, incluso il PAT `TOKEN`).
-   Aggiunto: il branch `feat/quick-condition-toggles` (iter. 20) è PR-ready e
-   non mergiato — il merge resta dell'utente.
+   Aggiunto: **PR #104** (toggle condizioni, iter. 20) è aperta con la **CI
+   verde su tutti e cinque i job**, WebKit incluso, e attende il merge —
+   che resta dell'utente.
 4. Se si rilancia la matrice e2e in container, leggere prima **D25**: quattro
    progetti insieme danno falsi rossi convincenti.
 
