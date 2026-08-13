@@ -1,9 +1,9 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-08-13, iterazione 19 (toggle condizioni, branch
-`feat/quick-condition-toggles`, PR-ready non mergiato). `dev` contiene lo
+Aggiornato: 2026-08-13, iterazione 20 (D27 diagnosticato, **fix non presa**:
+serve un ruling di prodotto). La 19 ha lasciato la PR #104 aperta e verde. `dev` contiene lo
 sblocco della CI, react 19.2.8 e il gate axe dark con i suoi tre
-fix. Iterazioni: 19 (D27/D28/D29/D30, PR #104), 18 (D24/D25, PR #101), 17 (D15, PR #101), 16 (D21, PR #100), 15 (D14,
+fix. Iterazioni: 20 (diagnosi D27), 19 (D27/D28/D29/D30, PR #104), 18 (D24/D25, PR #101), 17 (D15, PR #101), 16 (D21, PR #100), 15 (D14,
 PR #99), 14 (D3), 13 (D17), 12 (diagnosi D17), 11 (D13). Il loop era fermo by design dal
 2026-07-16 (it. 10) in attesa dei merge dell'utente: i merge sono avvenuti
 tutti, e HANDOFF/DOCKET erano rimasti indietro di tre settimane. Ruling
@@ -75,8 +75,21 @@ della PR #101 — aggiornato da `dev`, con la CI sbloccata. Con questo il lavoro
 di **prodotto**: viene dal ledger `docs/review/2026-07-13-design-review-loop.md`,
 la cui riga "Next (iter. 20)" è in sospeso da luglio.
 
-1. **D27 — a 390px il pulsante *Next Turn* è irraggiungibile** (P0
-   responsive, pre-esistente, scoperto alla iter. 20 allargando il gate axe).
+1. **D27 — ⚑ SERVE UN RULING TUO, non è più una slice che il loop possa
+   prendere.** L'iterazione 20 l'ha diagnosticato e **non** l'ha corretto. Non
+   è "il pulsante Next Turn a 390px": sotto gli 820px il Run **non ha un
+   contenitore che scorra**, quindi ogni Focus lascia controlli fuori dallo
+   schermo — misurati **11 su Social a 390px**, 9 su Narrative, e da 1 a 9
+   anche a 768 e 820. La causa è che `.app-shell` è `100dvh` +
+   `overflow: hidden` e `index.css:738` rende il workspace `flex: 1`: la regola
+   `@media (max-width: 820px)` di `session.css` non vince mai. Due fix sono
+   state provate e **scartate** (una lascia il dock sopra la lista, l'altra
+   rompe l'header della shell anche in Prepare) — dettaglio nel docket, perché
+   la prossima iterazione non le rifaccia. **La scelta è di prodotto:** o il Run
+   diventa una colonna che scorre, o resta viewport-locked e si rinuncia
+   all'impilamento sotto gli 820. Tocca entrambe le modalità.
+   *(voce storica, superata dalla riga qui sopra:)* a 390px il pulsante
+   *Next Turn* è irraggiungibile (P0 responsive, pre-esistente).
    L'initiative footer **eccede il proprio spazio** e finisce dentro la banda
    del dock, che gli è dipinto sopra: "Up next" legge **2.85:1** (axe) e il
    pulsante primario del combattimento cade fuori dal viewport

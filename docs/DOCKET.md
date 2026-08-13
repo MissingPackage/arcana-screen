@@ -29,35 +29,59 @@ gli item aperti.
   Nota ricorrente: **`test:ci` non è il gate CI**; l'audit gira solo in CI,
   quindi un verde locale non ha mai implicato un verde su GitHub.
 
-- D27 [2026-08-13] [bug/responsive] **P0 — a 390px il dock copre il footer del
-  tracker e il pulsante *Next Turn* è irraggiungibile.** Misurato su `dev`
-  pulito (**pre-esistente**, non causato dalla slice dei toggle: riprodotto
-  senza nemmeno aprire il live editor). **Contesto delle misure, perché senza
-  non sono riproducibili:** progetto `chromium-mobile`, cioè `devices['Pixel 5']`
-  con viewport 390×844 — non un chromium nudo ridimensionato a 390, che dà una
-  geometria diversa.
-  - `.utility-dock` y **621→844**, fondo `#061f36`; `.initiative-footer` y
-    **821→914**. Il footer **eccede il proprio spazio** e finisce dentro la
-    banda del dock.
-  - Ordine di sovrapposizione, misurato con `elementsFromPoint` al **centro
-    dello `<strong>`** di "Up next" (y≈841, dentro la banda del dock): il primo
-    elemento restituito è **`FOOTER.utility-dock`** — il dock è dipinto
-    **sopra** il testo. Sotto y 844 il testo non è più coperto, ma è comunque
-    fuori dal viewport. (Il punto di campionamento va citato: prendendone uno
-    sotto 844 la pila risulta invertita, ed è così che due misure oneste
-    possono contraddirsi.)
-  - Contrasto: `#586678` su `#061f36`; **axe riporta 2.85:1** (valore preso dal
-    report axe, non da un calcolo a mano).
-  - Il pulsante *Next Turn* cade a y **870→914**, fuori da un viewport alto
-    844: `elementFromPoint` al suo centro restituisce **`null`**.
-  Su un telefono il DM non può far avanzare il turno — non è un difetto di
-  contrasto, è il controllo primario del combattimento fuori portata. Per chi
-  lo aggiusterà: l'elemento da guardare è **l'overflow del footer/panel**, non
-  il dock, che è statico e sta dove deve. Scoperto perché la scansione axe è stata
-  allargata al live editor. Finché non è chiuso, la prova axe **light** su
-  mobile salta l'editor (guard commentata in `e2e/critical-flows.spec.ts`; la
-  prova dark lo copre su tutte e quattro le lane). Da fare in una slice
-  dedicata, con giudizio designer: è layout responsive, non un colore.
+- D27 [2026-08-13, riscritto dopo diagnosi] [bug/responsive] **P0 — sotto gli
+  820px il Run non ha un contenitore che scorra: ogni Focus lascia controlli
+  fuori dallo schermo, irraggiungibili.** Nato come "il pulsante Next Turn a
+  390px", si è rivelato molto più largo quando l'ho misurato davvero.
+
+  **Meccanismo (corretto: la prima stesura lo attribuiva al dock, sbagliando
+  bersaglio).** `.app-shell` (index.css) è una colonna flex alta `100dvh` con
+  `overflow: hidden`, e `index.css:738` rende `.app-content > .run-workspace`
+  un item `flex: 1`. L'altezza del workspace è quindi decisa dall'algoritmo
+  flex, non dal CSS della sessione: la regola `@media (max-width: 820px)` in
+  `session.css` che dice `height: auto; grid-template-rows: auto auto auto auto`
+  **non vince mai**. Misurato: la riga 2 della griglia riceve lo spazio
+  *avanzato* (`720 − 57 − 223 = 440px`) mentre il suo contenuto è **1695px**;
+  il contenuto trabocca `visible` e il dock, che è la riga 4 e dipinge dopo, ci
+  finisce sopra. Il dock sta dove deve: **l'elemento da correggere è il
+  contenitore di scorrimento che non esiste.**
+
+  **Ampiezza del guasto** (misurata su tutti e 4 i Focus × 3 larghezze, contando
+  i controlli il cui centro cade sotto il viewport o è coperto da un altro
+  elemento):
+
+  | | Narrative | Social | Exploration | Combat |
+  |---|---|---|---|---|
+  | 390×844 (Pixel 5) | 9 fuori schermo | **11** | 4 | 3 + 5 coperti |
+  | 768×1024 | 4 | 9 | 2 | 1 |
+  | 820×1180 | 2 | 6 | 2 | 1 |
+
+  Overflow non scorribile: **578→1561px** a seconda del Focus. Non è un difetto
+  di Combat né di contrasto: **l'intera modalità impilata sotto gli 820px è
+  inservibile**, e il tablet-landscape/laptop 13" è il device dichiarato "al
+  tavolo" dal ledger.
+
+  **Due tentativi di fix, entrambi scartati — perché la prossima iterazione non
+  li rifaccia:**
+  1. `.run-workspace { overflow-y: auto }` a ≤820: rende Next Turn raggiungibile
+     scorrendo, **ma le righe restano schiacciate** (440px) e il dock continua a
+     coprire in permanenza una banda della lista. Mezza fix.
+  2. `.app-content { overflow-y: auto }` + workspace `flex: 0 0 auto`: risolve
+     l'altezza **ma rompe la shell** — l'header intercetta i click sul Focus
+     selector (`screen-manager__primary` sopra il selettore), e tocca anche
+     Prepare. Regressione peggiore del bug.
+  La strada giusta va **disegnata**, non indovinata: o il Run diventa una
+  colonna che scorre con dock in fondo al flusso (e allora la shell deve
+  cedere lo scroll senza che l'header si sovrapponga), o resta viewport-locked
+  e ogni pannello scorre internamente anche sotto gli 820 (cioè si rinuncia
+  all'impilamento). **È un ruling di design con conseguenze su entrambe le
+  modalità: non lo prendo da solo.**
+
+  **Contraddizione da sanare insieme:** la riga *Responsive* della matrice di
+  accettazione dichiara `manual-pass at 1487×1058, 768×1024, 390×844 including
+  overlap regression` — cioè manual-pass **esattamente alle due larghezze qui
+  misurate come rotte**. Il file è di PR #101, ancora aperta: la correzione va
+  fatta lì o subito dopo il merge, non in parallelo.
 
 - D28 [2026-08-13] [design] **RULING preso dal loop: i toggle condizione stanno
   nel live editor, non sulla riga.** Il §next-decidable chiedeva "sulla riga
