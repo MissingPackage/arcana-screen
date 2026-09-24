@@ -339,112 +339,103 @@ Use "+ Row" to add new rows and "+ Column" to add new columns. Click the × butt
 
 Note: You must keep at least one row and one column in your table.`;
 
-  try {
-    // Defensive: if columns/rows are missing, do not render table
-    if (!columns.length || !rows.length) return <div>Loading table...</div>;
-    return (
-      <div className="surface p-2 rounded-lg w-full h-full flex flex-col font-sans max-w-full">
-        {showHeader && (
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold tracking-tight">Simple Table</h2>
-            <WidgetHelpButton helpText={helpText} />
-          </div>
-        )}
-
-        <div className="simple-table__controls">
-          <label>
-            <span>Template</span>
-            <select value={widget?.tableTemplate ?? 'blank'} onChange={(event) => applyTemplate(event.target.value as NonNullable<Widget['tableTemplate']>)}>
-              <option value="blank">Blank</option>
-              <option value="initiative">Initiative</option>
-              <option value="loot">Loot</option>
-              <option value="travel">Travel</option>
-            </select>
-          </label>
-          <label>
-            <span>Filter</span>
-            <input type="search" value={filter} onChange={(event) => updateWidget(id, { tableFilter: event.target.value })} placeholder="Find a row" />
-          </label>
-          <label>
-            <span>Sort</span>
-            <select value={sortColumnKey} onChange={(event) => updateWidget(id, { sortColumnKey: event.target.value })}>
-              <option value="">Manual order</option>
-              {columns.map((column) => <option key={column.id} value={column.key}>{column.label}</option>)}
-            </select>
-          </label>
-          <button type="button" disabled={!sortColumnKey} onClick={() => updateWidget(id, { sortDirection: sortDirection === 'asc' ? 'desc' : 'asc' })}>{sortDirection === 'asc' ? 'Ascending' : 'Descending'}</button>
-          <button type="button" onClick={exportCsv}>Export CSV</button>
-          <label className="screen-action-button screen-action-button--quiet template-import-button">Import CSV<input type="file" accept="text/csv,.csv" onChange={(event) => void importCsv(event.target.files?.[0])} /></label>
+  // Defensive: if columns/rows are missing, do not render table
+  if (!columns.length || !rows.length) return <div>Loading table...</div>;
+  return (
+    <div className="surface p-2 rounded-lg w-full h-full flex flex-col font-sans max-w-full">
+      {showHeader && (
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold tracking-tight">Simple Table</h2>
+          <WidgetHelpButton helpText={helpText} />
         </div>
+      )}
 
-      <div className="flex-1 overflow-x-auto w-full">
-        <table className="min-w-[400px] max-w-full text-left border-separate border-spacing-y-2">
-          <caption className="sr-only">Editable custom data table. Each row and column can be reordered with the adjacent arrow buttons.</caption>
-          <thead>
-            <tr>
-                {columns.map((col, index) => (
-                  <TableColumnHeader
-                    key={col.id}
-                    col={col}
-                    index={index}
-                    columns={columns}
-                    setColumns={setColumns}
-                    updateColumnLabel={updateColumnLabel}
-                    updateColumnType={updateColumnType}
-                    removeColumn={removeColumn}
-                  />
-                ))}
-                <th className="bg-gray-100 border border-gray-300 px-3 py-2 rounded-t text-center align-middle">
-                  Actions
-                </th>
-              </tr>
-            </thead>
+      <div className="simple-table__controls">
+        <label>
+          <span>Template</span>
+          <select value={widget?.tableTemplate ?? 'blank'} onChange={(event) => applyTemplate(event.target.value as NonNullable<Widget['tableTemplate']>)}>
+            <option value="blank">Blank</option>
+            <option value="initiative">Initiative</option>
+            <option value="loot">Loot</option>
+            <option value="travel">Travel</option>
+          </select>
+        </label>
+        <label>
+          <span>Filter</span>
+          <input type="search" value={filter} onChange={(event) => updateWidget(id, { tableFilter: event.target.value })} placeholder="Find a row" />
+        </label>
+        <label>
+          <span>Sort</span>
+          <select value={sortColumnKey} onChange={(event) => updateWidget(id, { sortColumnKey: event.target.value })}>
+            <option value="">Manual order</option>
+            {columns.map((column) => <option key={column.id} value={column.key}>{column.label}</option>)}
+          </select>
+        </label>
+        <button type="button" disabled={!sortColumnKey} onClick={() => updateWidget(id, { sortDirection: sortDirection === 'asc' ? 'desc' : 'asc' })}>{sortDirection === 'asc' ? 'Ascending' : 'Descending'}</button>
+        <button type="button" onClick={exportCsv}>Export CSV</button>
+        <label className="screen-action-button screen-action-button--quiet template-import-button">Import CSV<input type="file" accept="text/csv,.csv" onChange={(event) => void importCsv(event.target.files?.[0])} /></label>
+      </div>
 
-            <tbody>
-              {visibleRows.map((row) => (
-                <TableRowItem
-                  key={row.id}
-                  row={row}
-                  index={rows.indexOf(row)}
+    <div className="flex-1 overflow-x-auto w-full">
+      <table className="min-w-[400px] max-w-full text-left border-separate border-spacing-y-2">
+        <caption className="sr-only">Editable custom data table. Each row and column can be reordered with the adjacent arrow buttons.</caption>
+        <thead>
+          <tr>
+              {columns.map((col, index) => (
+                <TableColumnHeader
+                  key={col.id}
+                  col={col}
+                  index={index}
                   columns={columns}
-                  rows={rows}
-                  setRows={setRows}
-                  updateRow={updateRow}
-                  removeRow={removeRow}
+                  setColumns={setColumns}
+                  updateColumnLabel={updateColumnLabel}
+                  updateColumnType={updateColumnType}
+                  removeColumn={removeColumn}
                 />
               ))}
-            </tbody>
-          </table>
-        </div>
+              <th className="bg-gray-100 border border-gray-300 px-3 py-2 rounded-t text-center align-middle">
+                Actions
+              </th>
+            </tr>
+          </thead>
 
-        {visibleRows.length === 0 && <p className="tool-empty-state">No rows match this filter.</p>}
+          <tbody>
+            {visibleRows.map((row) => (
+              <TableRowItem
+                key={row.id}
+                row={row}
+                index={rows.indexOf(row)}
+                columns={columns}
+                rows={rows}
+                setRows={setRows}
+                updateRow={updateRow}
+                removeRow={removeRow}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-        <div className="flex gap-3 mt-6 justify-end">
-          <button
-            type="button"
-            onClick={addRow}
-            className="rounded px-2 py-1 text-xs transition font-semibold"
-          >
-            + Row
-          </button>
-          <button
-            type="button"
-            onClick={addColumn}
-            className="py-2 px-5 rounded transition font-semibold"
-          >
-            + Column
-          </button>
-        </div>
+      {visibleRows.length === 0 && <p className="tool-empty-state">No rows match this filter.</p>}
+
+      <div className="flex gap-3 mt-6 justify-end">
+        <button
+          type="button"
+          onClick={addRow}
+          className="rounded px-2 py-1 text-xs transition font-semibold"
+        >
+          + Row
+        </button>
+        <button
+          type="button"
+          onClick={addColumn}
+          className="py-2 px-5 rounded transition font-semibold"
+        >
+          + Column
+        </button>
       </div>
-    );
-  } catch (error) {
-    console.error('Error rendering SimpleTable:', error);
-    return (
-      <div className="flex items-center justify-center h-full w-full transition">
-        <p>There was an error rendering the table. Please reload the page or check the console for details.</p>
-      </div>
-    );
-  }
+    </div>
+  );
 }
 
 export default memo(SimpleTable);
