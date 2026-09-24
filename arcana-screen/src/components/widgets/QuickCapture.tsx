@@ -106,7 +106,7 @@ function QuickCapture({ id }: QuickCaptureProps) {
 
       <div className="quick-capture__summary">
         <span>{captures.length} captured</span>
-        <button type="button" className="screen-action-button screen-action-button--quiet" onClick={() => setIsReviewOpen((value) => !value)}>
+        <button type="button" className="screen-action-button screen-action-button--quiet" aria-expanded={isReviewOpen} onClick={() => setIsReviewOpen((value) => !value)}>
           {isReviewOpen ? 'Close review' : 'Review captures'}
         </button>
       </div>

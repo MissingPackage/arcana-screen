@@ -44,6 +44,7 @@ export default function WidgetHelpButton({ helpText }: WidgetHelpButtonProps) {
         onMouseLeave={() => setIsVisible(false)}
         className="tool-help-button"
         aria-label="Widget help"
+        aria-expanded={isVisible}
         title="Click for help"
         type="button"
       >
