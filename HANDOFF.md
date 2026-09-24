@@ -1,39 +1,35 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-08-13, iterazione 20 (D27 diagnosticato, **fix non presa**:
-serve un ruling di prodotto). La 19 ha lasciato la PR #104 aperta e verde. `dev` contiene lo
-sblocco della CI, react 19.2.8 e il gate axe dark con i suoi tre
-fix. Iterazioni: 20 (diagnosi D27), 19 (D27/D28/D29/D30, PR #104), 18 (D24/D25, PR #101), 17 (D15, PR #101), 16 (D21, PR #100), 15 (D14,
-PR #99), 14 (D3), 13 (D17), 12 (diagnosi D17), 11 (D13). Il loop era fermo by design dal
-2026-07-16 (it. 10) in attesa dei merge dell'utente: i merge sono avvenuti
-tutti, e HANDOFF/DOCKET erano rimasti indietro di tre settimane. Ruling
-`[decisione]`/`[design]`/`[ci]`/`[deps]` presi dal loop (D3, D9, D10).
+Aggiornato: 2026-09-25, iterazione 21 (stabilizzazione su richiesta
+dell'utente: tutte le PR aperte chiuse, gate di sicurezza sbloccato, toolchain
+portata avanti, un falso allarme di salvataggio corretto). Iterazioni: 21
+(D31/D32/D33), 20 (diagnosi D27), 19 (D27/D28/D29/D30, PR #104), 18 (D24/D25,
+PR #101), 17 (D15), 16 (D21), 15 (D14), 14 (D3), 13 (D17), 12, 11 (D13).
 
 ## Stato corrente
 
-- `origin/dev` @ `79ca398` (2026-08-13; sopra `22bb1e2` ci sono i ruling del
-  2026-08-07 e le iterazioni 18–19). Il tip contiene tutte le PR feature del
-  ciclo precedente:
-  #83 (fix CSP WebKit), #84 (prova Timer post-sospensione), #85 (input dark),
-  #86 (react allineato 19.2.7), #87 (sweep session.css), #88 (toggle
-  Prepare/Run dark), #89 (token shell header). Sopra ci sono solo bump
-  dependabot di CI actions.
-- Applicato il 2026-08-07: gruppo `react` in `.github/dependabot.yml` (D9) ed
-  eliminazione di `.github/worklows/` (D10). Motivazioni per esteso nel docket.
-- Gate su `dev` dopo i merge: `test:ci` 136/136 + lint 0 errori + CSS
-  119.6/130 KiB; `check:security` exit 0; e2e **41 passed + 3 skip, 0 failed**
-  su tutta la matrice, WebKit incluso. La CI di GitHub è verde su tutti e
-  cinque i job — verificata su ciascuna PR prima del merge.
+- `origin/dev` @ `ed4db34` (2026-09-25). **Zero PR aperte.** Mergiate il
+  2026-09-25 su richiesta dell'utente: #101 (acceptance-matrix), #104 (toggle
+  condizioni), #105 (zustand 5.0.15), #92/#91 (font 5.3.0), #110 (react 19.3),
+  #96 (upload-pages-artifact v5), #112 (toolchain, sostituisce la #111 chiusa:
+  vedi D31).
+- Toolchain ora: Vite 8 (rolldown), Vitest 5, jsdom 30, Playwright 1.63,
+  Tailwind 4.3, TypeScript 5.9, @types/node 26. Trattenuti con motivo in
+  `.github/dependabot.yml`: eslint 9, typescript <6, react-hooks 5, axe 4.12.
+- Gate su `dev` @ `ed4db34`: `test:ci` exit 0, **143/143** unit, lint 0 errori,
+  budget ok (**CSS 120.6/130 KiB**, margine 9.4), `npm audit` 0
+  vulnerabilità; e2e `@critical` verde su chromium-desktop, chromium-mobile e
+  firefox-desktop in locale; WebKit verde solo in CI (PR #112, cinque job
+  verdi).
 - **`test:ci` NON equivale al gate CI.** Il workflow `Quality gate` esegue in
-  più `npm run check:security` (audit di tutte le dipendenze) e la matrice
-  browser. Un `test:ci` verde non ha mai implicato una CI verde, ed è così che
-  la #99 è passata in locale ed è caduta su GitHub.
-- Trappola operativa aggravata: il webServer Playwright è `npm run preview`, che
-  serve `dist`. Una modifica a CSS/TS **non** si vede finché non si rifà
-  `npm run build`, e `reuseExistingServer` ricicla un preview stantio. Il worktree
-  parte senza `node_modules`: `npm ci` prima di qualsiasi gate.
-- Recidiva viva: #93/#94 (react/react-dom 19.2.8) sono di nuovo uno split bump
-  rotto, entrambe `quality=FAILURE` → D14.
+  più `npm audit` e la matrice browser. Advisory nuove fanno diventare rosso
+  `dev` senza che nessuno tocchi nulla (D21, D30, D31): quando una PR
+  dependabot è rossa, controllare prima `npm audit` su `dev`.
+- **Lockfile:** npm 10.9.8 crasha nel peer-set di vitest (`edgesOut` null).
+  Per rigenerarlo: `npx -y npm@11 install`; poi verificare `npm ci` con npm 10.
+- Trappola operativa: il webServer Playwright è `npm run preview`, che serve
+  `dist`. Una modifica a CSS/TS non si vede finché non si rifà
+  `npm run build`, e `reuseExistingServer` ricicla un preview stantio.
 
 ## Attenzione al branch
 
@@ -69,35 +65,25 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 
 ## §next-decidable (in ordine)
 
-Stato al 2026-08-13, dopo l'iterazione 20. Il lavoro di prodotto non-gated si
-e' fermato contro una decisione: la voce 1 **non e' piu' una slice che il loop
-possa prendere da solo**.
+Stato al 2026-09-25, dopo l'iterazione 21.
 
-1. **D27 — ⚑ SERVE UN RULING DI PRODOTTO (tuo).** L'iterazione 20 l'ha
-   diagnosticato a fondo e **non** l'ha corretto, di proposito. Non e' "il
-   pulsante Next Turn a 390px": sotto gli 820px il Run **non ha un contenitore
-   che scorra**, quindi ogni Focus lascia controlli fuori dallo schermo —
-   misurati **11 su Social a 390px**, 9 su Narrative, 3 piu' 5 coperti su
-   Combat, e da 1 a 9 anche a 768 e 820. Causa: `.app-shell` e' `100dvh` +
-   `overflow: hidden` e `index.css:738` rende il workspace un `flex: 1`, quindi
-   la `@media (max-width: 820px)` di `session.css` non vince mai. Due fix
-   provate e **scartate** (una lascia il dock sopra la lista, l'altra rompe
-   l'header della shell anche in Prepare): sono a verbale nel docket perche' non
-   vengano rifatte. **La scelta:** o il Run diventa una colonna che scorre, o
-   resta viewport-locked rinunciando all'impilamento sotto gli 820. Tocca
-   entrambe le modalita', per questo non la prende il loop.
-2. **D29 — completamento del pattern "lo stato non e' mai solo colore"** (11
-   siti, worklist per file:riga nel docket, incluso il toggle Prepare/Run). E'
-   **l'unica slice sostanziale che non dipenda da una tua decisione**: se il
-   ruling su D27 non arriva, l'iterazione 22 fa questa.
-3. Ruling dell'utente ancora aperti: **D23** (merge PR #101), **D16** (revoca
-   dei secret orfani, incluso il PAT `TOKEN`) e il merge di **PR #104** (toggle
-   condizioni, CI verde su tutti e cinque i job, WebKit incluso).
-4. Se si rilancia la matrice e2e in container, leggere prima **D25**: quattro
-   progetti insieme danno falsi rossi convincenti.
-5. Nota di numerazione: il ledger di prodotto conta le iterazioni **una avanti**
-   rispetto a questo file (ledger "Iter. 21" = iterazione 20 qui). Disallineamento
-   ereditato, non sanato per non riscrivere lo storico.
+1. **D27 — serve ancora il tuo ruling di prodotto.** Sotto gli 820px il Run non
+   ha un contenitore che scorre. La scelta: o il Run diventa una colonna che
+   scorre, o resta viewport-locked e ogni pannello scorre al proprio interno.
+   Ora costa anche il gate: axe 4.13 lo rileva, quindi axe resta a 4.12 finché
+   non c'è la fix. La matrice di accettazione segna *Responsive* `red`.
+2. **D29 — "lo stato non è mai solo colore"** (11 siti, worklist nel docket).
+   È la slice sostanziale che non dipende da una tua decisione: la prende la
+   prossima iterazione.
+3. **D33 — header del Run a 390px**, "Search"/"Edit party" sopra lo switcher.
+   Da diagnosticare insieme a D27 (stessa shell).
+4. Leva di qualità: **eslint-plugin-react-hooks 7** segnala ~10 difetti veri
+   (setState dentro effect, JSX dentro try/catch in SimpleTable, che quindi
+   non intercetta gli errori di render). Refactor, poi sblocco dell'ignore.
+5. Ancora tuo: **D16** (revoca dei secret orfani, incluso il PAT `TOKEN`).
+6. e2e in container: leggere prima **D25**, un progetto per volta. L'immagine
+   podman per WebKit va portata a `mcr.microsoft.com/playwright:v1.63.0-noble`
+   (Playwright ora è 1.63; la v1.61.1 in cache non basta più).
 
 ## Ruling di protocollo presi il 2026-08-07 (loop-verifier iterazione 11)
 

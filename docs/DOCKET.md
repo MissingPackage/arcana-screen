@@ -10,10 +10,38 @@ gli item aperti.
 
 ## Aperti
 
-- D23 [2026-08-07] [merge] PR #101, revisione dell'acceptance-matrix. Solo
-  documentazione, indipendente dalle altre. **Aggiornata il 2026-08-13** (D24):
-  contiene ora anche la promozione della riga *Accessibility/input* e il merge
-  di `dev`. Il merge resta ruling dell'utente.
+- D33 [2026-09-25] [bug/layout] **Header del Run a 390px: "Search" ed
+  "Edit party" fluttuano sopra lo switcher dello Screen.** Visto sullo
+  screenshot a 390x844 (Pixel 5) di `dev` @ `0504ca6`, identico prima e dopo il
+  bump della toolchain, quindi preesistente. Le due etichette sono testo senza
+  contenitore visibile, sovrapposto al combobox "Current screen". Diverso dal
+  caso chiuso in `docs/verification/2026-07-13-recovery.md` (quello era sul
+  bottone Combat). Non corretto: sta nella stessa shell che la seconda fix
+  scartata di D27 ha rotto, quindi va guardato insieme al ruling su D27.
+
+- D32 [2026-09-25 → 2026-09-25] [bug/trust] **Falso "Save issue" dopo un
+  reload senza Screen.** FirstRun persiste `{ screens: [] }`; il validatore di
+  `safeStorage` esigeva almeno uno Screen, quindi aprire l'app e ricaricare
+  mostrava "Stored screen data was invalid" e archiviava un payload
+  `arcana_invalid_payload_*` inutile. Riproducibile su desktop e mobile: 1
+  payload archiviato prima della fix, 0 dopo. Corretto in `ed4db34`: essere ben
+  formato ed essere degno di snapshot sono due controlli separati. Test di
+  regressione: fallisce sul codice vecchio, passa sul nuovo.
+
+- D31 [2026-09-25 → 2026-09-25] [deps] **RULING preso dal loop: la PR #111
+  (gruppo development-tooling, 24 bump) sostituita dalla #112.** La #111 non si
+  installava (ERESOLVE: eslint 10 contro il peer di eslint-plugin-jsx-a11y
+  6.10.2). Entrati Vite 8, Vitest 5, jsdom 30, Playwright 1.63, Tailwind 4.3,
+  @types/node 26. Quattro versioni trattenute con `ignore` in `dependabot.yml`:
+  eslint 9 (peer jsx-a11y), typescript 5.9 (typescript-eslint vuole <6.1),
+  react-hooks 5 (la 7 porta ~10 errori veri del React Compiler: setState in
+  effect, JSX in try/catch in SimpleTable, quindi è una leva di refactor, non
+  un bump) e axe 4.13 (vedi D27). `tsconfig.app` lib da ES2020 a ES2022:
+  `.at()` compilava solo perché lo dichiarava @types/node 22. Prima, sempre su
+  `dev` (`b4ba008`): advisory high nuove su js-yaml e browserslist, recidiva di
+  D21/D30. npm 10.9.8 crasha nel peer-set di vitest (`edgesOut` null), quindi il
+  lockfile va rigenerato con `npx npm@11 install`; `npm ci` di npm 10 lo
+  installa senza errori. CI della #112 verde su tutti e cinque i job.
 
 - D30 [2026-08-13 → 2026-08-13] [deps] **RULING preso dal loop: audit fix
   lockfile-only per `nanoid`.** Recidiva esatta di D21: advisory **nuova**
@@ -76,6 +104,11 @@ gli item aperti.
   e ogni pannello scorre internamente anche sotto gli 820 (cioè si rinuncia
   all'impilamento). **È un ruling di design con conseguenze su entrambe le
   modalità: non lo prendo da solo.**
+
+  **Aggiornamento 2026-09-25:** axe 4.13 vede il difetto anche nella scansione
+  del Run su `chromium-mobile`: il dock è dipinto sopra il notebook e i nomi
+  degli strumenti del dock risultano a 1.06–1.29:1 sul pergamena. Per questo
+  `@axe-core/playwright` è trattenuto a 4.12 (D31); va sbloccato con la fix.
 
   **Contraddizione da sanare insieme:** la riga *Responsive* della matrice di
   accettazione dichiara `manual-pass at 1487×1058, 768×1024, 390×844 including
@@ -159,6 +192,9 @@ gli item aperti.
   ignoto e nessun consumatore.
 
 ## Chiusi
+
+- D23 [2026-08-07 → 2026-09-25] [merge] PR #101 (acceptance-matrix) mergiata su
+  richiesta dell'utente, insieme a #104 (toggle condizioni).
 
 - D24 [2026-08-13 → 2026-08-13] [docs] **Riga *Accessibility/input* promossa**
   (§next-decidable 1). La revisione del 2026-08-07 aveva posto una condizione
