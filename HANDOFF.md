@@ -1,6 +1,6 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-09-25, iterazione 22 (D29 chiuso, PR in attesa di merge). Iterazione 21 (stabilizzazione su richiesta
+Aggiornato: 2026-09-25, iterazione 23 (react-hooks 7, D34; PR impilata). Iterazione 22: D29 chiuso, PR in attesa di merge. Iterazione 21 (stabilizzazione su richiesta
 dell'utente: tutte le PR aperte chiuse, gate di sicurezza sbloccato, toolchain
 portata avanti, un falso allarme di salvataggio corretto). Iterazioni: 21
 (D31/D32/D33), 20 (diagnosi D27), 19 (D27/D28/D29/D30, PR #104), 18 (D24/D25,
@@ -76,9 +76,11 @@ Stato al 2026-09-25, dopo l'iterazione 21.
    del tuo merge). La prossima slice libera è il punto 4, react-hooks 7.
 3. **D33 — header del Run a 390px**, "Search"/"Edit party" sopra lo switcher.
    Da diagnosticare insieme a D27 (stessa shell).
-4. Leva di qualità: **eslint-plugin-react-hooks 7** segnala ~10 difetti veri
-   (setState dentro effect, JSX dentro try/catch in SimpleTable, che quindi
-   non intercetta gli errori di render). Refactor, poi sblocco dell'ignore.
+4. **react-hooks 7 fatto**, PR impilata su quella di D29 (branch
+   `refactor/react-hooks-7`, in attesa del tuo merge). Emersi e corretti sul
+   percorso: un tool che crasha ora resta confinato nel suo riquadro, e le
+   transizioni Tailwind (dissolvenza del tour) non erano mai partite per una
+   regola globale fuori layer.
 5. Ancora tuo: **D16** (revoca dei secret orfani, incluso il PAT `TOKEN`).
 6. e2e in container: leggere prima **D25**, un progetto per volta. L'immagine
    podman per WebKit va portata a `mcr.microsoft.com/playwright:v1.63.0-noble`
