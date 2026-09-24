@@ -7,7 +7,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import OnboardingTour from './components/OnboardingTour/OnboardingTour';
 import { useTourStore } from './store/tourStore';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import ScreenManager from './components/ScreenManager/ScreenManager';
 import { useScreenStore } from './store/useScreenStore';
 import { useWidgetStore } from './store/useWidgetStore';
@@ -42,7 +42,6 @@ function App() {
   const setActiveFocus = useScreenStore((state) => state.setActiveFocus);
   const setActiveLayoutMode = useScreenStore((state) => state.setActiveLayoutMode);
   const updateActiveFocusWorkspace = useScreenStore((state) => state.updateActiveFocusWorkspace);
-  const [screenIsHydrated, setScreenIsHydrated] = useState(false);
   const screens = useScreenStore((state) => state.screens);
   const hasQuickCapture = widgets.some((widget) => widget.type === 'QuickCapture');
   const copy = locale === 'it' ? {
@@ -61,11 +60,6 @@ function App() {
   const isPresenterWindow = query.get('present') === '1';
 
   useEffect(() => {
-    hydrateActiveScreen();
-    setScreenIsHydrated(true);
-  }, [hydrateActiveScreen]);
-
-  useEffect(() => {
     const accent = accentTheme === 'ember'
       ? '#a5432d'
       : accentTheme === 'forest'
@@ -79,9 +73,8 @@ function App() {
   }, [accentTheme, customAccent, density, locale]);
 
   useEffect(() => {
-    if (!screenIsHydrated) return;
     saveActiveContent(widgets, favoriteWidgetIds);
-  }, [favoriteWidgetIds, saveActiveContent, screenIsHydrated, widgets]);
+  }, [favoriteWidgetIds, saveActiveContent, widgets]);
 
   useEffect(() => {
     const handleCaptureShortcut = (event: KeyboardEvent) => {
@@ -106,11 +99,11 @@ function App() {
     return () => window.removeEventListener('storage', syncWindow);
   }, [hydrateActiveScreen]);
 
-  if (screenIsHydrated && screens.length === 0) {
+  if (screens.length === 0) {
     return <FirstRun />;
   }
 
-  if (screenIsHydrated && activeScreen && isPresenterWindow) {
+  if (activeScreen && isPresenterWindow) {
     return (
       <div className="presenter-shell">
         <RunWorkspace
@@ -122,7 +115,7 @@ function App() {
     );
   }
 
-  if (screenIsHydrated && popoutWidgetId) {
+  if (popoutWidgetId) {
     return (
       <DndProvider backend={HTML5Backend}>
         <main className="popout-shell">

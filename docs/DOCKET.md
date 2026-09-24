@@ -168,6 +168,20 @@ gli item aperti.
 
 ## Chiusi
 
+- D34 [2026-09-25 → 2026-09-25] [deps/refactor] **eslint-plugin-react-hooks 7
+  adottato**, branch `refactor/react-hooks-7` (impilato su D29), ignore tolto da
+  `dependabot.yml`. Sette siti: idratazione dello Screen spostata da un effect di
+  App a `main.tsx` (sparisce `screenIsHydrated`); tour senza stato per le
+  dissolvenze (`@starting-style` + `key` per passo); `Date.now()` in un
+  inizializzatore pigro nel timer; try/catch intorno al JSX di SimpleTable
+  sostituito da un `WidgetErrorBoundary` per tool in ToolFrame (prima un tool in
+  crash mandava tutta l'app alla recovery). **Trovato sul percorso:** la regola
+  globale `* { transition: … }` di `index.css`, fuori layer, batteva ogni utility
+  `transition-*` di Tailwind: la dissolvenza del tour non è mai partita. Messa in
+  `@layer base`; misurato opacità 0.44 a 40ms e 1 a 540ms per passo, 1 subito con
+  reduced-motion. Smoke persistenza: rimozione di un tool sopravvive al reload
+  (5 → 4 → 4).
+
 - D29 [2026-08-13 → 2026-09-25] [design/coverage] **"Lo stato non è mai solo
   colore": completato**, branch `fix/state-not-only-colour`. Worklist rimisurata
   su `dev` (i numeri di riga di agosto erano slittati). (a)+(b) stato leggibile a
