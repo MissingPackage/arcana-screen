@@ -30,7 +30,6 @@ export default function OnboardingTour() {
   const prevStep = useTourStore((state) => state.prevStep);
 
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
-  const [isVisible, setIsVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const retryCountRef = useRef(0);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -53,15 +52,6 @@ export default function OnboardingTour() {
       window.removeEventListener('orientationchange', checkMobile);
     };
   }, []);
-
-  // Fade-in animation on mount
-  useEffect(() => {
-    if (isTourActive) {
-      setIsVisible(false);
-      const timer = setTimeout(() => setIsVisible(true), 50);
-      return () => clearTimeout(timer);
-    }
-  }, [isTourActive]);
 
   // Target element tracking with retry logic and timeout
   useEffect(() => {
@@ -207,8 +197,6 @@ export default function OnboardingTour() {
           retryIntervalRef.current = null;
         }
       };
-    } else {
-      setTargetRect(null);
     }
   }, [isTourActive, currentStep, currentTourStep, isMobile]);
 
@@ -252,18 +240,15 @@ export default function OnboardingTour() {
     <>
       {/* Backdrop overlay */}
       <div
-        className={`fixed inset-0 bg-black z-[1000] transition-opacity duration-500 ease-in-out ${
-          isVisible ? 'opacity-50' : 'opacity-0'
-        }`}
+        className="fixed inset-0 bg-black z-[1000] opacity-50 transition-opacity duration-500 ease-in-out starting:opacity-0"
         style={{ pointerEvents: 'none' }}
       />
 
       {/* Highlight cutout for target element */}
-      {targetRect && (
+      {/* A step without a target keeps no highlight; the rect of the previous step is ignored. */}
+      {currentTourStep.target && targetRect && (
         <div
-          className={`fixed border-2 border-[var(--accent)] rounded-lg shadow-lg z-[1000] pointer-events-none transition-all duration-300 ease-in-out ${
-            isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-          }`}
+          className="fixed border-2 border-[var(--accent)] rounded-lg shadow-lg z-[1000] pointer-events-none transition-all duration-300 ease-in-out starting:opacity-0 starting:scale-95"
           style={{
             top: `${targetRect.top - 4}px`,
             left: `${targetRect.left - 4}px`,
@@ -275,7 +260,8 @@ export default function OnboardingTour() {
       )}
 
       {/* Tour step tooltip */}
-      <TourStep step={currentTourStep} totalSteps={tourSteps.length} isVisible={isVisible} />
+      {/* Keyed by step so each step mounts fresh and replays its CSS entry transition. */}
+      <TourStep key={currentStep} step={currentTourStep} totalSteps={tourSteps.length} />
     </>
   );
 }

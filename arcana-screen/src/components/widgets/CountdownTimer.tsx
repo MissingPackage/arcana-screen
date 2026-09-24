@@ -20,7 +20,7 @@ const formatDuration = (seconds: number) => {
 
 function CountdownTimer({ id, updateWidget }: CountdownTimerProps) {
   const widget = useWidgetStore((state) => state.widgets.find((item) => item.id === id));
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(() => Date.now());
   const [presetName, setPresetName] = useState('');
 
   useEffect(() => {
