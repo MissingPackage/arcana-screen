@@ -19,6 +19,24 @@ updates:
           - "@types/react-dom"
       development-tooling:
         dependency-type: development
+    # Ognuna di queste ha fatto fallire da sola l'intero gruppo (PR #111).
+    # Togliere la riga quando la causa accanto cade.
+    ignore:
+      # eslint-plugin-jsx-a11y 6.10.2 dichiara peer eslint fino a ^9: npm ci va in ERESOLVE.
+      - dependency-name: eslint
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@eslint/js"
+        update-types: ["version-update:semver-major"]
+      # typescript-eslint 8.x accetta typescript <6.1.0; la 7 non si installa.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
+      # La 7 accende le regole del React Compiler: ~10 errori veri
+      # (setState dentro effect, JSX dentro try/catch in SimpleTable). Serve un refactor, non un bump.
+      - dependency-name: eslint-plugin-react-hooks
+        update-types: ["version-update:semver-major"]
+      # 4.13 vede il dock del Run dipinto sopra il notebook a 390px: e' D27, in attesa di ruling.
+      - dependency-name: "@axe-core/playwright"
+        versions: [">=4.13.0"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
