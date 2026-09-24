@@ -20,15 +20,18 @@ const storageErrorMessage = (error: unknown) => {
   return 'ArcanaScreen could not save locally. Your current session remains open.';
 };
 
-const isValidScreenEnvelope = (raw: string) => {
+// Returns the number of screens in a well-formed envelope, or null when the payload
+// is not one. Zero is legitimate: FirstRun persists an empty store before the first
+// Screen exists, and treating that as corruption raised a false "Save issue" on reload.
+const countScreensInEnvelope = (raw: string): number | null => {
   try {
     const parsed = JSON.parse(raw) as {
       state?: { screens?: unknown; activeScreenId?: unknown };
     };
+    const screens = parsed?.state?.screens;
     const screensAreValid =
-      Array.isArray(parsed?.state?.screens) &&
-      parsed.state.screens.length > 0 &&
-      parsed.state.screens.every(
+      Array.isArray(screens) &&
+      screens.every(
         (screen) =>
           typeof screen === 'object' &&
           screen !== null &&
@@ -36,14 +39,11 @@ const isValidScreenEnvelope = (raw: string) => {
           Array.isArray((screen as { layoutConfig?: unknown }).layoutConfig),
       );
 
-    return Boolean(
-      parsed &&
-      parsed.state &&
-      screensAreValid &&
-      typeof parsed.state.activeScreenId === 'string',
-    );
+    return screensAreValid && typeof parsed.state?.activeScreenId === 'string'
+      ? (screens as unknown[]).length
+      : null;
   } catch {
-    return false;
+    return null;
   }
 };
 
@@ -67,7 +67,8 @@ const readRecoverySnapshots = (): RecoverySnapshot[] => {
 };
 
 const captureRecoverySnapshot = (previousPayload: string, nextPayload: string) => {
-  if (previousPayload === nextPayload || !isValidScreenEnvelope(previousPayload)) return;
+  // An empty store has nothing worth recovering.
+  if (previousPayload === nextPayload || !countScreensInEnvelope(previousPayload)) return;
 
   const snapshots = readRecoverySnapshots();
   if (snapshots[0]?.payload === previousPayload) return;
@@ -87,7 +88,7 @@ export const safeLocalStorage: StateStorage = {
   getItem: (name) => {
     try {
       const raw = localStorage.getItem(name);
-      if (name === SCREEN_STORAGE_KEY && raw && !isValidScreenEnvelope(raw)) {
+      if (name === SCREEN_STORAGE_KEY && raw && countScreensInEnvelope(raw) === null) {
         archiveInvalidPayload(raw);
         useTrustStore.getState().markError(
           'Stored screen data was invalid. ArcanaScreen opened a safe fallback.',

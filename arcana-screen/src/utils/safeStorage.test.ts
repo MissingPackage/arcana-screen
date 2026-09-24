@@ -17,6 +17,20 @@ describe('safe local storage', () => {
     expect(Array.from({ length: localStorage.length }, (_, index) => localStorage.key(index)).some((key) => key?.startsWith(INVALID_STORAGE_PREFIX))).toBe(true);
   });
 
+  it('hydrates the empty store FirstRun persists without flagging it', () => {
+    const empty = JSON.stringify({ state: { screens: [], activeScreenId: '' }, version: 5 });
+    localStorage.setItem('arcana_screens', empty);
+    expect(safeLocalStorage.getItem('arcana_screens')).toBe(empty);
+    expect(useTrustStore.getState().status).toBe('saved');
+    expect(Array.from({ length: localStorage.length }, (_, index) => localStorage.key(index)).some((key) => key?.startsWith(INVALID_STORAGE_PREFIX))).toBe(false);
+  });
+
+  it('does not snapshot an empty store before the first screen is saved', () => {
+    safeLocalStorage.setItem('arcana_screens', JSON.stringify({ state: { screens: [], activeScreenId: '' }, version: 5 }));
+    safeLocalStorage.setItem('arcana_screens', envelope('one'));
+    expect(getRecoverySnapshots()).toHaveLength(0);
+  });
+
   it('keeps the previous valid payload as a recovery snapshot before overwriting', () => {
     safeLocalStorage.setItem('arcana_screens', envelope('one'));
     safeLocalStorage.setItem('arcana_screens', envelope('two'));
