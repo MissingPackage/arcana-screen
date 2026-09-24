@@ -228,6 +228,11 @@ html:has(body.dark-theme) {
 
   /* A popover opened from the dock (dice tray, timer, oracle) */
   --as-shadow-popover: 0 12px 32px rgba(4, 20, 34, 0.28);
+  /* State is never colour alone: a pressed/selected control also carries a bar in
+     its own text colour — a shape cue that survives greyscale and colour blindness.
+     Bottom bar for buttons and segments, left bar for list rows. */
+  --as-state-mark: inset 0 -3px 0 currentColor;
+  --as-state-mark-row: inset 4px 0 0 currentColor;
 
   /* A floating panel (party glance) */
   --as-shadow-panel: 0 14px 34px rgba(4, 20, 34, 0.26);

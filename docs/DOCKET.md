@@ -137,31 +137,6 @@ gli item aperti.
   per i toggle sia per Earlier/Later. Non promosso a fatto compiuto: il DM
   potrà bocciare la posizione.
 
-- D29 [2026-08-13] [design/coverage] **Copertura di pattern: INCOMPLETE sullo
-  stato non-cromatico.** Sweep meccanico su tutti i 184 `<button>` di `src/`:
-  (a) lo stato binario è leggibile a macchina (`aria-pressed`/checkbox) in
-  **23/28** siti — mancano `RunWorkspace.tsx:220` (beat toggle, il vero analogo
-  dei toggle condizione), `:259`, `:439`, `:379` (pill attitudine, senza
-  `aria-label`) e `QuickReference.tsx:109`; (b) la disclosure è leggibile in
-  **14/19** — mancano `RunWorkspace.tsx:653` (che diverge dal fratello
-  `:584`, il quale invece ce l'ha), `QuickCaptureBar.tsx:59`,
-  `SidebarHeader.tsx:15`, `WidgetHelpButton.tsx:40`, `QuickCapture.tsx:109`;
-  (c) la regola di CLAUDE.md "lo stato non è mai solo colore" è rispettata in
-  **16/27**: 11 siti usano solo il colore, fra cui il **toggle Prepare/Run**
-  (`index.css:461` e `:814`), `.combatant-identity[aria-pressed]`
-  (`session.css:514`) e i quick-dice (`index.css:2092/2093`). Non assorbito:
-  sono pattern pre-esistenti, e la regola è "completa UN pattern ovunque", non
-  molti a metà. La duplicazione introdotta dalla slice invece **è stata
-  chiusa** (una sola dichiarazione per oracle/dice/condizioni). Nota per chi lo
-  farà: `index.css:2433` serve due famiglie di controlli di cui una già
-  conforme — vanno separati i selettori prima di toccarla. Da valutare anche il
-  suggerimento dello sweep: un test che legge i CSS e pretende almeno una
-  proprietà non-cromatica per ogni regola di stato, così smette di essere un
-  lavoro da rilettura umana. **Contraddizione da sanare:**
-  `.codex/product-design/horizon-0-prototype/design-qa.md:33` afferma "State is
-  never communicated by color alone" — falso in 11 punti; un documento che
-  certifica una proprietà che il codice non ha continuerà a nasconderli.
-
 - D26 [2026-08-13] [docs/a11y] **Stessa specie di overclaim del 44px, ma
   pre-esistente**: la cella *Accessibility/input* dice "keyboard/200%", mentre
   `e2e/critical-flows.spec.ts:145` si intitola "200% reflow **equivalent**" e
@@ -192,6 +167,24 @@ gli item aperti.
   ignoto e nessun consumatore.
 
 ## Chiusi
+
+- D29 [2026-08-13 → 2026-09-25] [design/coverage] **"Lo stato non è mai solo
+  colore": completato**, branch `fix/state-not-only-colour`. Worklist rimisurata
+  su `dev` (i numeri di riga di agosto erano slittati). (a)+(b) stato leggibile a
+  macchina: beat (`aria-pressed` + `aria-current="step"`, spunta in Phosphor al
+  posto del glifo), outline del notebook (`aria-current="location"`), momenti di
+  esplorazione (`aria-current="step"`), pillola attitudine (nome accessibile con
+  lo stato), pin dei riferimenti (`aria-pressed`, testo fisso "Pin" + icona
+  piena/vuota: il vecchio Pin/Unpin rompeva label-in-name), toggle della sidebar,
+  help dei widget e review di QuickCapture (`aria-expanded`), "Review captures"
+  (`aria-haspopup="dialog"`). (c) Visivo: 19 regole di stato su 28 erano solo
+  colore; 14 hanno già il segnale altrove (stella piena, testo, radio nativo,
+  contenuto rivelato), 5 corrette con il token `--as-state-mark` (barra nel
+  colore del testo) o con la sottolineatura (toggle Prepare/Run: la barra navy
+  si fondeva col telaio navy, verificato a 3x). **Guardia:**
+  `src/styles/stateCues.test.ts` legge i CSS e fallisce su ogni nuova regola
+  di stato solo-colore; sul CSS vecchio indica esattamente i 5 siti. La frase di
+  `design-qa.md:33` ora è vera e cita il test.
 
 - D23 [2026-08-07 → 2026-09-25] [merge] PR #101 (acceptance-matrix) mergiata su
   richiesta dell'utente, insieme a #104 (toggle condizioni).
