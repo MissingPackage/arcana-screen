@@ -5,10 +5,9 @@ import type { TourStep as TourStepType } from './tourSteps';
 interface TourStepProps {
   step: TourStepType;
   totalSteps: number;
-  isVisible: boolean;
 }
 
-export default function TourStep({ step, totalSteps, isVisible }: TourStepProps) {
+export default function TourStep({ step, totalSteps }: TourStepProps) {
   const currentStep = useTourStore((state) => state.currentStep);
   const nextStep = useTourStore((state) => state.nextStep);
   const prevStep = useTourStore((state) => state.prevStep);
@@ -16,21 +15,11 @@ export default function TourStep({ step, totalSteps, isVisible }: TourStepProps)
   const completeTour = useTourStore((state) => state.completeTour);
 
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
   const tooltipRef = useRef<HTMLDivElement>(null);
 
-  // Trigger animation when step changes
   useEffect(() => {
-    setIsMounted(false);
-    const timer = setTimeout(() => setIsMounted(true), 50);
-    return () => clearTimeout(timer);
-  }, [currentStep]);
-
-  useEffect(() => {
-    if (!step.target) {
-      setPosition(null);
-      return;
-    }
+    // No target: isCenter below already ignores position.
+    if (!step.target) return;
 
     const updatePosition = () => {
       const targetElement = document.querySelector(step.target!);
@@ -144,11 +133,7 @@ export default function TourStep({ step, totalSteps, isVisible }: TourStepProps)
   return (
     <div
       ref={tooltipRef}
-      className={`bg-white dark:bg-[var(--deep-blue)] border-2 border-[var(--accent)] rounded-lg shadow-2xl p-6 max-w-md z-[1001] transition-all duration-300 ease-out ${
-        isVisible && isMounted
-          ? 'opacity-100 scale-100 translate-y-0'
-          : 'opacity-0 scale-95 translate-y-2'
-      }`}
+      className="bg-white dark:bg-[var(--deep-blue)] border-2 border-[var(--accent)] rounded-lg shadow-2xl p-6 max-w-md z-[1001] transition-all duration-300 ease-out starting:opacity-0 starting:scale-95 starting:translate-y-2"
       style={positionStyles}
     >
       <div className="flex justify-between items-start mb-3">
