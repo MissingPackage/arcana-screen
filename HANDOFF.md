@@ -1,6 +1,6 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-09-25, iterazione 23 (react-hooks 7, D34; PR impilata). Iterazione 22: D29 chiuso, PR in attesa di merge. Iterazione 21 (stabilizzazione su richiesta
+Aggiornato: 2026-09-25, iterazione 24 (D33 header, PR impilata). Iterazione 23: react-hooks 7, D34. Iterazione 22: D29 chiuso, PR in attesa di merge. Iterazione 21 (stabilizzazione su richiesta
 dell'utente: tutte le PR aperte chiuse, gate di sicurezza sbloccato, toolchain
 portata avanti, un falso allarme di salvataggio corretto). Iterazioni: 21
 (D31/D32/D33), 20 (diagnosi D27), 19 (D27/D28/D29/D30, PR #104), 18 (D24/D25,
@@ -74,8 +74,9 @@ Stato al 2026-09-25, dopo l'iterazione 21.
    non c'è la fix. La matrice di accettazione segna *Responsive* `red`.
 2. **D29 fatto**, PR aperta dal branch `fix/state-not-only-colour` (in attesa
    del tuo merge). La prossima slice libera è il punto 4, react-hooks 7.
-3. **D33 — header del Run a 390px**, "Search"/"Edit party" sopra lo switcher.
-   Da diagnosticare insieme a D27 (stessa shell).
+3. **D33 fatto**, PR impilata su react-hooks 7 (branch `fix/run-header-390`).
+   Non dipendeva da D27: è stato corretto da solo. L'header sotto i 700px costa
+   46px in più, un dato che entra nel ruling D27.
 4. **react-hooks 7 fatto**, PR impilata su quella di D29 (branch
    `refactor/react-hooks-7`, in attesa del tuo merge). Emersi e corretti sul
    percorso: un tool che crasha ora resta confinato nel suo riquadro, e le

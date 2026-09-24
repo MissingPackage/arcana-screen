@@ -20,7 +20,7 @@ Status values: `missing`, `red`, `partial`, `green`, `manual-pass`, `blocked`.
 | Timer                        | green                    | green controls/duration/completion       | green automated: reload plus 12-minute suspension, full matrix           | manual-pass utility dock              | manual-pass    |
 | Theme/reduced motion         | green                    | partial                                  | green automated persistence/computed durations                           | partial                               | green          |
 | Export/import/recovery       | green                    | partial validation UI                    | green on the full matrix, WebKit included                                | n/a                                   | partial        |
-| Responsive                   | n/a                      | green reflow                             | red: Run unusable below 820px (D27), header overlap at 390×844 (D33); desktop 1487×1058 pass | manual-pass desktop only              | red            |
+| Responsive                   | n/a                      | green reflow                             | red: Run unusable below 820px (D27); header overlap fixed (D33, e2e at 390/768/1100/1487); desktop 1487×1058 pass | manual-pass desktop only              | red            |
 | Accessibility/input          | n/a                      | green jsx-a11y and alternatives          | green automated: keyboard/200% and axe in **both themes** on all four projects, WebKit included; 44px touch targets on the mobile project only | partial moderated audit               | partial        |
 | Browser matrix               | n/a                      | n/a                                      | green on all four projects, WebKit included, in CI                       | n/a                                   | green          |
 | Performance budgets          | green asset gate         | n/a                                      | green startup and mode switch                                            | n/a                                   | green          |
@@ -49,7 +49,7 @@ tabella. Promuovendo *Timer* e *Browser matrix* la revisione porta il conteggio
 a **12 `manual-pass`, 6 `partial`, 4 `green`**. Il 2026-09-25 *Responsive*
 passa da `manual-pass` a `red`: il `manual-pass` a 768×1024 e 390×844 era
 contraddetto dalle misure di D27 (controlli irraggiungibili sotto gli 820px) e
-da D33. Valore corrente: **11 `manual-pass`, 6 `partial`, 4 `green`, 1 `red`**.
+da D33 (poi corretto). Valore corrente: **11 `manual-pass`, 6 `partial`, 4 `green`, 1 `red`**.
 
 Ciò che tiene ferme le righe `partial` non è quasi mai il codice:
 - *Screen create/resume*, *Rename/duplicate/delete*, *Prepare/Run* → il browser
