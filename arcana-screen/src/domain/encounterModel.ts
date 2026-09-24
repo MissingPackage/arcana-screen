@@ -92,6 +92,42 @@ export const reorderTiedCombatant = (
   return { ...encounter, combatants: sortCombatants(combatants) };
 };
 
+// The conditions a DM reaches for most in live play. Kept short on purpose: this
+// is the one-tap set, not a catalogue — anything rarer still goes in the free-text
+// field, which is why toggling must not disturb conditions outside this list.
+export const QUICK_CONDITIONS = ['Prone', 'Poisoned', 'Concentration', 'Stunned', 'Restrained'] as const;
+
+// Both sides are trimmed: an imported or seeded " Prone" would otherwise show the
+// toggle off next to a visible "Prone" chip, and tapping it would add a second one.
+const sameCondition = (left: string, right: string) =>
+  left.trim().toLowerCase() === right.trim().toLowerCase();
+
+export const hasCondition = (combatant: EncounterCombatant, condition: string) =>
+  combatant.conditions.some((existing) => sameCondition(existing, condition));
+
+// Add or remove one condition, leaving every other condition untouched.
+// Matching is case-insensitive because the same state arrives typed by hand
+// ("prone") and from this list ("Prone"): comparing verbatim would let a
+// combatant hold both and make the toggle unable to clear what it displays.
+export const toggleCondition = (
+  encounter: EncounterState,
+  combatantId: string,
+  condition: string,
+): EncounterState => {
+  const label = condition.trim();
+  if (!label) return encounter;
+  return {
+    ...encounter,
+    combatants: encounter.combatants.map((combatant) => {
+      if (combatant.id !== combatantId) return combatant;
+      const conditions = hasCondition(combatant, label)
+        ? combatant.conditions.filter((existing) => !sameCondition(existing, label))
+        : [...combatant.conditions, label];
+      return { ...combatant, conditions };
+    }),
+  };
+};
+
 export const advanceTurn = (encounter: EncounterState): EncounterState => {
   if (encounter.combatants.length === 0) return { ...encounter, currentIndex: null };
   if (encounter.currentIndex === null) return { ...encounter, currentIndex: 0 };

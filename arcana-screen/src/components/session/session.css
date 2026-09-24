@@ -339,7 +339,14 @@
 .oracle-options { position: absolute; left: 0; bottom: calc(100% + 30px); z-index: 20; display: grid; width: min(300px, 88vw); gap: 11px; padding: 14px; color: var(--as-ink); background: var(--as-surface); border: 1px solid var(--as-line-strong); border-radius: 7px; box-shadow: var(--as-shadow-popover); }
 .oracle-likelihoods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .arcana-session .oracle-likelihoods button { min-height: 34px !important; color: var(--as-ink-soft) !important; background: #fff !important; border: 1px solid var(--as-line-strong) !important; border-radius: 4px !important; font-size: 11px !important; font-weight: 700; cursor: pointer; }
-.arcana-session .oracle-likelihoods button[aria-pressed='true'] { color: #fff !important; background: var(--as-navy-soft) !important; border-color: var(--as-navy-soft) !important; }
+/* One pressed-state for every outlined toggle in the session — oracle likelihood,
+   dice mode, condition. It was written twice already and the condition toggles
+   would have been a third identical copy; the selectors differ only in which
+   control they belong to, so the declaration lives here once. Each control keeps
+   its own size and resting style above. */
+.arcana-session .oracle-likelihoods button[aria-pressed='true'],
+.arcana-session .dice-options > div button[aria-pressed='true'],
+.combat-live-editor button.condition-toggle[aria-pressed='true'] { color: #fff !important; background: var(--as-navy-soft) !important; border-color: var(--as-navy-soft) !important; }
 .oracle-answer { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 14px; }
 .oracle-answer strong { font-family: var(--as-font-display); font-size: 19px; }
 .oracle-answer strong.is-yes { color: var(--as-success-ink); }
@@ -357,7 +364,6 @@
 .dice-options input { width: 100%; height: 38px; padding: 0 9px; color: var(--as-ink); background: #fff; border: 1px solid var(--as-line-strong); border-radius: 4px; }
 .dice-options > div { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .dice-options > div button { min-height: 34px; color: var(--as-ink-soft) !important; border: 1px solid var(--as-line-strong) !important; border-radius: 4px !important; font-size: 10px !important; }
-.dice-options > div button[aria-pressed='true'] { color: #fff !important; background: var(--as-navy-soft) !important; }
 .dice-options p { margin: 0; color: #a23a32; font-size: 10px; line-height: 1.4; }
 .dice-options .dice-breakdown { color: var(--as-ink-soft); }
 .timer-tool time { color: white; font-size: 25px; letter-spacing: .03em; white-space: nowrap; }
@@ -596,6 +602,14 @@ body[data-density='compact'] .arcana-session .condition-chips span { padding: 2p
 .combat-live-editor strong { color: var(--as-ink); }
 .combat-live-editor span { margin-right: auto; }
 .combat-live-editor button { min-height: 24px; padding: 5px 7px !important; color: #fff !important; background: var(--as-navy-soft) !important; border-radius: 4px !important; font-size: 9px !important; }
+/* Quick condition toggles. Outlined = off, filled navy + check = on: the state is
+   carried by fill AND glyph, never by colour alone. Sizing is inherited from the
+   editor's button rule (min-height 24px), so these keep the WCAG 2.5.8 target the
+   in-row chevrons of iter. 15 failed. Colours are tokens, not hex, so dark theme
+   follows automatically — the iter. 19 chip bug was a hardcoded value with no dark
+   override, and it read 2.02:1. */
+.combat-live-editor .condition-toggles { display: inline-flex; flex-wrap: wrap; gap: 5px; padding-left: 8px; border-left: 1px solid var(--as-line-strong); }
+.combat-live-editor button.condition-toggle { display: inline-flex; align-items: center; gap: 3px; color: var(--as-ink-soft) !important; background: transparent !important; border: 1px solid var(--as-line-strong) !important; }
 .combat-live-editor label { display: flex; flex: 1 1 12rem; align-items: center; gap: 6px; color: var(--as-ink-soft); font-size: 9px; font-weight: 700; text-transform: uppercase; }
 .combat-live-editor input { min-width: 7rem; height: 29px; flex: 1; padding: 0 6px; color: var(--as-ink); background: var(--as-surface); border: 1px solid var(--as-line-strong); border-radius: 4px; font-size: 10px; }
 .combat-context { min-width: 0; min-height: 0; padding: 18px 20px; overflow: auto; background: var(--as-paper); }

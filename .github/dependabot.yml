@@ -6,6 +6,17 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     groups:
+      # Deve restare PRIMA di development-tooling: una dipendenza entra nel
+      # primo gruppo che matcha, e @types/react* sono devDependencies, quindi
+      # altrimenti finirebbero nel gruppo sbagliato staccate da react/react-dom.
+      # Un bump spezzato lascia react e react-dom su versioni diverse e fa
+      # morire tutte le suite all'import (vedi D7: PR #80/#82, poi #93/#94).
+      react:
+        patterns:
+          - react
+          - react-dom
+          - "@types/react"
+          - "@types/react-dom"
       development-tooling:
         dependency-type: development
   - package-ecosystem: github-actions

@@ -280,6 +280,51 @@ describe('RunWorkspace', () => {
     expect(screen.getByRole('button', { name: 'Manage Ser Kael' })).toBeVisible();
   });
 
+  it('toggles a condition onto the combatant row in one tap and back off', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'combat';
+    render(<StatefulRun initial={workspace} />);
+
+    // Ser Kael starts with Blessed and Shielded typed in the free-text field.
+    await user.click(screen.getByRole('button', { name: 'Manage Ser Kael' }));
+    const prone = screen.getByRole('button', { name: 'Prone', pressed: false });
+
+    // Scoped to Kael's row on purpose: the seeded Goblin Shaman is already Prone,
+    // so an unscoped query would pass whether or not the toggle did anything.
+    const row = within(screen.getByRole('button', { name: 'Manage Ser Kael' }).closest('article')!);
+
+    await user.click(prone);
+    expect(screen.getByRole('button', { name: 'Prone', pressed: true })).toBeVisible();
+    // The chip on the row is the point of the feature: the DM reads state from
+    // the tracker, not from the editor they just tapped in.
+    expect(row.getByText('Prone', { selector: '.condition-chips span' })).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: 'Prone', pressed: true }));
+    expect(row.queryByText('Prone', { selector: '.condition-chips span' })).not.toBeInTheDocument();
+    // Hand-typed conditions must survive a toggle of an unrelated one.
+    expect(row.getByText('Blessed', { selector: '.condition-chips span' })).toBeVisible();
+    expect(screen.getByLabelText('Conditions for Ser Kael')).toHaveValue('Blessed, Shielded');
+  });
+
+  it('reflects a hand-typed condition as an already-pressed toggle', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'combat';
+    render(<StatefulRun initial={workspace} />);
+
+    await user.click(screen.getByRole('button', { name: 'Manage Ser Kael' }));
+    await user.clear(screen.getByLabelText('Conditions for Ser Kael'));
+    await user.type(screen.getByLabelText('Conditions for Ser Kael'), 'poisoned');
+
+    // Typed lower-case: the toggle must still show as on, or the DM taps it and
+    // ends up holding the same condition twice.
+    const poisoned = screen.getByRole('button', { name: 'Poisoned', pressed: true });
+    await user.click(poisoned);
+    expect(screen.getByRole('button', { name: 'Poisoned', pressed: false })).toBeVisible();
+    expect(screen.getByLabelText('Conditions for Ser Kael')).toHaveValue('');
+  });
+
   it('re-sorts the tracker when a combatant initiative is edited in place', async () => {
     const user = userEvent.setup();
     const workspace = createDefaultFocusWorkspace();
