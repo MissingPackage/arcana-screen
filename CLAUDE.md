@@ -74,14 +74,14 @@ arcana-screen/                      # repo root (README, LICENSE, ROADMAP.md, CH
 npm run dev               # Vite dev server (HMR)
 npm run build             # tsc -b && vite build
 npm run lint              # eslint
-npm test                  # vitest run (unit/component) — currently 147 tests
+npm test                  # vitest run (unit/component) — currently 148 tests
 npm run test:ci           # build + lint + test + check:budget   ← does NOT run e2e
 npm run test:e2e:critical # Playwright @critical suite (browsers + axe)  ← run this for browser/a11y
 npm run check:budget      # per-file asset budget: 560 KiB per JS chunk / 130 KiB CSS (vendors split via manualChunks)
 npm run preview           # serve the production build (used by Playwright webServer on :4173)
 ```
 
-**Testing reality (verified 2026-07-16):** `test:ci` runs unit only. Browser flows, responsive, and **axe accessibility/contrast** are only covered by `test:e2e:critical`. Always run the Playwright suite after visual/CSS changes - unit tests will not catch contrast/a11y regressions. Real state (2026-09-25): 147/147 unit green; e2e **37 pass + 3 skip on the full matrix, WebKit included** (the historical WebKit failures were a real cross-browser bug - `upgrade-insecure-requests` in the CSP meta - fixed 2026-07-16, see docs/verification/2026-07-16-webkit-gate.md). On hosts without WebKit system deps the webkit lane needs `sudo npx playwright install-deps webkit` first.
+**Testing reality (verified 2026-07-16):** `test:ci` runs unit only. Browser flows, responsive, and **axe accessibility/contrast** are only covered by `test:e2e:critical`. Always run the Playwright suite after visual/CSS changes - unit tests will not catch contrast/a11y regressions. Real state (2026-09-25): 148/148 unit green; e2e **37 pass + 3 skip on the full matrix, WebKit included** (the historical WebKit failures were a real cross-browser bug - `upgrade-insecure-requests` in the CSP meta - fixed 2026-07-16, see docs/verification/2026-07-16-webkit-gate.md). On hosts without WebKit system deps the webkit lane needs `sudo npx playwright install-deps webkit` first.
 
 ## State management (Zustand, localStorage-persisted)
 
