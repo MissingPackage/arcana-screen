@@ -13,11 +13,13 @@ const scanForViolations = (page: Page) =>
 const openCombatEditor = async (page: Page) => {
   const focusNav = page.getByRole("navigation", { name: "Session Focus" });
   await focusNav.getByRole("button", { name: "Combat" }).click();
-  await expect(focusNav.getByRole("button", { name: "Combat" })).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-  await page.getByRole("button", { name: /^Manage / }).first().click();
+  await expect(
+    focusNav.getByRole("button", { name: "Combat" }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await page
+    .getByRole("button", { name: /^Manage / })
+    .first()
+    .click();
   await expect(
     page.getByRole("region", { name: /^Live controls for / }),
   ).toBeVisible();
@@ -196,6 +198,65 @@ test("@critical supports keyboard skip navigation and 200% reflow equivalent", a
     scrollWidth: document.documentElement.scrollWidth,
   }));
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+});
+
+test("@critical keeps header controls from painting over each other at narrow widths", async ({
+  page,
+}) => {
+  // The utility bar (Search, Edit party, theme, help) was absolutely positioned with
+  // a hole sized for two icons; once it grew it painted over the Screen switcher at
+  // 390px and over the Prepare/Run toggle up to 1100px, in both modes (docket D33).
+  // A long name widens the select past its shrunk picker: that overlap also hit
+  // the Prepare/Run toggle on a 1487px desktop.
+  await createScreen(page, "A rather long screen name");
+  const overlaps = () =>
+    page.evaluate(() => {
+      const controls = [
+        ...document.querySelectorAll<HTMLElement>(
+          ".arcana-header button, .arcana-header select, .arcana-header summary",
+        ),
+      ].filter((element) => {
+        const box = element.getBoundingClientRect();
+        // Content of a <details> is not painted while closed, yet still reports a box,
+        // so a control counts only if every enclosing <details> is either closed with
+        // this control as its own <summary>, or not involved. Open panels are overlays
+        // by design and are not opened here.
+        let painted = true;
+        for (
+          let details = element.closest("details");
+          details;
+          details = details.parentElement?.closest("details") ?? null
+        ) {
+          const isOwnSummary =
+            details.querySelector(":scope > summary") === element;
+          if (!isOwnSummary && !details.open) painted = false;
+        }
+        return box.width > 0 && box.height > 0 && painted;
+      });
+      const hits: string[] = [];
+      controls.forEach((a, i) =>
+        controls.slice(i + 1).forEach((b) => {
+          if (a.contains(b) || b.contains(a)) return;
+          const A = a.getBoundingClientRect();
+          const B = b.getBoundingClientRect();
+          const x = Math.min(A.right, B.right) - Math.max(A.left, B.left);
+          const y = Math.min(A.bottom, B.bottom) - Math.max(A.top, B.top);
+          if (x > 1 && y > 1)
+            hits.push(
+              `${a.textContent?.trim() || a.getAttribute("aria-label")} x ${b.textContent?.trim() || b.getAttribute("aria-label")}`,
+            );
+        }),
+      );
+      return hits;
+    });
+
+  for (const width of [390, 768, 1100, 1487]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.getByRole("button", { name: "Prepare", exact: true }).click();
+    expect(await overlaps(), `Prepare at ${width}px`).toEqual([]);
+    await page.getByRole("button", { name: "Run", exact: true }).click();
+    expect(await overlaps(), `Run at ${width}px`).toEqual([]);
+  }
 });
 
 test("@critical provides keyboard alternatives for structural reordering", async ({

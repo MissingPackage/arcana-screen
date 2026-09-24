@@ -164,7 +164,7 @@ export default function ScreenManager() {
   return (
     <section className="screen-manager" aria-label={copy.controls}>
       <div className="screen-manager__primary">
-        <div className="min-w-0">
+        <div className="screen-manager__picker">
           <p className="screen-manager__eyebrow">{copy.current}</p>
           <select
             className="screen-manager__select"
