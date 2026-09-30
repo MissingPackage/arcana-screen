@@ -30,7 +30,7 @@ No actionable P0, P1, or P2 mismatch remains.
 
 - Fonts and typography: Cinzel and Inter are bundled locally. Display/body hierarchy, weight, line height, wrapping, and truncation were checked at the reference viewport; no blocking mismatch remains.
 - Spacing and layout rhythm: header, 62/38 main split, seven-row initiative area, context column, and compact bottom utility dock match the selected composition. No body overflow exists at 1440 × 1024.
-- Colors and visual tokens: deep navy, warm parchment, muted gold, slate secondary text, green health/saved states, borders, and active-state contrast map to the source. State is never communicated by color alone.
+- Colors and visual tokens: deep navy, warm parchment, muted gold, slate secondary text, green health/saved states, borders, and active-state contrast map to the source. State is never communicated by color alone — this was false in 11 places until 2026-09-25 (docket D29); it is now enforced by `arcana-screen/src/styles/stateCues.test.ts`.
 - Image quality and asset fidelity: the source contains no required raster imagery. All visible interface glyphs use one real icon library; there are no placeholder images, custom inline SVGs, CSS drawings, or emoji.
 - Copy and content: screen name, mode labels, encounter state, reference headings, combatants, primary action, capture prompt, and utility labels match the selected target and remain coherent outside the mock.
 

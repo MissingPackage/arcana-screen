@@ -13,8 +13,10 @@ type SidebarHeaderProps = {
         <div className="flex items-center justify-between">
           <h2 className={`widget-sidebar__title ${isOpen ? 'block' : 'hidden'}`}>Widgets</h2>
           <button
+            type="button"
             onClick={toggleSidebar}
             className="widget-sidebar__toggle"
+            aria-expanded={isOpen}
             aria-label={isOpen ? 'Collapse widget sidebar' : 'Expand widget sidebar'}
           >
             {isOpen ? <CaretLeft size={16} weight="bold" aria-hidden="true" /> : <CaretRight size={16} weight="bold" aria-hidden="true" />}

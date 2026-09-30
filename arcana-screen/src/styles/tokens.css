@@ -63,6 +63,7 @@
   --as-ink: #122b49;           /* primary text + headings */
   --as-ink-muted: #586678;     /* labels, meta, secondary */
   --as-ink-soft: #425971;      /* long-form notebook body */
+  --as-ink-warm: #76603f;      /* timestamps in logs; >=5:1 on every parchment */
 
   /* ---- Lines (structure lives here, not in shadow) ---- */
   --as-line: #ddd4c3;          /* thin separators */
@@ -72,6 +73,7 @@
   --as-success: #16893f;       /* healthy HP, saved, kept */
   --as-success-ink: #146c33;   /* success text on paper */
   --as-danger: #8a3d38;        /* remove, critical, destructive */
+  --as-danger-ink: #8a3d38;    /* danger text; --as-danger stays a fill under white text */
   --as-warning: #9a5a0f;       /* bloodied (HP < half) text */
   --as-warning-bar: #b5651d;   /* bloodied HP bar fill */
   --as-turn: #f6d783;          /* "TURN" tag — a soft echo of the marker */
@@ -128,12 +130,14 @@ html:has(body.dark-theme) {
   --as-ink: #f5ead2;
   --as-ink-muted: #a9b8c6;
   --as-ink-soft: #cdd8e2;
+  --as-ink-warm: #c4a574;      /* >=5.8:1 on every dark surface */
 
   --as-line: #34495d;
   --as-line-strong: #536779;
 
   --as-gold-ink: #f0c463;        /* eyebrows must lift off dark paper */
   --as-success-ink: #7fd39b;
+  --as-danger-ink: #dba39d;
 }
 
 /* ============================================================
@@ -228,6 +232,11 @@ html:has(body.dark-theme) {
 
   /* A popover opened from the dock (dice tray, timer, oracle) */
   --as-shadow-popover: 0 12px 32px rgba(4, 20, 34, 0.28);
+  /* State is never colour alone: a pressed/selected control also carries a bar in
+     its own text colour — a shape cue that survives greyscale and colour blindness.
+     Bottom bar for buttons and segments, left bar for list rows. */
+  --as-state-mark: inset 0 -3px 0 currentColor;
+  --as-state-mark-row: inset 4px 0 0 currentColor;
 
   /* A floating panel (party glance) */
   --as-shadow-panel: 0 14px 34px rgba(4, 20, 34, 0.26);

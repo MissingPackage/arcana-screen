@@ -20,7 +20,7 @@ Status values: `missing`, `red`, `partial`, `green`, `manual-pass`, `blocked`.
 | Timer                        | green                    | green controls/duration/completion       | green automated: reload plus 12-minute suspension, full matrix           | manual-pass utility dock              | manual-pass    |
 | Theme/reduced motion         | green                    | partial                                  | green automated persistence/computed durations                           | partial                               | green          |
 | Export/import/recovery       | green                    | partial validation UI                    | green on the full matrix, WebKit included                                | n/a                                   | partial        |
-| Responsive                   | n/a                      | green reflow                             | manual-pass at 1487×1058, 768×1024, 390×844 including overlap regression | manual-pass captured comparisons      | manual-pass    |
+| Responsive                   | n/a                      | green reflow                             | green automated: every Run control reachable in every Focus + combat editor at 390/768/820 (D27); header overlap fixed (D33, e2e at 390/768/1100/1487); desktop 1487×1058 pass | manual-pass desktop only              | partial        |
 | Accessibility/input          | n/a                      | green jsx-a11y and alternatives          | green automated: keyboard/200% and axe in **both themes** on all four projects, WebKit included; 44px touch targets on the mobile project only | partial moderated audit               | partial        |
 | Browser matrix               | n/a                      | n/a                                      | green on all four projects, WebKit included, in CI                       | n/a                                   | green          |
 | Performance budgets          | green asset gate         | n/a                                      | green startup and mode switch                                            | n/a                                   | green          |
@@ -46,8 +46,15 @@ di questa revisione: **11 `manual-pass`, 8 `partial`, 3 `green`** — e **zero**
 `missing`, `red` o `blocked`. Una lettura precedente ne contava tre, due e due:
 erano occorrenze nella legenda e nella frase di chiusura, non celle della
 tabella. Promuovendo *Timer* e *Browser matrix* la revisione porta il conteggio
-a **12 `manual-pass`, 6 `partial`, 4 `green`**, che è il valore corrente della
-tabella qui sopra.
+a **12 `manual-pass`, 6 `partial`, 4 `green`**. Il 2026-09-25 *Responsive*
+passa da `manual-pass` a `red`: il `manual-pass` a 768×1024 e 390×844 era
+contraddetto dalle misure di D27 (controlli irraggiungibili sotto gli 820px) e
+da D33 (poi corretto). Il 2026-09-30 *Responsive* passa da `red` a
+`partial`: D27 è corretto e la raggiungibilità è coperta da un e2e `@critical`
+(ogni controllo del Run, ogni Focus e l'editor di Combat, a 390/768/820). Resta
+`partial` perché al telefono Dice e Timer stanno in fondo allo scroll, a circa
+2 schermate, mentre la spec li vuole "immediately available" (D35). Valore
+corrente: **11 `manual-pass`, 7 `partial`, 4 `green`, 0 `red`**.
 
 Ciò che tiene ferme le righe `partial` non è quasi mai il codice:
 - *Screen create/resume*, *Rename/duplicate/delete*, *Prepare/Run* → il browser

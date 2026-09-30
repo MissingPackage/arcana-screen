@@ -10,10 +10,53 @@ gli item aperti.
 
 ## Aperti
 
-- D23 [2026-08-07] [merge] PR #101, revisione dell'acceptance-matrix. Solo
-  documentazione, indipendente dalle altre. **Aggiornata il 2026-08-13** (D24):
-  contiene ora anche la promozione della riga *Accessibility/input* e il merge
-  di `dev`. Il merge resta ruling dell'utente.
+- D36 [2026-09-30] [a11y/tema] **Colori scritti a mano senza variante scura:
+  schema ricorrente.** La fix di D27 ha scoperto due siti che il dock copriva
+  (axe non li poteva valutare): `#8a7250` sugli orari (3.36:1 in dark, e
+  4.27:1 anche in chiaro, sotto AA) e `--as-danger` usato come testo (2.18:1 in
+  dark). Corretti con i token `--as-ink-warm` e `--as-danger-ink`, sullo schema
+  di `--as-gold-ink`/`--as-success-ink`. È la quinta volta dopo D2/D4/D11 e le
+  condition chips: `session.css` ha ancora 44 esadecimali scritti a mano. Leva:
+  una passata di copertura (quanti hanno override `.dark-theme`, quanti sono
+  su superfici che cambiano tema), poi token per quelli veri.
+
+- D35 [2026-09-30] [design] **Al telefono Dice e Timer sono in fondo allo
+  scroll.** Costo misurato del ruling D27: a 390×844 il dock comincia fra 1842 e
+  2199px (2–2.6 schermate), a 768×1024 fra 1517 e 1773px. La spec (*Run
+  composition*) li vuole "immediately available in the bottom dock in every
+  Focus"; il prototipo di riferimento li mette in fondo al flusso, come ora. Un
+  dock sticky intero è alto 285px (un terzo dello schermo), quindi non è la
+  risposta. Leva: una riga compatta fissa in basso (Roll e timer, con le opzioni
+  espandibili) sotto gli 820px. Tiene *Responsive* a `partial`. Specchio dello
+  stesso problema: il Focus selector sta in cima alla colonna e il dock in
+  fondo, a ~2000px l'uno dall'altro. Visto sul percorso a 390px: il pannello
+  *Review captures* è `position: fixed; bottom: 91px`, pensato per un dock
+  fissato in basso; ora galleggia sopra capture e dock (non modale, Close in
+  vista, quindi non blocca), e il suo pulsante "Star" va a capo in "St / ar".
+
+- D32 [2026-09-25 → 2026-09-25] [bug/trust] **Falso "Save issue" dopo un
+  reload senza Screen.** FirstRun persiste `{ screens: [] }`; il validatore di
+  `safeStorage` esigeva almeno uno Screen, quindi aprire l'app e ricaricare
+  mostrava "Stored screen data was invalid" e archiviava un payload
+  `arcana_invalid_payload_*` inutile. Riproducibile su desktop e mobile: 1
+  payload archiviato prima della fix, 0 dopo. Corretto in `ed4db34`: essere ben
+  formato ed essere degno di snapshot sono due controlli separati. Test di
+  regressione: fallisce sul codice vecchio, passa sul nuovo.
+
+- D31 [2026-09-25 → 2026-09-25] [deps] **RULING preso dal loop: la PR #111
+  (gruppo development-tooling, 24 bump) sostituita dalla #112.** La #111 non si
+  installava (ERESOLVE: eslint 10 contro il peer di eslint-plugin-jsx-a11y
+  6.10.2). Entrati Vite 8, Vitest 5, jsdom 30, Playwright 1.63, Tailwind 4.3,
+  @types/node 26. Quattro versioni trattenute con `ignore` in `dependabot.yml`:
+  eslint 9 (peer jsx-a11y), typescript 5.9 (typescript-eslint vuole <6.1),
+  react-hooks 5 (la 7 porta ~10 errori veri del React Compiler: setState in
+  effect, JSX in try/catch in SimpleTable, quindi è una leva di refactor, non
+  un bump) e axe 4.13 (vedi D27). `tsconfig.app` lib da ES2020 a ES2022:
+  `.at()` compilava solo perché lo dichiarava @types/node 22. Prima, sempre su
+  `dev` (`b4ba008`): advisory high nuove su js-yaml e browserslist, recidiva di
+  D21/D30. npm 10.9.8 crasha nel peer-set di vitest (`edgesOut` null), quindi il
+  lockfile va rigenerato con `npx npm@11 install`; `npm ci` di npm 10 lo
+  installa senza errori. CI della #112 verde su tutti e cinque i job.
 
 - D30 [2026-08-13 → 2026-08-13] [deps] **RULING preso dal loop: audit fix
   lockfile-only per `nanoid`.** Recidiva esatta di D21: advisory **nuova**
@@ -28,60 +71,6 @@ gli item aperti.
   è esattamente ciò che, al merge, ha già revertito una fix una volta.
   Nota ricorrente: **`test:ci` non è il gate CI**; l'audit gira solo in CI,
   quindi un verde locale non ha mai implicato un verde su GitHub.
-
-- D27 [2026-08-13, riscritto dopo diagnosi] [bug/responsive] **P0 — sotto gli
-  820px il Run non ha un contenitore che scorra: ogni Focus lascia controlli
-  fuori dallo schermo, irraggiungibili.** Nato come "il pulsante Next Turn a
-  390px", si è rivelato molto più largo quando l'ho misurato davvero.
-
-  **Meccanismo (corretto: la prima stesura lo attribuiva al dock, sbagliando
-  bersaglio).** `.app-shell` (index.css) è una colonna flex alta `100dvh` con
-  `overflow: hidden`, e `index.css:738` rende `.app-content > .run-workspace`
-  un item `flex: 1`. L'altezza del workspace è quindi decisa dall'algoritmo
-  flex, non dal CSS della sessione: la regola `@media (max-width: 820px)` in
-  `session.css` che dice `height: auto; grid-template-rows: auto auto auto auto`
-  **non vince mai**. Misurato: la riga 2 della griglia riceve lo spazio
-  *avanzato* (`720 − 57 − 223 = 440px`) mentre il suo contenuto è **1695px**;
-  il contenuto trabocca `visible` e il dock, che è la riga 4 e dipinge dopo, ci
-  finisce sopra. Il dock sta dove deve: **l'elemento da correggere è il
-  contenitore di scorrimento che non esiste.**
-
-  **Ampiezza del guasto** (misurata su tutti e 4 i Focus × 3 larghezze, contando
-  i controlli il cui centro cade sotto il viewport o è coperto da un altro
-  elemento):
-
-  | | Narrative | Social | Exploration | Combat |
-  |---|---|---|---|---|
-  | 390×844 (Pixel 5) | 9 fuori schermo | **11** | 4 | 3 + 5 coperti |
-  | 768×1024 | 4 | 9 | 2 | 1 |
-  | 820×1180 | 2 | 6 | 2 | 1 |
-
-  Overflow non scorribile: **578→1561px** a seconda del Focus. Non è un difetto
-  di Combat né di contrasto: **l'intera modalità impilata sotto gli 820px è
-  inservibile**, e il tablet-landscape/laptop 13" è il device dichiarato "al
-  tavolo" dal ledger.
-
-  **Due tentativi di fix, entrambi scartati — perché la prossima iterazione non
-  li rifaccia:**
-  1. `.run-workspace { overflow-y: auto }` a ≤820: rende Next Turn raggiungibile
-     scorrendo, **ma le righe restano schiacciate** (440px) e il dock continua a
-     coprire in permanenza una banda della lista. Mezza fix.
-  2. `.app-content { overflow-y: auto }` + workspace `flex: 0 0 auto`: risolve
-     l'altezza **ma rompe la shell** — l'header intercetta i click sul Focus
-     selector (`screen-manager__primary` sopra il selettore), e tocca anche
-     Prepare. Regressione peggiore del bug.
-  La strada giusta va **disegnata**, non indovinata: o il Run diventa una
-  colonna che scorre con dock in fondo al flusso (e allora la shell deve
-  cedere lo scroll senza che l'header si sovrapponga), o resta viewport-locked
-  e ogni pannello scorre internamente anche sotto gli 820 (cioè si rinuncia
-  all'impilamento). **È un ruling di design con conseguenze su entrambe le
-  modalità: non lo prendo da solo.**
-
-  **Contraddizione da sanare insieme:** la riga *Responsive* della matrice di
-  accettazione dichiara `manual-pass at 1487×1058, 768×1024, 390×844 including
-  overlap regression` — cioè manual-pass **esattamente alle due larghezze qui
-  misurate come rotte**. Il file è di PR #101, ancora aperta: la correzione va
-  fatta lì o subito dopo il merge, non in parallelo.
 
 - D28 [2026-08-13] [design] **RULING preso dal loop: i toggle condizione stanno
   nel live editor, non sulla riga.** Il §next-decidable chiedeva "sulla riga
@@ -103,31 +92,6 @@ gli item aperti.
   **editor ancorato alla riga selezionata / pinnato in alto** — che vale sia
   per i toggle sia per Earlier/Later. Non promosso a fatto compiuto: il DM
   potrà bocciare la posizione.
-
-- D29 [2026-08-13] [design/coverage] **Copertura di pattern: INCOMPLETE sullo
-  stato non-cromatico.** Sweep meccanico su tutti i 184 `<button>` di `src/`:
-  (a) lo stato binario è leggibile a macchina (`aria-pressed`/checkbox) in
-  **23/28** siti — mancano `RunWorkspace.tsx:220` (beat toggle, il vero analogo
-  dei toggle condizione), `:259`, `:439`, `:379` (pill attitudine, senza
-  `aria-label`) e `QuickReference.tsx:109`; (b) la disclosure è leggibile in
-  **14/19** — mancano `RunWorkspace.tsx:653` (che diverge dal fratello
-  `:584`, il quale invece ce l'ha), `QuickCaptureBar.tsx:59`,
-  `SidebarHeader.tsx:15`, `WidgetHelpButton.tsx:40`, `QuickCapture.tsx:109`;
-  (c) la regola di CLAUDE.md "lo stato non è mai solo colore" è rispettata in
-  **16/27**: 11 siti usano solo il colore, fra cui il **toggle Prepare/Run**
-  (`index.css:461` e `:814`), `.combatant-identity[aria-pressed]`
-  (`session.css:514`) e i quick-dice (`index.css:2092/2093`). Non assorbito:
-  sono pattern pre-esistenti, e la regola è "completa UN pattern ovunque", non
-  molti a metà. La duplicazione introdotta dalla slice invece **è stata
-  chiusa** (una sola dichiarazione per oracle/dice/condizioni). Nota per chi lo
-  farà: `index.css:2433` serve due famiglie di controlli di cui una già
-  conforme — vanno separati i selettori prima di toccarla. Da valutare anche il
-  suggerimento dello sweep: un test che legge i CSS e pretende almeno una
-  proprietà non-cromatica per ogni regola di stato, così smette di essere un
-  lavoro da rilettura umana. **Contraddizione da sanare:**
-  `.codex/product-design/horizon-0-prototype/design-qa.md:33` afferma "State is
-  never communicated by color alone" — falso in 11 punti; un documento che
-  certifica una proprietà che il codice non ha continuerà a nasconderli.
 
 - D26 [2026-08-13] [docs/a11y] **Stessa specie di overclaim del 44px, ma
   pre-esistente**: la cella *Accessibility/input* dice "keyboard/200%", mentre
@@ -159,6 +123,78 @@ gli item aperti.
   ignoto e nessun consumatore.
 
 ## Chiusi
+
+- D27 [2026-08-13 → 2026-09-30] [bug/responsive] **RULING preso dal loop,
+  corretto: sotto gli 820px il Run è una colonna che scorre.** Il ruling non
+  era una preferenza: la spec (*Responsive contract*, tablet: "reflow to a
+  single main column with context following the hero surface"; telefono: "no
+  content is hidden solely because it does not fit") e il prototipo di
+  riferimento (`styles.css`, ≤900px: shell `min-height`, `run-view` a
+  `height: auto`, dock nel flusso) scelgono già la colonna che scorre. Il
+  "cockpit che non scorre" vale al viewport desktop di riferimento. Fix:
+  `.app-shell--run` a ≤820px smette di essere bloccato a `100dvh` e scorre il
+  documento; in più `.dock-stepper` non si stringe più (a 390px era largo 0 e
+  il risultato del tiro ci stava sopra) e il dock va a capo come chiede la spec
+  del telefono, invece di scorrere di lato. Misura: un nuovo `@critical` conta
+  i controlli del Run non raggiungibili (portati in vista, il centro deve stare
+  nel viewport e in cima): **71 su chromium-desktop (14 combinazioni su 15) e 79 su chromium-mobile (15 su 15) prima, 0 dopo su entrambi**. Tolta la
+  guardia desktop-only del test axe; `@axe-core/playwright` sbloccato a 4.13 e
+  tolto l'`ignore` in `dependabot.yml`. Emersi e corretti sul percorso: D36.
+  Costo: D35. Storia della diagnosi (tentativi scartati, tabella per Focus):
+  nel git log di questo file prima del 2026-09-30.
+
+- D33 [2026-09-25 → 2026-09-25] [bug/layout] **Controlli dell'header sovrapposti
+  sotto i 1100px: corretto**, branch `fix/run-header-390` (impilato su D34).
+  Diagnosi: non dipendeva da D27. La barra delle utility era `position:
+  absolute` in un buco da 5.5rem pensato per due icone; con Search ed Edit party
+  è larga 243px e copriva lo switcher (≤700px) e il toggle Prepare/Run
+  (700–1100px), **in entrambe le modalità**. Ora è una cella della griglia.
+  Trovato misurando: il select (min-width 11rem) usciva dal suo wrapper
+  `min-w-0` e finiva sotto il toggle anche a **1487px** nel Prepare con un nome
+  lungo; ora il wrapper non scende sotto il select e va a capo la riga delle
+  azioni. Sweep 390–1487px, nome lungo e corto: **0 sovrapposizioni** (prima
+  2 a 390, 768, 800 e 1487). Costo: header +46px sotto i 700px (Run 122→168),
+  +7px fra 768 e 1024; invariato sopra i 1100. Due soluzioni scartate:
+  `flex-wrap` globale (header del Prepare a 1487px da 109 a 167px) e wrap
+  limitato a ≤1100 (lasciava la sovrapposizione a 1487). Guardia: e2e
+  `@critical` a 390/768/1100/1487, rosso sul CSS vecchio. Nota per chi scrive
+  test simili: il contenuto di un `<details>` chiuso riporta un box anche se non
+  è disegnato, quindi va filtrato risalendo tutti i `<details>` antenati.
+
+- D34 [2026-09-25 → 2026-09-25] [deps/refactor] **eslint-plugin-react-hooks 7
+  adottato**, branch `refactor/react-hooks-7` (impilato su D29), ignore tolto da
+  `dependabot.yml`. Sette siti: idratazione dello Screen spostata da un effect di
+  App a `main.tsx` (sparisce `screenIsHydrated`); tour senza stato per le
+  dissolvenze (`@starting-style` + `key` per passo); `Date.now()` in un
+  inizializzatore pigro nel timer; try/catch intorno al JSX di SimpleTable
+  sostituito da un `WidgetErrorBoundary` per tool in ToolFrame (prima un tool in
+  crash mandava tutta l'app alla recovery). **Trovato sul percorso:** la regola
+  globale `* { transition: … }` di `index.css`, fuori layer, batteva ogni utility
+  `transition-*` di Tailwind: la dissolvenza del tour non è mai partita. Messa in
+  `@layer base`; misurato opacità 0.44 a 40ms e 1 a 540ms per passo, 1 subito con
+  reduced-motion. Smoke persistenza: rimozione di un tool sopravvive al reload
+  (5 → 4 → 4).
+
+- D29 [2026-08-13 → 2026-09-25] [design/coverage] **"Lo stato non è mai solo
+  colore": completato**, branch `fix/state-not-only-colour`. Worklist rimisurata
+  su `dev` (i numeri di riga di agosto erano slittati). (a)+(b) stato leggibile a
+  macchina: beat (`aria-pressed` + `aria-current="step"`, spunta in Phosphor al
+  posto del glifo), outline del notebook (`aria-current="location"`), momenti di
+  esplorazione (`aria-current="step"`), pillola attitudine (nome accessibile con
+  lo stato), pin dei riferimenti (`aria-pressed`, testo fisso "Pin" + icona
+  piena/vuota: il vecchio Pin/Unpin rompeva label-in-name), toggle della sidebar,
+  help dei widget e review di QuickCapture (`aria-expanded`), "Review captures"
+  (`aria-haspopup="dialog"`). (c) Visivo: 19 regole di stato su 28 erano solo
+  colore; 14 hanno già il segnale altrove (stella piena, testo, radio nativo,
+  contenuto rivelato), 5 corrette con il token `--as-state-mark` (barra nel
+  colore del testo) o con la sottolineatura (toggle Prepare/Run: la barra navy
+  si fondeva col telaio navy, verificato a 3x). **Guardia:**
+  `src/styles/stateCues.test.ts` legge i CSS e fallisce su ogni nuova regola
+  di stato solo-colore; sul CSS vecchio indica esattamente i 5 siti. La frase di
+  `design-qa.md:33` ora è vera e cita il test.
+
+- D23 [2026-08-07 → 2026-09-25] [merge] PR #101 (acceptance-matrix) mergiata su
+  richiesta dell'utente, insieme a #104 (toggle condizioni).
 
 - D24 [2026-08-13 → 2026-08-13] [docs] **Riga *Accessibility/input* promossa**
   (§next-decidable 1). La revisione del 2026-08-07 aveva posto una condizione

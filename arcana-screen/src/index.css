@@ -385,6 +385,8 @@
      min-width: 0;
    }
 
+   .screen-manager__picker { min-width: 0; }
+
    .screen-manager__primary {
      display: flex;
      align-items: end;
@@ -461,7 +463,7 @@
    button.screen-mode__button[aria-pressed="true"] {
      background: var(--arcane-blue);
      color: var(--parchment-white);
-     box-shadow: 0 1px 3px rgba(28, 37, 65, 0.2);
+     box-shadow: var(--as-state-mark), 0 1px 3px rgba(28, 37, 65, 0.2);
    }
 
    .screen-mode__status {
@@ -740,6 +742,26 @@
      flex: 1;
    }
 
+   /* Below 820px the Run stacks into one column (session.css), so the page scrolls,
+      as in the reference prototype and the spec's tablet/phone contract. A shell
+      locked to 100dvh let flex size the workspace instead: the stacked content
+      overflowed a box that could not scroll and the dock painted over it (D27). */
+   @media (max-width: 820px) {
+     .app-shell--run {
+       display: block;
+       height: auto;
+       overflow: visible;
+     }
+
+     .app-shell--run > .app-content {
+       min-height: 100dvh;
+     }
+
+     .app-content > .run-workspace {
+       flex: 1 0 auto;
+     }
+   }
+
    .arcana-header {
      position: relative;
      z-index: 30;
@@ -776,6 +798,10 @@
    }
 
    .arcana-header .screen-manager__primary { align-items: center; }
+   /* The picker must not shrink below its select, or the select overflows it and slides
+      under the Prepare/Run toggle (Prepare with a long Screen name or the widget sidebar
+      open). The actions row wraps instead. */
+   .arcana-header .screen-manager__picker { min-width: min(11rem, 100%); }
    .arcana-header .screen-manager__eyebrow,
    .arcana-header .screen-mode__status { display: none; }
 
@@ -814,6 +840,11 @@
    .arcana-header button.screen-mode__button[aria-pressed='true'] {
      color: var(--as-gold-contrast);
      background: #f5cf72;
+     /* Not --as-state-mark: an edge bar in navy merges with the navy frame of the
+        segmented control and reads as a shorter segment, not as a mark. */
+     box-shadow: none;
+     text-decoration: underline 2px;
+     text-underline-offset: 4px;
    }
 
    /* The dark-theme base rule above (body.dark-theme … .screen-mode__button,
@@ -976,15 +1007,17 @@
    @media (max-width: 1100px) {
      .arcana-header { grid-template-columns: auto 1fr; }
      .arcana-header .screen-manager { grid-column: 1 / -1; grid-row: 2; }
-     .arcana-header .app-header__utilities { position: absolute; top: 0.65rem; right: 1rem; }
+     /* In the grid, not absolute: an absolute bar sized for two icon buttons kept its
+        hole after Search and Edit party joined it, and painted over the Screen switcher
+        (<=700px) and the Prepare/Run toggle (700-1100px). */
+     .arcana-header .app-header__utilities { grid-column: 2; grid-row: 1; justify-self: end; }
      .arcana-header .app-header__utilities > .screen-action-button { display: none; }
    }
 
    @media (max-width: 700px) {
      .arcana-header .app-header__brand { display: none; }
-     .arcana-header .app-header__utilities { grid-row: auto; top: 0.5rem; right: 0.65rem; }
-     .arcana-header .screen-manager { grid-row: 1; }
-     .arcana-header .screen-manager__primary { padding-right: 5.5rem; }
+     .arcana-header .app-header__utilities { grid-column: 1 / -1; grid-row: 1; justify-content: flex-end; }
+     .arcana-header .screen-manager { grid-row: 2; }
      .arcana-header .screen-manager__actions { display: grid; grid-template-columns: 1fr auto; }
      .arcana-header .screen-mode { width: 100%; }
      .arcana-header .screen-manager__saved { width: auto; }
@@ -1699,8 +1732,12 @@
 
    /* === TRANSIZIONI GENERALI === */
 
-   *, *::before, *::after {
-     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+   /* In the base layer so Tailwind's transition-* utilities (layered) can override
+      it; unlayered, it silently won over every one of them and the tour never faded. */
+   @layer base {
+     *, *::before, *::after {
+       transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+     }
    }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2094,6 +2131,7 @@ body.dark-theme .tool-error {
   border-color: var(--accent);
   background: color-mix(in srgb, var(--accent) 16%, var(--surface));
   color: var(--accent);
+  box-shadow: var(--as-state-mark);
 }
 
 .dice-roller__controls {

@@ -56,7 +56,7 @@ export default function QuickCaptureBar({ onCapture, recentCapture, recentStarre
           <ArrowElbowDownLeft size={19} aria-hidden="true" />
         </button>
       </form>
-      {recentCapture && <p className="recent-capture"><strong>Recent capture</strong> <span>{recentCapture}</span>{onStarRecent && <button type="button" className="recent-star" aria-pressed={Boolean(recentStarred)} aria-label={recentStarred ? 'Unstar recent capture for recap' : 'Star recent capture for recap'} onClick={onStarRecent}><Star size={14} weight={recentStarred ? 'fill' : 'regular'} /></button>}{onReview && <button type="button" aria-label="Review captures" onClick={onReview}>Review captures <b aria-hidden="true">{captureCount}</b></button>}</p>}
+      {recentCapture && <p className="recent-capture"><strong>Recent capture</strong> <span>{recentCapture}</span>{onStarRecent && <button type="button" className="recent-star" aria-pressed={Boolean(recentStarred)} aria-label={recentStarred ? 'Unstar recent capture for recap' : 'Star recent capture for recap'} onClick={onStarRecent}><Star size={14} weight={recentStarred ? 'fill' : 'regular'} /></button>}{onReview && <button type="button" aria-label="Review captures" aria-haspopup="dialog" onClick={onReview}>Review captures <b aria-hidden="true">{captureCount}</b></button>}</p>}
     </div>
   );
 }
