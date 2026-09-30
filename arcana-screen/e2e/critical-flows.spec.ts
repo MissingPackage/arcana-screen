@@ -416,6 +416,39 @@ test("@critical keeps every Run control reachable below 820px in every Focus", a
   expect(found).toEqual({});
 });
 
+test("@critical opens the combat editor right under the tapped row", async ({
+  page,
+}) => {
+  // The editor used to render after the whole list: up to 587px from the tapped row,
+  // and off-screen on a phone (DM P1, docket D28).
+  await createScreen(page);
+  await page.getByRole("button", { name: "Run", exact: true }).click();
+  await page
+    .getByRole("navigation", { name: "Session Focus" })
+    .getByRole("button", { name: "Combat" })
+    .click();
+  const rows = page.getByRole("button", { name: /^Manage / });
+  for (const [width, height] of [
+    [1487, 1058],
+    [390, 844],
+  ]) {
+    await page.setViewportSize({ width, height });
+    for (const index of [0, (await rows.count()) - 1]) {
+      await rows.nth(index).click();
+      const editor = page.getByRole("region", { name: /^Live controls for / });
+      await expect(editor).toBeInViewport();
+      const gap = await page.evaluate((rowIndex) => {
+        const articles = document.querySelectorAll(".combatant-list > article");
+        const row = articles[rowIndex].getBoundingClientRect();
+        const box = document.querySelector(".combat-live-editor")!.getBoundingClientRect();
+        return Math.round(box.top - row.bottom);
+      }, index);
+      expect(gap, `row ${index + 1} at ${width}px`).toBeLessThanOrEqual(16);
+      await rows.nth(index).click();
+    }
+  }
+});
+
 test("@critical provides keyboard alternatives for structural reordering", async ({
   page,
 }) => {

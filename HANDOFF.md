@@ -1,6 +1,6 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-09-30, iterazione 28 (D26 reflow a 320px: pannelli Search e impostazioni fuori schermo). Iterazione 27 (D36 colori del tema scuro: 3 difetti veri). Iterazione 26 (D35 barra Dice/Timer fissa al telefono, Responsive green). Iterazione 25 (landing di #115/#116, audit brace-expansion, D27 corretto con ruling dalla spec, tutto mergiato dal loop su direttiva utente). Iterazione 24: D33 header. Iterazione 23: react-hooks 7, D34. Iterazione 22: D29 chiuso, PR in attesa di merge. Iterazione 21 (stabilizzazione su richiesta
+Aggiornato: 2026-09-30, iterazione 29 (D28 editor del combattente sotto la riga; mappa ridisegnata dalle fonti). Iterazione 28 (D26 reflow a 320px: pannelli Search e impostazioni fuori schermo). Iterazione 27 (D36 colori del tema scuro: 3 difetti veri). Iterazione 26 (D35 barra Dice/Timer fissa al telefono, Responsive green). Iterazione 25 (landing di #115/#116, audit brace-expansion, D27 corretto con ruling dalla spec, tutto mergiato dal loop su direttiva utente). Iterazione 24: D33 header. Iterazione 23: react-hooks 7, D34. Iterazione 22: D29 chiuso, PR in attesa di merge. Iterazione 21 (stabilizzazione su richiesta
 dell'utente: tutte le PR aperte chiuse, gate di sicurezza sbloccato, toolchain
 portata avanti, un falso allarme di salvataggio corretto). Iterazioni: 21
 (D31/D32/D33), 20 (diagnosi D27), 19 (D27/D28/D29/D30, PR #104), 18 (D24/D25,
@@ -49,6 +49,9 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 - `gh` autenticato (MissingPackage); identità git configurata repo-local.
 - Linear MCP **non autenticato** in sessioni non interattive: il docket file
   `docs/DOCKET.md` è il tracker operativo finché Linear non è raggiungibile.
+- **Trappola WebKit nei test:** il `summary` di un `<details>` annidato in un
+  pannello chiuso risulta visibile per Playwright su WebKit (su Chromium no):
+  cliccarlo va in timeout. Nei test, scorrere solo i `details` di primo livello.
 - **Trappola `pkill`:** mai `pkill -f '[v]ite'` nella stessa riga di comando che
   contiene `npx vite preview`: la regex trova la shell stessa e la uccide (exit
   144), e tutto ciò che segue non gira. Il 2026-09-30 ha lasciato una fix in
@@ -73,16 +76,25 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 
 ## §next-decidable (in ordine)
 
-Stato al 2026-09-30, dopo l'iterazione 28.
+Stato al 2026-09-30, dopo l'iterazione 29.
 
 1. **D35 fatto**: al telefono Dice e Timer in una barra fissa di 61px, scroll
    per raggiungerli da 1842–2199px a 0. *Responsive* ora `green`.
 2. Nulla in attesa di merge: il loop mergia da solo (vedi Protocollo).
-   **Budget CSS: 123.5/130 KiB, margine 6.5.** La prossima slice che aggiunge
+   **Budget CSS: 123.7/130 KiB, margine 6.3.** La prossima slice che aggiunge
    CSS deve guardarlo; D36 (token al posto dei colori a mano) può ridurlo.
-3. Prossima slice del loop: **D28** (editor del combattente ancorato alla riga
-   selezionata: oggi sta in fondo, lontano dalla riga toccata; P1 del ledger).
-   D26 chiuso: reflow a 320px, due pannelli dell'header rotti e corretti.
+3. **Leve di prodotto, in ordine** (prese da matrice e ledger, D28 chiuso):
+   a. Le tre righe `partial` della matrice coperte nel browser solo da
+      `manual-pass` datati: *Screen create/resume/switch*,
+      *Rename/duplicate/delete/undo*, *Prepare/Run*. Un e2e `@critical` per
+      ciascuna le porta a `green`: è il percorso utente di base.
+   b. Ledger: i cinque toggle rapidi delle condizioni (Prone, Poisoned,
+      Concentration, Stunned, Restrained) non coincidono con i cinque del
+      pannello Quick Reference accanto; "un DM lo nota subito". Ruling `[design]`
+      del loop.
+   c. Ledger: la densità compact non arriva a 8 combattenti visibili (P0 DM
+      iter. 17). Verificare prima se è ancora vero.
+   d. Matrice: UI di validazione dell'import ancora `partial`.
 4. Ancora dell'utente: **D16** (revoca dei secret orfani, incluso il PAT `TOKEN`).
 5. e2e in container: leggere prima **D25**, un progetto per volta. L'immagine
    podman per WebKit va portata a `mcr.microsoft.com/playwright:v1.63.0-noble`
