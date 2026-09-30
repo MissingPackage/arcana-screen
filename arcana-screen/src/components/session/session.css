@@ -701,9 +701,27 @@ body.dark-theme .segment-clock span.is-filled { background: var(--as-gold); bord
      init column), instead of the old display:none. Empty chip sets collapse (rule below) so untouched
      combatants stay one row. */
   .combatant-list article > .condition-chips { grid-column: 2 / -1; padding-top: 3px; }
+  /* The tracker header holds Add, Set initiative and the round: below 1100px Add shows
+     only its + (the label stays its accessible name) so nothing wraps and the list keeps
+     its height. */
+  .encounter-add__toggle span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .arcana-session .tracker-tools button,
+  .combatant-identity em,
+  .combatant-identity .combatant-ac { white-space: nowrap; }
   .utility-dock { gap: 14px; padding-inline: 18px; }
   .dock-tool { gap: 8px; }
   .dock-tool + .dock-tool { padding-left: 14px; }
+}
+
+/* Compact exists to show eight combatants at once. Between 821 and 1100px the chips'
+   second row made a conditioned combatant 58px tall instead of 38 (7 of 8 at 1024x768);
+   compact has room for them in a fourth column instead, since it drops the subtitle and
+   the HP bar. Below 820px the page scrolls, so the second row stays. */
+@media (min-width: 821px) and (max-width: 1100px) {
+  body[data-density='compact'] .arcana-session .combatant-list article,
+  body[data-density='compact'] .arcana-session .initiative-head { grid-template-columns: 58px minmax(170px, 1fr) 72px minmax(0, 9rem); }
+  body[data-density='compact'] .arcana-session .initiative-head > :last-child { display: block; }
+  body[data-density='compact'] .arcana-session .combatant-list article > .condition-chips { grid-column: auto; padding-top: 0; }
 }
 
 @media (max-width: 820px) {
@@ -771,7 +789,6 @@ body.dark-theme .segment-clock span.is-filled { background: var(--as-gold); bord
 }
 
 @media (max-width: 520px) {
-  .encounter-add__toggle span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .notebook-panel,
   .session-ledger,
   .initiative-panel,
