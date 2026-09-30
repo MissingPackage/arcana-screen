@@ -25,6 +25,13 @@ const openCombatEditor = async (page: Page) => {
   ).toBeVisible();
 };
 
+// Below 820px the dock is a one-row bar (Roll, result, timer); the other tools open
+// on demand. Wider viewports have no toggle and show everything.
+const openDockTools = async (page: Page) => {
+  const toggle = page.getByRole("button", { name: "Tools", exact: true });
+  if (await toggle.isVisible()) await toggle.click();
+};
+
 const createScreen = async (page: Page, name = "E2E Screen") => {
   await page.goto("/");
   await expect(
@@ -301,7 +308,17 @@ test("@critical keeps every Run control reachable below 820px in every Focus", a
     await page.setViewportSize({ width, height });
     for (const focus of ["Narrative", "Social", "Exploration", "Combat"]) {
       await focusNav.getByRole("button", { name: focus }).click();
+      // Spec: dice and timer immediately available in every Focus, so the bar is
+      // in view from the top of the page, with no scrolling (D35).
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await expect(page.getByRole("button", { name: "Roll" })).toBeInViewport();
+      await expect(
+        page.getByRole("region", { name: "Session timer" }).getByRole("button", { name: "Start" }),
+      ).toBeInViewport();
       await record(`${focus} at ${width}px`);
+      await openDockTools(page);
+      await record(`${focus} at ${width}px, dock open`);
+      await page.getByRole("button", { name: "Less", exact: true }).click();
     }
     await openCombatEditor(page);
     await record(`Combat editor at ${width}px`);
@@ -438,6 +455,7 @@ test("@critical timer stays truthful after a long background suspension", async 
   await page.getByRole("button", { name: "Run", exact: true }).click();
 
   const timerTool = page.getByRole("region", { name: "Session timer" });
+  await openDockTools(page);
   await page.getByRole("button", { name: "Set time" }).click();
   await page.getByLabel("Timer minutes").fill("30");
   await page.getByLabel("Timer seconds").fill("0");
