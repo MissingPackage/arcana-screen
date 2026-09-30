@@ -73,6 +73,19 @@ dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
 
 ## Chiusi
 
+- D41 [2026-10-01 → 2026-10-01] [bug/trust] **Il "merge" di un backup
+  sostituiva il party e le preferenze.** Cercando cosa rendesse `partial` la UI
+  di validazione dell'import: `importBackup` sovrascriveva roster, densità,
+  lingua, accento, template, reference pack e tema **anche** con "Merge with
+  current screens", e gli snapshot di recupero coprono solo `arcana_screens`.
+  Unire il backup di un altro DM cancellava il proprio party senza ritorno,
+  mentre l'anteprima mostrava solo i nomi degli Screen. Ora il merge aggiunge
+  ciò che manca (Screen, personaggi, template e pack per id) e lascia intatti
+  preferenze e tema; il replace sostituisce tutto, come dice. L'anteprima dice
+  l'effetto di ciascuna strategia (`describeImport`), compreso che solo gli
+  Screen sono recuperabili dagli snapshot. Test unitario rosso sul codice
+  vecchio (il personaggio locale spariva), e2e del backup esteso.
+
 - D40 [2026-10-01 → 2026-10-01] [design] **In compact, fra 821 e 1100px, le
   condizioni stanno sulla riga del combattente.** Residuo misurato di D39: a
   1024×768 compact 7/8, perché le chip su seconda riga rendevano alta 58px

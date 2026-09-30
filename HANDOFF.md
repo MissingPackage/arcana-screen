@@ -1,6 +1,6 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-10-01, iterazione 33 (D40 condizioni in riga in compact). Iterazione 32 (D39 compact: 8 combattenti al laptop 13"). Iterazione 31 (D38 Quick Reference = condizioni dei toggle). Iterazione 30 (e2e ciclo di vita Screen; D37 toast sopra Prepare/Run). Iterazione 29 (D28 editor del combattente sotto la riga; mappa ridisegnata dalle fonti). Iterazione 28 (D26 reflow a 320px: pannelli Search e impostazioni fuori schermo). Iterazione 27 (D36 colori del tema scuro: 3 difetti veri). Iterazione 26 (D35 barra Dice/Timer fissa al telefono, Responsive green). Iterazione 25 (landing di #115/#116, audit brace-expansion, D27 corretto con ruling dalla spec, tutto mergiato dal loop su direttiva utente). Iterazione 24: D33 header. Iterazione 23: react-hooks 7, D34. Iterazione 22: D29 chiuso, PR in attesa di merge. Iterazione 21 (stabilizzazione su richiesta
+Aggiornato: 2026-10-01, iterazione 34 (D41 merge dell'import non distruttivo). Iterazione 33 (D40 condizioni in riga in compact). Iterazione 32 (D39 compact: 8 combattenti al laptop 13"). Iterazione 31 (D38 Quick Reference = condizioni dei toggle). Iterazione 30 (e2e ciclo di vita Screen; D37 toast sopra Prepare/Run). Iterazione 29 (D28 editor del combattente sotto la riga; mappa ridisegnata dalle fonti). Iterazione 28 (D26 reflow a 320px: pannelli Search e impostazioni fuori schermo). Iterazione 27 (D36 colori del tema scuro: 3 difetti veri). Iterazione 26 (D35 barra Dice/Timer fissa al telefono, Responsive green). Iterazione 25 (landing di #115/#116, audit brace-expansion, D27 corretto con ruling dalla spec, tutto mergiato dal loop su direttiva utente). Iterazione 24: D33 header. Iterazione 23: react-hooks 7, D34. Iterazione 22: D29 chiuso, PR in attesa di merge. Iterazione 21 (stabilizzazione su richiesta
 dell'utente: tutte le PR aperte chiuse, gate di sicurezza sbloccato, toolchain
 portata avanti, un falso allarme di salvataggio corretto). Iterazioni: 21
 (D31/D32/D33), 20 (diagnosi D27), 19 (D27/D28/D29/D30, PR #104), 18 (D24/D25,
@@ -76,7 +76,7 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 
 ## §next-decidable (in ordine)
 
-Stato al 2026-10-01, dopo l'iterazione 33.
+Stato al 2026-10-01, dopo l'iterazione 34.
 
 1. **D35 fatto**: al telefono Dice e Timer in una barra fissa di 61px, scroll
    per raggiungerli da 1842–2199px a 0. *Responsive* ora `green`.
@@ -91,7 +91,13 @@ Stato al 2026-10-01, dopo l'iterazione 33.
       sola lista, il pannello spiega ciò che si tocca.
    c. ~~Compact a 8 combattenti~~ fatto (iter. 32–33, D39/D40): 8/8 a
       1280×720, 1024×768, 900px e tablet touch 1180×820.
-   d. Matrice: UI di validazione dell'import ancora `partial`.
+   d. ~~Validazione dell'import~~ fatto (iter. 34, D41): il merge
+      sovrascriveva party e preferenze; ora non toglie nulla, e l'anteprima dice
+      l'effetto. Matrice: 12 `manual-pass`, 4 `partial`, 6 `green`.
+   e. Nuova: gli snapshot di recupero coprono solo gli Screen. Un replace
+      (ora dichiarato nell'anteprima) o un Reset perdono party, template e
+      preferenze senza ritorno. Leva: estendere lo snapshot a
+      `arcana_party` e `arcana_evolution`.
 4. Ancora dell'utente: **D16** (revoca dei secret orfani, incluso il PAT `TOKEN`).
 5. e2e in container: leggere prima **D25**, un progetto per volta. L'immagine
    podman per WebKit va portata a `mcr.microsoft.com/playwright:v1.63.0-noble`
