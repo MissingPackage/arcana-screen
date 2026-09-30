@@ -1,6 +1,6 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-09-30, iterazione 25 (landing di #115/#116, audit brace-expansion, D27 corretto con ruling dalla spec, tutto mergiato dal loop su direttiva utente). Iterazione 24: D33 header. Iterazione 23: react-hooks 7, D34. Iterazione 22: D29 chiuso, PR in attesa di merge. Iterazione 21 (stabilizzazione su richiesta
+Aggiornato: 2026-09-30, iterazione 26 (D35 barra Dice/Timer fissa al telefono, Responsive green). Iterazione 25 (landing di #115/#116, audit brace-expansion, D27 corretto con ruling dalla spec, tutto mergiato dal loop su direttiva utente). Iterazione 24: D33 header. Iterazione 23: react-hooks 7, D34. Iterazione 22: D29 chiuso, PR in attesa di merge. Iterazione 21 (stabilizzazione su richiesta
 dell'utente: tutte le PR aperte chiuse, gate di sicurezza sbloccato, toolchain
 portata avanti, un falso allarme di salvataggio corretto). Iterazioni: 21
 (D31/D32/D33), 20 (diagnosi D27), 19 (D27/D28/D29/D30, PR #104), 18 (D24/D25,
@@ -69,12 +69,14 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 
 ## §next-decidable (in ordine)
 
-Stato al 2026-09-30, dopo l'iterazione 25.
+Stato al 2026-09-30, dopo l'iterazione 26.
 
-1. **D27 chiuso e mergiato.** *Responsive* a `partial`; il residuo è D35.
+1. **D35 fatto**: al telefono Dice e Timer in una barra fissa di 61px, scroll
+   per raggiungerli da 1842–2199px a 0. *Responsive* ora `green`.
 2. Nulla in attesa di merge: il loop mergia da solo (vedi Protocollo).
-3. Prossime slice del loop: **D35** (Dice e Timer a 2 schermate di scroll sul
-   telefono: riga compatta fissa in basso), **D36** (44 colori a mano in
+   **Budget CSS: 123.2/130 KiB, margine 6.8.** La prossima slice che aggiunge
+   CSS deve guardarlo; D36 (token al posto dei colori a mano) può ridurlo.
+3. Prossime slice del loop: **D36** (44 colori a mano in
    `session.css`, passata di copertura sul tema scuro), **D26** (reflow a
    320px), **D28** (editor ancorato alla riga).
 4. Ancora dell'utente: **D16** (revoca dei secret orfani, incluso il PAT `TOKEN`).
