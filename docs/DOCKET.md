@@ -73,6 +73,20 @@ dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
 
 ## Chiusi
 
+- D40 [2026-10-01 → 2026-10-01] [design] **In compact, fra 821 e 1100px, le
+  condizioni stanno sulla riga del combattente.** Residuo misurato di D39: a
+  1024×768 compact 7/8, perché le chip su seconda riga rendevano alta 58px
+  una riga con condizioni (invece di 38). In compact, fra 821 e 1100px, le chip
+  diventano una quarta colonna (`58px | nome 1fr | HP 72px | condizioni ≤ 9rem`,
+  a capo solo dentro la cella), condivisa con l'intestazione che torna a
+  mostrare "Status"; sotto gli 820px la pagina scorre e la seconda riga resta.
+  Sul percorso, una regressione mia di D39: a ~900px "Add combatant" e "Set
+  initiative" andavano su due righe e allungavano l'header; ora sotto i 1100px
+  Add mostra solo "+" (in entrambe le densità), badge AC e ACTIVE non vanno a
+  capo ("ACTIV / E"), e la regola duplicata sotto i 520px è tolta. Misura
+  compact: 900/1024/1100px **8/8, righe tutte da 38px**, nessun overflow. L'e2e
+  degli otto combattenti ora prova anche 1024×768 (7/8 sul CSS di `dev`).
+
 - D39 [2026-09-30 → 2026-09-30] [bug/design] **La densità compact ora mostra 8
   combattenti su un dispositivo da tavolo.** Era il P0 del DM (ledger iter.
   17: "non arriva a 8 combattenti visibili, il senso stesso del toggle");

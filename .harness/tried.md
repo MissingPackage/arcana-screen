@@ -31,3 +31,6 @@
 2026-09-30 D39 compact: misurato 8 combattenti per densità e viewport; causa principale una regola legacy (.combatant-list gap 0.6rem) che valeva anche per il Run.
   Risultato: 1280x720 compact da 5/8 a 8/8 (scope della regola +1, Add nel titolo +48px, hint nascosto in compact +29px); tablet touch 1180x820 8/8. 1024x768 7/8 per le chip su seconda riga.
   Verdetto: keep. e2e rosso sul vecchio (5/8, 7/8). Lezione: una "~8" nel ledger non era una misura.
+2026-10-01 D40 condizioni in compact: quarta colonna fra 821 e 1100px invece della seconda riga; provata prima con CSS iniettato (auto: colonne disallineate; fisse: ok).
+  Risultato: 900/1024/1100 compact 8/8, righe tutte 38px. Corretta sul percorso una mia regressione di D39 (header su due righe a ~900px).
+  Verdetto: keep. e2e esteso a 1024x768 (7/8 sul vecchio). CSS 124.2/130.
