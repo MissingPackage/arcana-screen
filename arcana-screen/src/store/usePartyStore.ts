@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { safeLocalStorage } from '../utils/safeStorage';
+import { PARTY_STORAGE_KEY, safeLocalStorage } from '../utils/safeStorage';
 import { createPartyMember, type PartyMember } from '../domain/partyModel';
 
 interface PartyState {
@@ -48,7 +48,7 @@ export const usePartyStore = create<PartyState>()(
       clearParty: () => set({ members: [] }),
     }),
     {
-      name: 'arcana_party',
+      name: PARTY_STORAGE_KEY,
       storage: createJSONStorage(() => safeLocalStorage),
       version: 1,
       migrate: (persisted) => {

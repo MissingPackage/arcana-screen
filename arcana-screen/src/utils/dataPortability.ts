@@ -1,6 +1,6 @@
 import { getToolDefinitionByType, migrateToolInstance } from '../components/widgets/toolRegistry';
 import { useScreenStore, type Screen, type ScreenImportStrategy } from '../store/useScreenStore';
-import { useThemeStore } from '../store/themeStore';
+import { DEFAULT_THEME, useThemeStore } from '../store/themeStore';
 import { useEvolutionStore } from '../store/useEvolutionStore';
 import { usePartyStore } from '../store/usePartyStore';
 import type { PartyMember } from '../domain/partyModel';
@@ -10,6 +10,9 @@ import {
   RECOVERY_STORAGE_KEY,
   SCREEN_STORAGE_KEY,
   type RecoverySnapshot,
+  EVOLUTION_STORAGE_KEY,
+  PARTY_STORAGE_KEY,
+  THEME_STORAGE_KEY,
 } from './safeStorage';
 
 const BACKUP_FORMAT = 'arcana-screen-backup';
@@ -158,7 +161,7 @@ export const describeImport = (preview: ImportPreview, strategy: ScreenImportStr
   const partyEffect = Array.isArray(party)
     ? `your party (${plural(currentPartySize, 'character')}, replaced by ${incoming})`
     : 'no party change';
-  return `Replaces all your screens with ${plural(screens.length, 'screen')}, ${partyEffect}${evolution ? ', your preferences' : ''} and your theme. Only screens can be restored from recovery snapshots.`;
+  return `Replaces all your screens with ${plural(screens.length, 'screen')}, ${partyEffect}${evolution ? ', your preferences' : ''} and your theme. A recovery snapshot can bring back what you had.`;
 };
 
 export const importBackup = (preview: ImportPreview, strategy: ScreenImportStrategy) => {
@@ -222,6 +225,27 @@ export const exportRawLocalData = () => {
 
 export const listRecoverySnapshots = () => getRecoverySnapshots();
 
+// Party, preferences and theme go back through their stores, so a restored roster passes the
+// same sanitising as an imported one. Older snapshots have no companions.
+const restoreSnapshotCompanions = (companions: RecoverySnapshot['companions']) => {
+  const stateOf = (key: string) => {
+    const raw = companions?.[key];
+    if (!raw) return null;
+    const envelope = JSON.parse(raw) as { state?: Record<string, unknown> };
+    return envelope.state ?? null;
+  };
+  const party = stateOf(PARTY_STORAGE_KEY);
+  if (party && Array.isArray(party.members)) usePartyStore.getState().setMembers(party.members as PartyMember[]);
+  const evolution = stateOf(EVOLUTION_STORAGE_KEY);
+  if (evolution) useEvolutionStore.setState(evolution);
+  // A snapshot with companions but no theme entry was taken before the theme was ever
+  // changed, so it had the default. Older snapshots (no companions) leave it alone.
+  const theme = companions ? (stateOf(THEME_STORAGE_KEY)?.theme ?? DEFAULT_THEME) : undefined;
+  if ((theme === 'light' || theme === 'dark') && theme !== useThemeStore.getState().theme) {
+    useThemeStore.getState().toggleTheme();
+  }
+};
+
 export const restoreRecoverySnapshot = (snapshot: RecoverySnapshot) => {
   try {
     const envelope = JSON.parse(snapshot.payload) as {
@@ -240,6 +264,7 @@ export const restoreRecoverySnapshot = (snapshot: RecoverySnapshot) => {
       normalized.sort((a, b) => Number(b.id === activeId) - Number(a.id === activeId));
     }
     useScreenStore.getState().importScreens(normalized, 'replace');
+    restoreSnapshotCompanions(snapshot.companions);
     return { ok: true as const, count: normalized.length };
   } catch {
     return { ok: false as const, error: 'This recovery snapshot could not be read.' };

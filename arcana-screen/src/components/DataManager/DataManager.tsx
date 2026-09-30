@@ -275,7 +275,7 @@ export default function DataManager() {
 
               <section className="data-card data-card--wide">
                 <h3>Recovery snapshots</h3>
-                <p>Restore a recent known local state. Restoring creates another recovery point.</p>
+                <p>Restore a recent known local state: screens, party and preferences. Restoring creates another recovery point.</p>
                 {snapshots.length === 0 ? (
                   <p>No recovery snapshots yet.</p>
                 ) : (

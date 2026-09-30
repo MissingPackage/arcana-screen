@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { createDefaultFocusWorkspace } from '../domain/focusModel';
 import { useScreenStore, type Screen } from '../store/useScreenStore';
-import { describeImport, importBackup, parseBackup } from './dataPortability';
+import { describeImport, importBackup, listRecoverySnapshots, parseBackup, restoreRecoverySnapshot } from './dataPortability';
 import { useEvolutionStore } from '../store/useEvolutionStore';
 import { usePartyStore } from '../store/usePartyStore';
 import { useThemeStore } from '../store/themeStore';
@@ -102,6 +102,32 @@ describe('data portability', () => {
     expect(useThemeStore.getState().theme).toBe(themeBefore);
   });
 
+  it('brings the party and preferences back when a snapshot is restored after a replace', () => {
+    // Snapshots used to hold screens only: a replace import (or a restore) lost the
+    // party roster and preferences for good (docket D42).
+    useScreenStore.getState().importScreens([{ ...screen, id: 'mine', name: 'My table' }], 'replace');
+    usePartyStore.getState().setMembers([{ id: 'pc-local', name: 'Lira Voss' }]);
+    useEvolutionStore.setState({ density: 'compact', locale: 'it' });
+    const themeBefore = useThemeStore.getState().theme;
+
+    const payload = JSON.parse(backupText([screen]));
+    payload.schemaVersion = 3;
+    payload.data.theme = themeBefore === 'dark' ? 'light' : 'dark';
+    payload.data.party = [{ id: 'pc-other', name: 'Ser Kael' }];
+    payload.data.evolution = { personalTemplates: [], referencePacks: [], density: 'comfortable', locale: 'en', accentTheme: 'arcane', customAccent: '#6d4aa2' };
+    const result = parseBackup(JSON.stringify(payload));
+    if (!result.ok) throw new Error('fixture must parse');
+    importBackup(result.preview, 'replace');
+    expect(usePartyStore.getState().members.map((member) => member.name)).toEqual(['Ser Kael']);
+
+    const restored = restoreRecoverySnapshot(listRecoverySnapshots()[0]);
+    expect(restored.ok).toBe(true);
+    expect(useScreenStore.getState().screens.map((item) => item.name)).toEqual(['My table']);
+    expect(usePartyStore.getState().members.map((member) => member.name)).toEqual(['Lira Voss']);
+    expect(useEvolutionStore.getState()).toMatchObject({ density: 'compact', locale: 'it' });
+    expect(useThemeStore.getState().theme).toBe(themeBefore);
+  });
+
   it('says what each strategy will do before the import runs', () => {
     usePartyStore.getState().setMembers([{ id: 'pc-local', name: 'Lira Voss' }, { id: 'pc-2', name: 'Halric' }]);
     const payload = JSON.parse(backupText([screen]));
@@ -114,7 +140,7 @@ describe('data portability', () => {
       'Adds 1 screen and 1 character to your party. Your party, preferences and theme stay as they are.',
     );
     expect(describeImport(result.preview, 'replace', 2)).toBe(
-      'Replaces all your screens with 1 screen, your party (2 characters, replaced by 1) and your theme. Only screens can be restored from recovery snapshots.',
+      'Replaces all your screens with 1 screen, your party (2 characters, replaced by 1) and your theme. A recovery snapshot can bring back what you had.',
     );
   });
 

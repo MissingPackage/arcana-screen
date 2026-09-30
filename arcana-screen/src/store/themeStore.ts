@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { safeLocalStorage } from '../utils/safeStorage';
+import { THEME_STORAGE_KEY, safeLocalStorage } from '../utils/safeStorage';
 
 interface ThemeState {
   theme: 'light' | 'dark';
@@ -42,6 +42,8 @@ function forceStyleReresolution() {
   body.style.display = previousDisplay;
 }
 
+export const DEFAULT_THEME = 'light' as const;
+
 function applyThemeToDOM(theme: 'light' | 'dark') {
   document.body.classList.remove('dark-theme', 'light-theme');
   document.body.classList.add(theme === 'dark' ? 'dark-theme' : 'light-theme');
@@ -55,7 +57,7 @@ function applyMotionToDOM(reducedMotion: boolean) {
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
-      theme: 'light',
+      theme: DEFAULT_THEME,
       reducedMotion: false,
       toggleTheme: () => set((state) => {
         const newTheme = state.theme === 'light' ? 'dark' : 'light';
@@ -69,7 +71,7 @@ export const useThemeStore = create<ThemeState>()(
       }),
     }),
     {
-      name: 'arcana_theme',
+      name: THEME_STORAGE_KEY,
       storage: createJSONStorage(() => safeLocalStorage),
       onRehydrateStorage: () => {
         return (state) => {
