@@ -96,8 +96,9 @@ Stato al 2026-10-01, dopo l'iterazione 35.
       l'effetto. Matrice: 12 `manual-pass`, 4 `partial`, 6 `green`.
    e. ~~Snapshot anche per party e preferenze~~ fatto (iter. 35, D42).
    Leve successive (fonti: matrice e ledger):
-   f. Matrice: *Theme/reduced motion* è `partial` (component e Design QA):
-      capire cosa manca, misurarlo.
+   f. Matrice: *Theme/reduced motion* ha stato `green` ma le celle component e
+      Design QA sono `partial`: incoerenza. Capire cosa manca e allineare
+      stato o celle.
    g. Ledger, P1 DM: clone/duplica un combattente. Verificare prima se il campo
       Qty dell'aggiunta lo copre già.
    h. Ledger, P2: il marker di pareggio resta dopo aver ordinato e non dice la
