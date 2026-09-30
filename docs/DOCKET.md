@@ -73,17 +73,6 @@ dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
   per i toggle sia per Earlier/Later. Non promosso a fatto compiuto: il DM
   potrà bocciare la posizione.
 
-- D26 [2026-08-13] [docs/a11y] **Stessa specie di overclaim del 44px, ma
-  pre-esistente**: la cella *Accessibility/input* dice "keyboard/200%", mentre
-  `e2e/critical-flows.spec.ts:145` si intitola "200% reflow **equivalent**" e
-  verifica soltanto l'assenza di scroll orizzontale a un viewport di 640px —
-  più debole del reflow WCAG 1.4.10, che è l'equivalente a 320px. Non
-  introdotto da D24 e quindi non assorbito nella slice (residue-routing). Da
-  chiudere in due modi possibili: restringere la dicitura della cella come si è
-  fatto per i 44px, oppure irrobustire la prova a 320px e tenere la dicitura.
-  Trovato dal loop-verifier. Visto il 2026-09-30 a 320px: nel
-  Focus selector "Exploration" va a capo a metà parola ("Explorati / on").
-
 - D25 [2026-08-13] [ci/ops] **Trappola d'ambiente, misurata: la matrice
   `@critical` completa dentro un solo container Playwright dà falsi rossi.**
   Quattro progetti insieme (44 prove, 11 worker, un solo server `preview`) →
@@ -104,6 +93,26 @@ dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
   ignoto e nessun consumatore.
 
 ## Chiusi
+
+- D26 [2026-08-13 → 2026-09-30] [a11y] **RULING preso dal loop: la prova di
+  reflow va a 320px, e ha trovato due pannelli rotti.** Scelta fra restringere
+  la dicitura e irrobustire la prova: irrobustita. Il test ora misura 320×640
+  in Prepare e Run, apre ogni pannello dell'header e conta i controlli fuori
+  schermo. Trovati, e corretti:
+  - **Search**, sotto i 700px, si apriva fuori dal bordo sinistro: 144px a 390
+    e a 320 (etichetta, campo e aiuto tagliati, pagina senza scroll
+    orizzontale quindi irraggiungibili). Il pannello era ancorato al bordo
+    destro del pulsante, che lì sta nella metà sinistra dell'header; ora si
+    ancora all'header intero con 1rem per lato.
+  - **Help and resources**: le impostazioni (densità, lingua, tema) uscivano
+    di 42px a destra **a ogni larghezza, 1280 compreso**: pannello da 12rem,
+    righe a griglia con minimo 7rem + 7rem. Ora `min(18rem, 100vw − 2rem)` e
+    colonne che si stringono.
+  - Focus selector sotto i 380px: "Exploration" andava a capo a metà parola.
+    Il 10px progettato per ≤820 non si è mai applicato (lo annullava il reset
+    `.arcana-session button { font-size: inherit }`); a 390+ i 16px reali
+    funzionano e restano, sotto i 380 si passa a 13px. Tolta la regola morta.
+  Test rosso sul CSS vecchio, verde sul nuovo, su tre progetti.
 
 - D36 [2026-09-30 → 2026-09-30] [a11y/tema] **Colori a mano nel tema scuro:
   passata fatta, tre difetti veri corretti.** Invece di tokenizzare 44

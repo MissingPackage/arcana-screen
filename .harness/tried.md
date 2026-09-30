@@ -16,3 +16,6 @@
 2026-09-30 D36 colori a mano: sonda axe su 9 stati mai scansionati x chiaro/scuro x desktop/mobile invece di tokenizzare 44 hex alla cieca.
   Risultato: 3 difetti veri (Oracle 1.44:1 dark, errore dadi 2.19:1 dark, notebook che scorre senza tab stop); dopo la fix 0 violazioni. Resto degli hex su navy o con override.
   Verdetto: keep. I 3 stati entrano nel test axe scuro (rosso sul vecchio). Sonda cancellata.
+2026-09-30 D26 reflow: prova portata da 640 a 320px con ogni pannello dell'header aperto, in Prepare e Run.
+  Risultato: Search fuori schermo di 144px sotto i 700 (fix: ancorato all'header); impostazioni di Help fuori di 42px a OGNI larghezza (fix: pannello min(18rem,100vw-2rem)); "Explorati/on" a 320 (fix: 13px sotto 380, 10px morto rimosso).
+  Verdetto: keep. Test rosso sul CSS vecchio. Lezione: pkill nella stessa riga di vite preview uccide la shell.
