@@ -37,3 +37,6 @@
 2026-10-01 D41 import: cercato il "partial" provando il merge; importBackup sovrascriveva party, preferenze e tema anche in merge, e gli snapshot coprono solo gli Screen.
   Risultato: merge ora additivo (per id), replace invariato; anteprima con describeImport per strategia. Test rosso sul vecchio (personaggio locale perso). 152/152, e2e verde.
   Verdetto: keep. Matrice Export/import a green. Nuova leva: snapshot di recupero anche per party e preferenze.
+2026-10-01 D42 snapshot: party, preferenze e tema salvati accanto agli Screen in ogni snapshot e rimessi al ripristino via store.
+  Risultato: replace + ripristino riporta Screen, party, densità/lingua e tema (test rosso sul vecchio). 153/153, e2e verde su 3 progetti.
+  Verdetto: keep. Mappa ridisegnata con leve f-i da matrice e ledger.

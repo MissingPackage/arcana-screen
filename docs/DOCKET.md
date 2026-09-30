@@ -73,6 +73,19 @@ dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
 
 ## Chiusi
 
+- D42 [2026-10-01 → 2026-10-01] [bug/trust] **Gli snapshot di recupero ora
+  riportano anche party, preferenze e tema.** Coprivano solo `arcana_screens`:
+  un replace dell'import (che sostituisce party, preferenze e tema subito dopo
+  gli Screen) o un ripristino perdevano il resto senza ritorno. Ogni snapshot
+  salva ora, accanto agli Screen, i payload di `arcana_party`,
+  `arcana_evolution` e `arcana_theme` del momento; il ripristino li reinserisce
+  passando dagli store (stessa sanificazione dell'import). Snapshot vecchi senza
+  companion: si ripristinano solo gli Screen, come prima. Le chiavi sono ora
+  costanti in `safeStorage.ts` usate anche dagli store, e il tema di default è
+  esportato da `themeStore.ts`. Testi aggiornati (anteprima del replace,
+  sezione Recovery). Test unitario rosso sul codice vecchio. Il Reset resta
+  "cancella tutto", snapshot compresi, come dice la sua conferma.
+
 - D41 [2026-10-01 → 2026-10-01] [bug/trust] **Il "merge" di un backup
   sostituiva il party e le preferenze.** Cercando cosa rendesse `partial` la UI
   di validazione dell'import: `importBackup` sovrascriveva roster, densità,
