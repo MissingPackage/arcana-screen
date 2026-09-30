@@ -174,7 +174,10 @@ test("@critical exports and imports a portable backup", async ({ page }) => {
   await expect(
     dialog.getByText("Portable Screen", { exact: true }),
   ).toBeVisible();
+  // The preview says what the import will do, per strategy (docket D41).
+  await expect(dialog.getByText(/stay as they are/)).toBeVisible();
   await page.getByLabel("Replace current screens").check();
+  await expect(dialog.getByText(/^Replaces all your screens/)).toBeVisible();
   await page.getByRole("button", { name: "Confirm import" }).click();
   await expect(page.getByText("1 screen imported")).toBeVisible();
   await page.reload();

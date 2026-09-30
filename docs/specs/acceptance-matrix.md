@@ -19,7 +19,7 @@ Status values: `missing`, `red`, `partial`, `green`, `manual-pass`, `blocked`.
 | Dice                         | green                    | green formula/error/modes                | manual-pass formula/error/advantage/disadvantage                         | manual-pass utility dock              | manual-pass    |
 | Timer                        | green                    | green controls/duration/completion       | green automated: reload plus 12-minute suspension, full matrix           | manual-pass utility dock              | manual-pass    |
 | Theme/reduced motion         | green                    | partial                                  | green automated persistence/computed durations                           | partial                               | green          |
-| Export/import/recovery       | green                    | partial validation UI                    | green on the full matrix, WebKit included                                | n/a                                   | partial        |
+| Export/import/recovery       | green                    | green validation; preview states each strategy's effect (D41) | green on the full matrix, WebKit included                                | n/a                                   | green          |
 | Responsive                   | n/a                      | green reflow                             | green automated: every Run control reachable in every Focus + combat editor at 390/768/820, dock open and closed; Roll and Start in view without scrolling (D27, D35); header overlap fixed (D33, e2e at 390/768/1100/1487); desktop 1487×1058 pass | manual-pass desktop only              | green          |
 | Accessibility/input          | n/a                      | green jsx-a11y and alternatives          | green automated: keyboard and 320px reflow with header panels open (D26) and axe in **both themes** on all four projects, WebKit included; 44px touch targets on the mobile project only | partial moderated audit               | partial        |
 | Browser matrix               | n/a                      | n/a                                      | green on all four projects, WebKit included, in CI                       | n/a                                   | green          |
@@ -61,7 +61,10 @@ corrente: **11 `manual-pass`, 6 `partial`, 5 `green`, 0 `red`**. Il 2026-09-30 l
 tre righe del ciclo di vita dello Screen hanno la cella *Browser* automatizzata
 (tre e2e `@critical`); *Prepare/Run* passa a `manual-pass` (il suo Design QA lo
 era già), le altre due restano `partial` per il Design QA. Valore corrente:
-**12 `manual-pass`, 5 `partial`, 5 `green`, 0 `red`**.
+**12 `manual-pass`, 5 `partial`, 5 `green`, 0 `red`**. Il 2026-10-01
+*Export/import/recovery* passa a `green`: il merge non sovrascrive più party e
+preferenze e l'anteprima dice cosa farà ogni strategia (D41). Valore corrente:
+**12 `manual-pass`, 4 `partial`, 6 `green`, 0 `red`**.
 
 Ciò che tiene ferme le righe `partial` non è quasi mai il codice:
 - *Screen create/resume*, *Rename/duplicate/delete*, *Prepare/Run* → il browser

@@ -2,9 +2,11 @@ import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import toast from 'react-hot-toast';
 import type { ScreenImportStrategy } from '../../store/useScreenStore';
 import { useTrustStore } from '../../store/trustStore';
+import { usePartyStore } from '../../store/usePartyStore';
 import {
   exportBackup,
   exportRawLocalData,
+  describeImport,
   importBackup,
   listRecoverySnapshots,
   parseBackup,
@@ -16,6 +18,7 @@ import { verifyStorageHealth } from '../../utils/safeStorage';
 
 export default function DataManager() {
   const trustStatus = useTrustStore((state) => state.status);
+  const partySize = usePartyStore((state) => state.members.length);
   const trustMessage = useTrustStore((state) => state.message);
   const [isOpen, setIsOpen] = useState(false);
   const [preview, setPreview] = useState<ImportPreview | null>(null);
@@ -262,6 +265,7 @@ export default function DataManager() {
                         Replace current screens
                       </label>
                     </fieldset>
+                    <p className="import-preview__effect" aria-live="polite">{describeImport(preview, strategy, partySize)}</p>
                     <button type="button" className="screen-action-button" onClick={handleImport}>
                       Confirm import
                     </button>

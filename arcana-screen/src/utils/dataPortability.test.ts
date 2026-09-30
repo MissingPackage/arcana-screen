@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { createDefaultFocusWorkspace } from '../domain/focusModel';
 import { useScreenStore, type Screen } from '../store/useScreenStore';
-import { importBackup, parseBackup } from './dataPortability';
+import { describeImport, importBackup, parseBackup } from './dataPortability';
 import { useEvolutionStore } from '../store/useEvolutionStore';
 import { usePartyStore } from '../store/usePartyStore';
+import { useThemeStore } from '../store/themeStore';
 
 const screen: Screen = {
   id: 'screen-1',
@@ -70,6 +71,51 @@ describe('data portability', () => {
     importBackup(result.preview, 'replace');
     expect(useEvolutionStore.getState()).toMatchObject({ density: 'compact', locale: 'it', accentTheme: 'forest' });
     expect(useEvolutionStore.getState().referencePacks[0].name).toBe('Rules');
+  });
+
+  it('merges without replacing the party, the preferences or the theme', () => {
+    // "Merge with current screens" used to overwrite the roster, density, locale,
+    // accent and theme too, and recovery snapshots only cover screens: merging
+    // another DM's backup lost your party for good (docket D41).
+    usePartyStore.getState().setMembers([{ id: 'pc-local', name: 'Lira Voss' }]);
+    useEvolutionStore.setState({ density: 'comfortable', locale: 'en', accentTheme: 'arcane' });
+    const themeBefore = useThemeStore.getState().theme;
+    const payload = JSON.parse(backupText([screen]));
+    payload.schemaVersion = 3;
+    payload.data.theme = themeBefore === 'dark' ? 'light' : 'dark';
+    payload.data.party = [{ id: 'pc-other', name: 'Ser Kael' }];
+    payload.data.evolution = {
+      personalTemplates: [],
+      referencePacks: [{ id: 'pack-1', name: 'Rules', links: [], createdAt: '2026-07-13T11:00:00.000Z' }],
+      density: 'compact',
+      locale: 'it',
+      accentTheme: 'forest',
+      customAccent: '#6d4aa2',
+    };
+    const result = parseBackup(JSON.stringify(payload));
+    if (!result.ok) throw new Error('fixture must parse');
+    importBackup(result.preview, 'merge');
+
+    expect(usePartyStore.getState().members.map((member) => member.name)).toEqual(['Lira Voss', 'Ser Kael']);
+    expect(useEvolutionStore.getState()).toMatchObject({ density: 'comfortable', locale: 'en', accentTheme: 'arcane' });
+    expect(useEvolutionStore.getState().referencePacks.map((pack) => pack.name)).toEqual(['Rules']);
+    expect(useThemeStore.getState().theme).toBe(themeBefore);
+  });
+
+  it('says what each strategy will do before the import runs', () => {
+    usePartyStore.getState().setMembers([{ id: 'pc-local', name: 'Lira Voss' }, { id: 'pc-2', name: 'Halric' }]);
+    const payload = JSON.parse(backupText([screen]));
+    payload.schemaVersion = 3;
+    payload.data.party = [{ id: 'pc-other', name: 'Ser Kael' }];
+    const result = parseBackup(JSON.stringify(payload));
+    if (!result.ok) throw new Error('fixture must parse');
+
+    expect(describeImport(result.preview, 'merge', 2)).toBe(
+      'Adds 1 screen and 1 character to your party. Your party, preferences and theme stay as they are.',
+    );
+    expect(describeImport(result.preview, 'replace', 2)).toBe(
+      'Replaces all your screens with 1 screen, your party (2 characters, replaced by 1) and your theme. Only screens can be restored from recovery snapshots.',
+    );
   });
 
   it('round-trips the party roster and sanitizes it (schema 3)', () => {
