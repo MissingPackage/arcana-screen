@@ -14,16 +14,6 @@ dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
 
 ## Aperti
 
-- D36 [2026-09-30] [a11y/tema] **Colori scritti a mano senza variante scura:
-  schema ricorrente.** La fix di D27 ha scoperto due siti che il dock copriva
-  (axe non li poteva valutare): `#8a7250` sugli orari (3.36:1 in dark, e
-  4.27:1 anche in chiaro, sotto AA) e `--as-danger` usato come testo (2.18:1 in
-  dark). Corretti con i token `--as-ink-warm` e `--as-danger-ink`, sullo schema
-  di `--as-gold-ink`/`--as-success-ink`. È la quinta volta dopo D2/D4/D11 e le
-  condition chips: `session.css` ha ancora 44 esadecimali scritti a mano. Leva:
-  una passata di copertura (quanti hanno override `.dark-theme`, quanti sono
-  su superfici che cambiano tema), poi token per quelli veri.
-
 - D32 [2026-09-25 → 2026-09-25] [bug/trust] **Falso "Save issue" dopo un
   reload senza Screen.** FirstRun persiste `{ screens: [] }`; il validatore di
   `safeStorage` esigeva almeno uno Screen, quindi aprire l'app e ricaricare
@@ -114,6 +104,26 @@ dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
   ignoto e nessun consumatore.
 
 ## Chiusi
+
+- D36 [2026-09-30 → 2026-09-30] [a11y/tema] **Colori a mano nel tema scuro:
+  passata fatta, tre difetti veri corretti.** Invece di tokenizzare 44
+  esadecimali alla cieca, una sonda ha aperto in tema chiaro e scuro gli stati
+  che la suite non visitava: opzioni dadi con errore e con vantaggio, Oracle
+  con risposta, opzioni timer, revisione capture con stella e promozione,
+  presenter della read-aloud, NPC coniato e ri-tirato, contatore e indizi di
+  Exploration, Combat con danni, condizioni e reset. Axe su ciascuno, desktop e
+  mobile. Trovati: pulsanti dell'Oracle `#fff` sotto inchiostro chiaro
+  (**1.44:1** in dark) → `--as-surface-raised` (8.46:1); errore dei dadi
+  `#a23a32` (**2.19:1** in dark) → `--as-danger-ink` (6.7:1 dark, 7.36:1
+  chiaro); notebook narrativo che, allungato dalle capture, scorre senza tab
+  stop (`scrollable-region-focusable`, in entrambi i temi) → `tabIndex={0}` con
+  nome, eccezione `jsx-a11y` motivata come da documentazione della regola
+  (WebKit non rende focalizzabili i contenitori che scorrono). Gli altri
+  esadecimali stanno sul navy, scuro in entrambi i temi, o hanno già l'override:
+  zero violazioni dopo la fix. I tre stati sono ora nel test axe scuro su tutti
+  e quattro i progetti; rosso sul codice vecchio. Limite della sonda, non
+  dell'app: su desktop la catena di stati a volte lasciava il selettore dei
+  Focus non cliccabile; isolato, il selettore è libero.
 
 - D35 [2026-09-30 → 2026-09-30] [design] **RULING preso dal loop, corretto:
   sotto gli 820px il dock è una barra di una riga fissata in basso.** Roll con

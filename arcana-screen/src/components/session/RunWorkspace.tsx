@@ -88,7 +88,11 @@ const clockSegments = (value: number, total: number, label: string) => (
 function Notebook({ workspace }: { workspace: FocusWorkspace }) {
   const notebook = workspace.universal.notebook;
   return (
-    <article className="notebook-panel">
+    // Read-only notes that scroll. WebKit does not make scroll containers focusable, so
+    // without a tab stop a keyboard user cannot scroll them (axe scrollable-region-focusable);
+    // the rule's own docs name this case as the exception.
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+    <article className="notebook-panel" tabIndex={0} aria-label="Session notebook">
       <header className="panel-title">
         <div>
           <span className="eyebrow">Live notes</span>
