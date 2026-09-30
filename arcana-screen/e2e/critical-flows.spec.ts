@@ -205,7 +205,7 @@ test("@critical has no automatic WCAG 2.2 A/AA violations in dark theme", async 
   await violationsOn("Run after reload");
 });
 
-test("@critical supports keyboard skip navigation and 200% reflow equivalent", async ({
+test("@critical supports keyboard skip navigation and reflows at 320px", async ({
   page,
 }) => {
   await createScreen(page);
@@ -217,12 +217,66 @@ test("@critical supports keyboard skip navigation and 200% reflow equivalent", a
   await page.keyboard.press("Enter");
   await expect(page.locator("#main-content")).toBeFocused();
 
-  await page.setViewportSize({ width: 640, height: 720 });
-  const dimensions = await page.evaluate(() => ({
-    clientWidth: document.documentElement.clientWidth,
-    scrollWidth: document.documentElement.scrollWidth,
-  }));
-  expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+  // WCAG 1.4.10 reflow is 320 CSS px wide (400% of 1280). This used to check 640px
+  // only, and missed two header panels that opened partly off-screen at every width
+  // up to phones: Search (144px off the left edge at 390px) and the settings in Help
+  // and resources (42px off the right edge, even at 1280px). Docket D26.
+  await page.setViewportSize({ width: 320, height: 640 });
+  const offScreen = () =>
+    page.evaluate(() => {
+      const width = document.documentElement.clientWidth;
+      const outside = [
+        ...document.querySelectorAll<HTMLElement>(
+          "details[open] :is(button, input, select, textarea, a, label)",
+        ),
+      ]
+        .filter((element) => {
+          const box = element.getBoundingClientRect();
+          return box.width > 0 && (box.left < -1 || box.right > width + 1);
+        })
+        .map((element) => element.textContent?.trim().slice(0, 24) || element.tagName);
+      return {
+        scroll: document.documentElement.scrollWidth - width,
+        outside,
+      };
+    });
+  const summaries = page.locator(".arcana-header details > summary");
+  for (const mode of ["Prepare", "Run"]) {
+    await page.getByRole("button", { name: mode, exact: true }).click();
+    expect(await offScreen(), `${mode}, panels closed`).toEqual({ scroll: 0, outside: [] });
+    for (let index = 0; index < (await summaries.count()); index++) {
+      const summary = summaries.nth(index);
+      if (!(await summary.isVisible())) continue;
+      await summary.click();
+      expect(
+        await offScreen(),
+        `${mode}, ${(await summary.getAttribute("aria-label")) ?? (await summary.textContent())} open`,
+      ).toEqual({ scroll: 0, outside: [] });
+      // Party setup is a full-screen sheet at this width and covers its own
+      // summary, so every panel is closed the same way.
+      await page.evaluate(() =>
+        document.querySelectorAll("details[open]").forEach((details) => {
+          (details as HTMLDetailsElement).open = false;
+        }),
+      );
+    }
+  }
+
+  // Focus labels stayed on one line only down to 390px: "Explorati / on" at 320.
+  const labelLines = await page.evaluate(() =>
+    [...document.querySelectorAll(".focus-selector__option")].map((option) => {
+      const walker = document.createTreeWalker(option, NodeFilter.SHOW_TEXT);
+      const tops = new Set<number>();
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        for (const rect of range.getClientRects())
+          if (rect.width > 0) tops.add(Math.round(rect.top));
+      }
+      return `${option.textContent?.trim()}: ${tops.size}`;
+    }),
+  );
+  expect(labelLines).toEqual(["Narrative: 1", "Social: 1", "Exploration: 1", "Combat: 1"]);
 });
 
 test("@critical keeps header controls from painting over each other at narrow widths", async ({
