@@ -108,9 +108,9 @@ Legacy widgets are registered in `src/components/widgets/toolRegistry.tsx` (type
 
 ## Git conventions
 
-- **Commit + push to `origin/dev` at the end of each unit of work.** Conventional Commits (`feat|fix|chore|refactor|docs|style|test|perf|ci|build: …`).
+- **Work on a feature branch, open a PR to `dev`, merge it yourself** once it is updated onto current `dev` and all five CI jobs are green (quality + 4 browsers). Never stack PRs: a stacked PR merges into its base branch, not `dev`. The owner wants development as autonomous as possible (2026-09-30); scope changes, secrets and production deploy stay the owner's. Conventional Commits (`feat|fix|chore|refactor|docs|style|test|perf|ci|build: …`).
 - **Never** add AI attribution (no `Co-Authored-By`, no "Generated with") to commits/PRs.
-- Hooks in `.githooks/` validate branch names (`{type}/{issue}-{desc}`) and commit-msg (`type: desc #issue`) **but are not active** unless `git config core.hooksPath .githooks` is set. Current work commits directly on `dev`.
+- Hooks in `.githooks/` validate branch names (`{type}/{issue}-{desc}`) and commit-msg (`type: desc #issue`) **but are not active** unless `git config core.hooksPath .githooks` is set.
 
 ## Do / Don't
 

@@ -2,11 +2,15 @@
 
 Convenzione: una riga per item, `D<n> [data] [tipo]`.
 
-**Chi decide (aggiornato 2026-08-07, direttiva utente):** i ruling di tipo
-`[decisione]`, `[design]`, `[ci]` e `[deps]` li prende **il loop**, che li
-esegue e li riporta — non si chiedono all'utente. Restano dell'utente solo i
-`[merge]` su `dev` e i cambi di scope. Quando Linear è raggiungibile, migrare
-gli item aperti.
+**Chi decide (aggiornato 2026-09-30, direttiva utente: "sviluppo il più
+autonomo possibile"):** il loop prende i ruling `[decisione]`, `[design]`,
+`[ci]` e `[deps]` **e mergia su `dev`** le proprie PR e le dependabot, senza
+chiedere. Condizioni di merge: la PR punta a `dev` (mai impilata), è
+aggiornata sul `dev` corrente (`gh pr update-branch`) e ha **tutti e cinque i
+job CI verdi**, WebKit compreso. Merge commit, branch cancellato, poi verifica
+con `git merge-base --is-ancestor`. Restano dell'utente: i cambi di scope o di
+obiettivo, i secret (D16), il deploy di produzione e ogni cosa pubblica fuori
+dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
 
 ## Aperti
 

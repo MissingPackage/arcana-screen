@@ -1,6 +1,6 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-09-30, iterazione 25 (landing di #115/#116, audit brace-expansion, D27 corretto con ruling dalla spec). Iterazione 24: D33 header. Iterazione 23: react-hooks 7, D34. Iterazione 22: D29 chiuso, PR in attesa di merge. Iterazione 21 (stabilizzazione su richiesta
+Aggiornato: 2026-09-30, iterazione 25 (landing di #115/#116, audit brace-expansion, D27 corretto con ruling dalla spec, tutto mergiato dal loop su direttiva utente). Iterazione 24: D33 header. Iterazione 23: react-hooks 7, D34. Iterazione 22: D29 chiuso, PR in attesa di merge. Iterazione 21 (stabilizzazione su richiesta
 dell'utente: tutte le PR aperte chiuse, gate di sicurezza sbloccato, toolchain
 portata avanti, un falso allarme di salvataggio corretto). Iterazioni: 21
 (D31/D32/D33), 20 (diagnosi D27), 19 (D27/D28/D29/D30, PR #104), 18 (D24/D25,
@@ -8,15 +8,12 @@ PR #101), 17 (D15), 16 (D21), 15 (D14), 14 (D3), 13 (D17), 12, 11 (D13).
 
 ## Stato corrente
 
-- `origin/dev` @ `a028b84` (2026-09-30): contiene D29 (#114). **Le #115
-  (react-hooks 7) e #116 (D33 header) risultano "merged" ma non sono su
-  `dev`**: erano impilate e GitHub le ha mergiate nei loro branch base. Il
-  contenuto (stessi 4 commit, stesso albero già revisionato) torna su `dev`
-  con la PR di landing da `refactor/land-hooks7-and-header`.
-- PR #118 (`fix/audit-brace-expansion`): `dev` era rosso su `check:security`
-  per tre advisory high nuove su `brace-expansion` 1.1.18 (recidiva D21/D30).
-  Diff di 3 righe nel lockfile, fatto a mano: npm 10 e 11 riscrivono ~140
-  righe estranee.
+- `origin/dev` (2026-09-30) contiene tutto: D29, react-hooks 7, D33 header,
+  audit `brace-expansion` (#118), D27 Run che scorre sotto gli 820px (#120),
+  react-hot-toast 2.6.1 (#113), vitest 5.0.2 + @types/node (#121). **Zero PR
+  aperte.** Mergiate dal loop dopo la direttiva utente sull'autonomia; ognuna
+  aggiornata su `dev` e verde su tutti e cinque i job CI, WebKit compreso.
+- Il nuovo e2e di raggiungibilità (D27) è verde anche su WebKit in CI.
 - **Trappola PR impilate:** una PR impilata si mergia nel suo branch base, non
   in `dev`, a meno che il base venga cancellato prima (GitHub allora la
   riporta su `dev`) o la PR venga ritargettata. Dopo ogni merge verificare con
@@ -74,21 +71,14 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 
 Stato al 2026-09-30, dopo l'iterazione 25.
 
-1. **D27 corretto**, branch `fix/run-scroll-below-820`, PR su `dev`. Il ruling
-   l'ha preso il loop, ma dalla spec e dal prototipo, che scelgono già la
-   colonna che scorre sotto gli 820px. Controlli irraggiungibili: 71 (chromium-desktop) e 79 (chromium-mobile) → 0 (e2e
-   `@critical` nuovo). Axe sbloccato a 4.13. *Responsive* da `red` a `partial`.
-   La PR contiene anche i commit del landing finché #119 non entra: punta a
-   `dev`, non al branch del landing, quindi non c'è trappola d'impilamento.
-2. **Landing** di react-hooks 7 + D33 e **#118** (audit): merge tuo. Sono
-   indipendenti e non impilate, in qualsiasi ordine.
+1. **D27 chiuso e mergiato.** *Responsive* a `partial`; il residuo è D35.
+2. Nulla in attesa di merge: il loop mergia da solo (vedi Protocollo).
 3. Prossime slice del loop: **D35** (Dice e Timer a 2 schermate di scroll sul
    telefono: riga compatta fissa in basso), **D36** (44 colori a mano in
    `session.css`, passata di copertura sul tema scuro), **D26** (reflow a
    320px), **D28** (editor ancorato alla riga).
-4. Dependabot aperte: #113 (react-hot-toast 2.6.1), #117 (vitest 5.0.2).
-5. Ancora tuo: **D16** (revoca dei secret orfani, incluso il PAT `TOKEN`).
-6. e2e in container: leggere prima **D25**, un progetto per volta. L'immagine
+4. Ancora dell'utente: **D16** (revoca dei secret orfani, incluso il PAT `TOKEN`).
+5. e2e in container: leggere prima **D25**, un progetto per volta. L'immagine
    podman per WebKit va portata a `mcr.microsoft.com/playwright:v1.63.0-noble`
    (Playwright ora è 1.63; la v1.61.1 in cache non basta più).
 
@@ -105,12 +95,15 @@ Stato al 2026-09-30, dopo l'iterazione 25.
   "nessun merge su dev, PR-ready è lo stato obiettivo". Vince **la direttiva del
   loop** per il lavoro di slice: si lavora su feature branch e il merge resta
   ruling dell'utente. La riga di `CLAUDE.md` va letta come riferita ai commit di
-  documentazione/protocollo fuori dal loop.
+  documentazione/protocollo fuori dal loop. **Superato il 2026-09-30:** il
+  merge ora lo fa il loop (vedi Protocollo).
 
 ## Protocollo
 
 Loop attivo: `/loop /product-loop` (self-paced). Ogni iterazione: re-anchor da
 questo file + `docs/DOCKET.md` → una slice → gate completi → loop-verifier →
-digest. **Merge su `dev` e cambi di scope: solo l'utente.** Tutti gli altri
-ruling (design, ci, deps, decisioni tecniche): li prende il loop, li esegue e
-li riporta a verbale nel docket — non si chiedono.
+merge su `dev` → digest. **Dal 2026-09-30 il loop mergia da solo** (direttiva
+utente: sviluppo il più autonomo possibile), alle condizioni scritte in
+`docs/DOCKET.md` sotto "Chi decide": PR non impilata, aggiornata su `dev`,
+cinque job CI verdi. Restano dell'utente: scope e obiettivo, secret, deploy
+di produzione. Tutti gli altri ruling li prende il loop e li mette a verbale.
