@@ -279,9 +279,9 @@
 .capture-review__list time { color: var(--as-ink-muted); font-size: 11px; }
 .capture-status { align-self: center; padding: 3px 7px; border-radius: 999px; background: var(--as-paper-deep); color: var(--as-ink-muted); font-size: 10px; font-weight: 700; text-transform: uppercase; }
 .capture-status--promoted { background: #dcebdd; color: #245c31; }
-.capture-review__list article > div { display: flex; grid-column: 1 / -1; gap: 7px; }
-.capture-review__list article > div button { border: 1px solid var(--as-line-strong); border-radius: 5px; background: var(--as-paper); color: var(--as-ink); padding: 6px 9px; font-size: 11px; font-weight: 700; }
-.capture-review__list article > div .is-danger { margin-left: auto; color: #8b2e34; }
+.capture-review__list article > div { display: flex; flex-wrap: wrap; grid-column: 1 / -1; gap: 7px; }
+.capture-review__list article > div button { border: 1px solid var(--as-line-strong); border-radius: 5px; background: var(--as-paper); color: var(--as-ink); padding: 6px 9px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.capture-review__list article > div .is-danger { margin-left: auto; color: var(--as-danger-ink); }
 .capture-review__list .capture-star { display: inline-flex; align-items: center; gap: 5px; }
 .capture-review__list .capture-star[aria-pressed="true"] { color: var(--as-gold-ink); border-color: var(--as-gold-strong) !important; background: var(--as-gold-wash) !important; }
 .session-recap { position: fixed; top: 68px; left: 50%; transform: translateX(-50%); z-index: 60; width: min(600px, calc(100vw - 40px)); max-height: 60vh; overflow: auto; padding: 16px 20px; background: var(--as-paper); border: 1px solid var(--as-line-strong); border-left: 4px solid var(--as-ink); border-radius: 10px; box-shadow: var(--as-shadow-overlay); }
@@ -374,6 +374,8 @@
 .counter-tool > button { display: grid !important; width: 38px; place-items: center; }
 .counter-tool > output { display: grid; width: 44px; place-items: center; }
 .counter-tool .dock-reset { width: auto; border: 0 !important; background: transparent !important; }
+.dock-more,
+.dock-formula { display: none; }
 
 .narrative-layout { display: grid; grid-template-columns: 175px minmax(430px, 1fr) minmax(300px, .48fr); }
 .notebook-outline { padding: 22px 14px; background: var(--as-paper-deep); border-right: 1px solid var(--as-line-strong); }
@@ -726,6 +728,34 @@ body.dark-theme .segment-clock span.is-filled { background: var(--as-gold); bord
   /* Spec, phone: utility controls wrap into touch-sized rows, not a sideways scroller. */
   .dock-tool { flex-wrap: wrap; row-gap: 10px; }
   .dock-tool + .dock-tool { padding-top: 12px; padding-left: 0; border-top: 1px solid #607487; border-left: 0; }
+  /* Spec, Run: dice and timer stay immediately available in every Focus. Once the Run
+     scrolls (D27) a dock at the end of the column sat two screens away, and pinning the
+     whole dock would take a third of a phone screen. So it pins as one row (Roll, result,
+     timer) and the rest opens on demand, like a music app's mini player. */
+  .utility-dock { position: sticky; bottom: 0; z-index: 25; }
+  .utility-dock:not(.utility-dock--open) { flex-direction: row; align-items: center; gap: 8px; padding: 9px 12px; }
+  .utility-dock:not(.utility-dock--open) :is(.dock-tool__name, .dice-tool select, .dock-stepper, .dice-options-trigger, .dice-options, .oracle-tool, .counter-tool, .timer-tool .dock-reset, .timer-options) { display: none !important; }
+  .utility-dock:not(.utility-dock--open) .dock-tool { flex-wrap: nowrap; gap: 8px; overflow: visible; }
+  .utility-dock:not(.utility-dock--open) .dock-tool + .dock-tool { padding: 0 0 0 8px; border-top: 0; border-left: 1px solid #607487; }
+  .utility-dock:not(.utility-dock--open) .dock-formula { display: inline; color: #d9e2e9; font-size: 11px; white-space: nowrap; }
+  .utility-dock:not(.utility-dock--open) :is(.dock-action, .dock-result, time, .dock-more) { flex-shrink: 0; }
+  .utility-dock:not(.utility-dock--open) .dock-action { min-width: 0; padding: 0 12px !important; }
+  .utility-dock:not(.utility-dock--open) .dock-result { min-width: 42px; }
+  .utility-dock:not(.utility-dock--open) .timer-tool time { font-size: 19px; }
+  .utility-dock:not(.utility-dock--open) .dock-action__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .dock-more { display: inline-flex !important; min-width: 44px; height: 42px; align-items: center; justify-content: center; gap: 4px; margin-left: auto; padding: 0 8px !important; color: #d9e2e9 !important; font-size: 11px !important; font-weight: 700 !important; }
+  .utility-dock--open .dock-more { order: -1; align-self: flex-end; }
+  /* Open, it is a sheet over the page: capped so the content above stays reachable,
+     scrolling inside, with the option panels in its flow instead of floating above it. */
+  .utility-dock--open { max-height: 45dvh; overflow-y: auto; overscroll-behavior: contain; }
+  .utility-dock--open :is(.dice-options, .oracle-options, .timer-options) { position: static; width: 100%; flex-basis: 100%; }
+  .utility-dock--open .dock-more svg { transform: rotate(180deg); }
+}
+
+@media (max-width: 360px) {
+  .utility-dock:not(.utility-dock--open) .dock-formula { display: none; }
+  .utility-dock:not(.utility-dock--open) .timer-tool time { font-size: 17px; }
+  .dock-more span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
 
 @media (max-width: 520px) {

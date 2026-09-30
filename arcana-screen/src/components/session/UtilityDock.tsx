@@ -1,5 +1,6 @@
 import {
   ArrowCounterClockwise,
+  CaretUp,
   DiceFive,
   Minus,
   Pause,
@@ -33,6 +34,9 @@ export default function UtilityDock({ workspace, onChange, onCapture }: UtilityD
   const [advancedDiceOpen, setAdvancedDiceOpen] = useState(false);
   const [timerOptionsOpen, setTimerOptionsOpen] = useState(false);
   const [oracleOpen, setOracleOpen] = useState(false);
+  // Below 820px the dock is a one-row bar pinned to the bottom (Roll, result, timer);
+  // the rest opens on demand. Above 820px this state has no visible effect.
+  const [dockOpen, setDockOpen] = useState(false);
   const [oracleLikelihood, setOracleLikelihood] = useState<Likelihood>('even');
   const [oracleAnswer, setOracleAnswer] = useState<OracleAnswer | null>(null);
   const askOracle = (likelihood: Likelihood) => { setOracleLikelihood(likelihood); setOracleAnswer(rollOracle(likelihood)); };
@@ -40,6 +44,7 @@ export default function UtilityDock({ workspace, onChange, onCapture }: UtilityD
   const exploration = workspace.contexts.exploration;
   const dice = workspace.universal.dice;
   const shownSeconds = remainingSeconds(timer, now);
+  const formulaLabel = dice.formula?.trim() || `d${dice.die}${dice.modifier ? `${dice.modifier > 0 ? '+' : ''}${dice.modifier}` : ''}`;
 
   useEffect(() => {
     if (!timer.running) return;
@@ -110,7 +115,7 @@ export default function UtilityDock({ workspace, onChange, onCapture }: UtilityD
   });
 
   return (
-    <footer className="utility-dock">
+    <footer className={`utility-dock${dockOpen ? ' utility-dock--open' : ''}`}>
       <section className="dock-tool dice-tool" aria-label="Dice roller">
         <span className="dock-tool__name"><DiceFive size={23} aria-hidden="true" /> Dice</span>
         <select
@@ -127,6 +132,7 @@ export default function UtilityDock({ workspace, onChange, onCapture }: UtilityD
         </div>
         <output className="dock-result" aria-label="Roll result">{dice.result ?? '—'}</output>
         <button type="button" className="dock-action" onClick={roll}>Roll</button>
+        <span className="dock-formula" aria-hidden="true">{formulaLabel}</span>
         <button type="button" className="dock-reset dice-options-trigger" aria-expanded={advancedDiceOpen} onClick={() => setAdvancedDiceOpen((open) => !open)}>Dice options</button>
         {advancedDiceOpen && (
           <div className="dice-options" role="group" aria-label="Advanced dice options">
@@ -185,7 +191,7 @@ export default function UtilityDock({ workspace, onChange, onCapture }: UtilityD
           onClick={() => updateTimer(timer.running ? pauseTimer(timer, Date.now()) : startTimer(timer, Date.now()))}
         >
           {timer.running ? <Pause size={17} weight="fill" /> : <Play size={17} weight="fill" />}
-          {timer.running ? 'Pause' : 'Start'}
+          <span className="dock-action__label">{timer.running ? 'Pause' : 'Start'}</span>
         </button>
         <button type="button" className="dock-reset" onClick={() => updateTimer(resetTimer(timer))}>
           <ArrowCounterClockwise size={17} /> Reset
@@ -198,6 +204,10 @@ export default function UtilityDock({ workspace, onChange, onCapture }: UtilityD
           </div>
         )}
       </section>
+
+      <button type="button" className="dock-more" aria-expanded={dockOpen} onClick={() => setDockOpen((open) => !open)}>
+        <CaretUp size={18} aria-hidden="true" /> <span>{dockOpen ? 'Less' : 'Tools'}</span>
+      </button>
     </footer>
   );
 }

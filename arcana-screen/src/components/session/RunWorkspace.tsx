@@ -2,36 +2,24 @@ import {
   ArrowRight,
   ArrowsClockwise,
   BookOpenText,
-  Bug,
   CaretDown,
   CaretLeft,
   CaretRight,
   CaretUp,
   Check,
   Compass,
-  Crosshair,
   Eye,
-  Flame,
   LinkSimple,
   ListNumbers,
-  MagicWand,
   MapPin,
   Note,
-  PawPrint,
   PencilSimple,
   Plus,
-  ShieldChevron,
-  Skull,
   Sparkle,
   Star,
-  Sword,
   Trash,
-  User,
   UserCircle,
   X,
-  UserFocus,
-  UsersThree,
-  type Icon,
 } from '@phosphor-icons/react';
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import {
@@ -42,7 +30,7 @@ import {
   type FocusId,
   type FocusWorkspace,
 } from '../../domain/focusModel';
-import { QUICK_CONDITIONS, addCombatant, adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, hasCondition, healCombatant, removeCombatant, reorderTiedCombatant, sortCombatants, toggleCondition, type EncounterCombatant, type EncounterState } from '../../domain/encounterModel';
+import { QUICK_CONDITIONS, addCombatant, adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, hasCondition, healCombatant, removeCombatant, reorderTiedCombatant, sortCombatants, toggleCondition, type EncounterState } from '../../domain/encounterModel';
 import { mintNpc } from '../../domain/npcModel';
 import { usePartyStore } from '../../store/usePartyStore';
 import type { PartyMember } from '../../domain/partyModel';
@@ -51,6 +39,8 @@ import PartyGlance from './PartyGlance';
 import QuickCaptureBar from './QuickCaptureBar';
 import ReadAloud from './ReadAloud';
 import UtilityDock from './UtilityDock';
+import { NPC_ICONS, combatantIcon } from './combatantIcons';
+import { combatantFromMember, combatantIdForMember } from '../../domain/partyCombat';
 import './session.css';
 
 interface RunWorkspaceProps {
@@ -61,43 +51,6 @@ interface RunWorkspaceProps {
 
 const PACING_PHASES = ['Setup', 'Develop', 'Peak', 'Resolve'] as const;
 const pacingPhase = (pacing: number) => PACING_PHASES[Math.min(3, Math.max(0, pacing - 1))];
-
-// Per-entity icons: give each combatant/NPC a distinct glyph instead of one shared shield.
-const COMBATANT_ICONS: Array<[RegExp, Icon]> = [
-  [/spider|insect|swarm|vermin|beetle/, Bug],
-  [/undead|skelet|zombie|wraith|ghost|lich/, Skull],
-  [/wolf|worg|hound|\bdog\b|beast|bear|boar|feral|ferocious/, PawPrint],
-  [/shaman|mage|wizard|warlock|sorcer|spellcast|caster|cleric|priest|witch|druid/, MagicWand],
-  [/archer|ranged|\bbow\b|hunter|sniper/, Crosshair],
-  [/dragon|drake|wyrm|flame|\bfire\b|elemental/, Flame],
-  [/goblin|kobold|\borc\b|minion|grunt|bandit|soldier|melee|brute|thug/, Sword],
-];
-export const combatantIcon = (name: string, detail?: string): Icon => {
-  const haystack = `${name} ${detail ?? ''}`.toLowerCase();
-  return COMBATANT_ICONS.find(([pattern]) => pattern.test(haystack))?.[1] ?? ShieldChevron;
-};
-// No portrait data available, so vary the NPC glyph deterministically by position.
-export const NPC_ICONS: Icon[] = [UserCircle, User, UserFocus, UsersThree];
-
-// Map a roster PC to an encounter combatant so the party auto-populates Combat (no re-keying).
-export const combatantIdForMember = (memberId: string): string => `pc-${memberId}`;
-export const combatantFromMember = (member: PartyMember): EncounterCombatant => {
-  const maxHp = member.maxHp ?? member.hp ?? 10;
-  return {
-    id: combatantIdForMember(member.id),
-    name: member.name,
-    detail: member.playerName ?? 'Player character',
-    initiative: member.initMod ?? 0,
-    tieBreaker: member.initMod ?? 0,
-    // No stored init modifier means the roll is unknown — flag it so the tracker shows "—" until the DM sets it.
-    initiativeUnset: member.initMod === undefined ? true : undefined,
-    hp: member.hp ?? maxHp,
-    maxHp,
-    tempHp: 0,
-    conditions: [],
-    ac: member.ac,
-  };
-};
 
 // Click the initiative number to type the rolled value; commits on blur / Enter (caller re-sorts).
 // Unset (roster PC not yet rolled) renders as a dashed "—" so it never reads as a real 0.

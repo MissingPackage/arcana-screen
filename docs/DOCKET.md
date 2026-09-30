@@ -24,20 +24,6 @@ dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
   una passata di copertura (quanti hanno override `.dark-theme`, quanti sono
   su superfici che cambiano tema), poi token per quelli veri.
 
-- D35 [2026-09-30] [design] **Al telefono Dice e Timer sono in fondo allo
-  scroll.** Costo misurato del ruling D27: a 390×844 il dock comincia fra 1842 e
-  2199px (2–2.6 schermate), a 768×1024 fra 1517 e 1773px. La spec (*Run
-  composition*) li vuole "immediately available in the bottom dock in every
-  Focus"; il prototipo di riferimento li mette in fondo al flusso, come ora. Un
-  dock sticky intero è alto 285px (un terzo dello schermo), quindi non è la
-  risposta. Leva: una riga compatta fissa in basso (Roll e timer, con le opzioni
-  espandibili) sotto gli 820px. Tiene *Responsive* a `partial`. Specchio dello
-  stesso problema: il Focus selector sta in cima alla colonna e il dock in
-  fondo, a ~2000px l'uno dall'altro. Visto sul percorso a 390px: il pannello
-  *Review captures* è `position: fixed; bottom: 91px`, pensato per un dock
-  fissato in basso; ora galleggia sopra capture e dock (non modale, Close in
-  vista, quindi non blocca), e il suo pulsante "Star" va a capo in "St / ar".
-
 - D32 [2026-09-25 → 2026-09-25] [bug/trust] **Falso "Save issue" dopo un
   reload senza Screen.** FirstRun persiste `{ screens: [] }`; il validatore di
   `safeStorage` esigeva almeno uno Screen, quindi aprire l'app e ricaricare
@@ -105,7 +91,8 @@ dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
   introdotto da D24 e quindi non assorbito nella slice (residue-routing). Da
   chiudere in due modi possibili: restringere la dicitura della cella come si è
   fatto per i 44px, oppure irrobustire la prova a 320px e tenere la dicitura.
-  Trovato dal loop-verifier.
+  Trovato dal loop-verifier. Visto il 2026-09-30 a 320px: nel
+  Focus selector "Exploration" va a capo a metà parola ("Explorati / on").
 
 - D25 [2026-08-13] [ci/ops] **Trappola d'ambiente, misurata: la matrice
   `@critical` completa dentro un solo container Playwright dà falsi rossi.**
@@ -127,6 +114,23 @@ dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
   ignoto e nessun consumatore.
 
 ## Chiusi
+
+- D35 [2026-09-30 → 2026-09-30] [design] **RULING preso dal loop, corretto:
+  sotto gli 820px il dock è una barra di una riga fissata in basso.** Roll con
+  la formula (es. `d20+1`), risultato, tempo e Start/Pause restano sempre in
+  vista; dado, modificatore, opzioni, Oracle, contatore e Set time si aprono
+  con "Tools", come il mini-player di un'app musicale. Aperto, il dock si
+  ferma al 45% dell'altezza e scorre dentro, con i pannelli delle opzioni nel
+  suo flusso. Misura: distanza di scroll da Roll e Start a 390×844 **da
+  1842–2199px a 0**; barra alta **61px** (7% di 844) da 320 a 820px, senza
+  overflow orizzontale. Scartati sui numeri: dock intero fisso (285px, un terzo
+  dello schermo) e dock compatto su due righe (~115px). L'e2e di
+  raggiungibilità ora controlla anche che Roll e Start siano in vista a inizio
+  pagina, e ogni Focus con la barra aperta. Sul percorso: i pulsanti di
+  *Review captures* vanno a capo invece di spezzarsi ("St / ar"), "Delete
+  capture" usa `--as-danger-ink`, e le funzioni non-componente di
+  `RunWorkspace.tsx` sono passate in `combatantIcons.ts` e
+  `domain/partyCombat.ts` (lint da 4 warning a 0).
 
 - D27 [2026-08-13 → 2026-09-30] [bug/responsive] **RULING preso dal loop,
   corretto: sotto gli 820px il Run è una colonna che scorre.** Il ruling non

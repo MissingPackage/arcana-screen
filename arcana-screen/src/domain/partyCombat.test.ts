@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { addCombatant, type EncounterState } from './encounterModel';
 import { createPartyMember } from './partyModel';
-import { combatantFromMember, combatantIdForMember } from '../components/session/RunWorkspace';
+import { combatantFromMember, combatantIdForMember } from './partyCombat';
 
 const emptyEncounter: EncounterState = { round: 1, currentIndex: null, combatants: [] };
 

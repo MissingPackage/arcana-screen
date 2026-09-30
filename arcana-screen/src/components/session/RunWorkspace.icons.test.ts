@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Bug, Crosshair, Flame, MagicWand, PawPrint, ShieldChevron, Skull, Sword } from '@phosphor-icons/react';
-import { combatantIcon, NPC_ICONS } from './RunWorkspace';
+import { combatantIcon, NPC_ICONS } from './combatantIcons';
 
 describe('combatantIcon', () => {
   it.each([

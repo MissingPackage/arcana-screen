@@ -10,3 +10,6 @@
 2026-09-30 D27 Run sotto 820px: shell Run non più bloccato a 100dvh (scorre il documento, come spec e prototipo), stepper dadi flex-shrink 0, dock a capo.
   Risultato: controlli irraggiungibili 71 (desktop) / 79 (mobile) -> 0 su 4 Focus + editor x 390/768/820; axe 4.13 verde su 3 progetti, guardia mobile tolta. Emersi 2 colori dark sotto AA (D36).
   Verdetto: keep. Costo misurato: dock a 1842-2199px di scroll a 390 (D35).
+2026-09-30 D35 dock al telefono: barra mini-player fissa (Roll+formula, risultato, tempo, Start, Tools), aperta max 45dvh con pannelli nel flusso.
+  Risultato: scroll per Roll/Start a 390x844 da 1842-2199px a 0; barra 61px da 320 a 820, overflow 0. Scartati: dock intero fisso 285px, due righe ~115px.
+  Verdetto: keep. e2e: Roll/Start in vista a inizio pagina + raggiungibilità a dock aperto. Lint 4 -> 0 warning sul percorso.
