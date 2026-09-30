@@ -563,7 +563,7 @@ test("@critical shows eight combatants at once in compact density on a table dev
   await page.getByRole("button", { name: "Add", exact: true }).click();
   await page.getByRole("button", { name: "Done" }).click();
 
-  const visible = await page.evaluate(() => {
+  const visible = () => page.evaluate(() => {
     const list = document.querySelector(".combatant-list")!.getBoundingClientRect();
     const rows = [...document.querySelectorAll(".combatant-list > article")];
     return {
@@ -574,7 +574,13 @@ test("@critical shows eight combatants at once in compact density on a table dev
       }).length,
     };
   });
-  expect(visible).toEqual({ rows: 8, whole: 8 });
+  expect(await visible()).toEqual({ rows: 8, whole: 8 });
+  // A 1024px tablet-width window: below 1100px the condition chips used to take a
+  // second row, so a conditioned combatant was 58px tall and only 7 of 8 fit (D40).
+  if (!touch) {
+    await page.setViewportSize({ width: 1024, height: 768 });
+    expect(await visible(), "1024x768").toEqual({ rows: 8, whole: 8 });
+  }
 });
 
 test("@critical provides keyboard alternatives for structural reordering", async ({
