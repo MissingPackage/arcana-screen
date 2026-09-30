@@ -66,7 +66,7 @@ arcana-screen/                      # repo root (README, LICENSE, ROADMAP.md, CH
 | Drag & drop | react-dnd | ^16.0.1 (legacy Prepare grid only) |
 | Toasts | react-hot-toast | ^2.6.0 |
 | Unit/component tests | Vitest + Testing Library | ^5.0.0 |
-| E2E / a11y | @playwright/test + @axe-core/playwright | ^1.63 / ^4.12 (4.13 held until D27 is fixed) |
+| E2E / a11y | @playwright/test + @axe-core/playwright | ^1.63 / ^4.13 |
 
 ## Development commands (run from the app dir)
 

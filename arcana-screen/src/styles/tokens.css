@@ -63,6 +63,7 @@
   --as-ink: #122b49;           /* primary text + headings */
   --as-ink-muted: #586678;     /* labels, meta, secondary */
   --as-ink-soft: #425971;      /* long-form notebook body */
+  --as-ink-warm: #76603f;      /* timestamps in logs; >=5:1 on every parchment */
 
   /* ---- Lines (structure lives here, not in shadow) ---- */
   --as-line: #ddd4c3;          /* thin separators */
@@ -72,6 +73,7 @@
   --as-success: #16893f;       /* healthy HP, saved, kept */
   --as-success-ink: #146c33;   /* success text on paper */
   --as-danger: #8a3d38;        /* remove, critical, destructive */
+  --as-danger-ink: #8a3d38;    /* danger text; --as-danger stays a fill under white text */
   --as-warning: #9a5a0f;       /* bloodied (HP < half) text */
   --as-warning-bar: #b5651d;   /* bloodied HP bar fill */
   --as-turn: #f6d783;          /* "TURN" tag — a soft echo of the marker */
@@ -128,12 +130,14 @@ html:has(body.dark-theme) {
   --as-ink: #f5ead2;
   --as-ink-muted: #a9b8c6;
   --as-ink-soft: #cdd8e2;
+  --as-ink-warm: #c4a574;      /* >=5.8:1 on every dark surface */
 
   --as-line: #34495d;
   --as-line-strong: #536779;
 
   --as-gold-ink: #f0c463;        /* eyebrows must lift off dark paper */
   --as-success-ink: #7fd39b;
+  --as-danger-ink: #dba39d;
 }
 
 /* ============================================================
