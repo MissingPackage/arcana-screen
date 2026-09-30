@@ -98,11 +98,12 @@ export const reorderTiedCombatant = (
 export const QUICK_CONDITIONS = ['Prone', 'Poisoned', 'Concentration', 'Stunned', 'Restrained'] as const;
 export type QuickCondition = (typeof QUICK_CONDITIONS)[number];
 
-// What each one-tap condition does, paraphrased from the 2024 Basic Rules (SRD 5.2).
+// What each one-tap condition does, paraphrased from the 2024 Free Rules glossary
+// (checked against the text on 2026-09-30).
 // The Combat Quick Reference reads this list, so it always explains exactly the
 // conditions the DM can toggle beside it (it used to list five different ones).
 export const QUICK_CONDITION_RULES: Record<QuickCondition, string> = {
-  Prone: 'Its attacks have disadvantage; attacks from within 5 ft have advantage.',
+  Prone: 'Its attacks have disadvantage; attacks against it have advantage within 5 ft, disadvantage beyond.',
   Poisoned: 'Disadvantage on attack rolls and ability checks.',
   Concentration: 'Damage forces a Con save: DC 10 or half the damage, whichever is higher.',
   Stunned: 'Incapacitated; fails Str and Dex saves; attacks against it have advantage.',
