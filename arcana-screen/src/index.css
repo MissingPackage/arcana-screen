@@ -461,7 +461,7 @@
    button.screen-mode__button[aria-pressed="true"] {
      background: var(--arcane-blue);
      color: var(--parchment-white);
-     box-shadow: 0 1px 3px rgba(28, 37, 65, 0.2);
+     box-shadow: var(--as-state-mark), 0 1px 3px rgba(28, 37, 65, 0.2);
    }
 
    .screen-mode__status {
@@ -814,6 +814,11 @@
    .arcana-header button.screen-mode__button[aria-pressed='true'] {
      color: var(--as-gold-contrast);
      background: #f5cf72;
+     /* Not --as-state-mark: an edge bar in navy merges with the navy frame of the
+        segmented control and reads as a shorter segment, not as a mark. */
+     box-shadow: none;
+     text-decoration: underline 2px;
+     text-underline-offset: 4px;
    }
 
    /* The dark-theme base rule above (body.dark-theme … .screen-mode__button,
@@ -2094,6 +2099,7 @@ body.dark-theme .tool-error {
   border-color: var(--accent);
   background: color-mix(in srgb, var(--accent) 16%, var(--surface));
   color: var(--accent);
+  box-shadow: var(--as-state-mark);
 }
 
 .dice-roller__controls {

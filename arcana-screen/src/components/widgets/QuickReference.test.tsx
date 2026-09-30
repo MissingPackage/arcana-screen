@@ -32,8 +32,10 @@ describe('QuickReference', () => {
     expect(screen.getByRole('link', { name: 'Rules' })).toHaveAttribute('href', 'https://example.com/rules');
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Pin Rules' }));
-    expect(screen.getByRole('link', { name: '★ Rules' })).toBeInTheDocument();
+    const pin = screen.getByRole('button', { name: 'Pin Rules' });
+    expect(pin).toHaveAttribute('aria-pressed', 'false');
+    await user.click(pin);
+    expect(pin).toHaveAttribute('aria-pressed', 'true');
     await user.type(screen.getByLabelText('Reference pack name'), 'Core rules');
     await user.click(screen.getByRole('button', { name: 'Save current links' }));
     expect(useEvolutionStore.getState().referencePacks[0].name).toBe('Core rules');

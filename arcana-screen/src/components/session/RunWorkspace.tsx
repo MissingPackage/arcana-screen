@@ -217,7 +217,7 @@ function NarrativeNotebook({ workspace, onWorkspaceChange }: Pick<RunWorkspacePr
           <div className="notebook-scene"><span>Current scene</span><h3>{notebook.sceneTitle}</h3></div>
           <section><h4>Scene setup</h4><p>{notebook.sections[0]?.body}</p></section>
           <section><h4>Characters present</h4><ul>{notebook.sections[1]?.items.map((item) => <li key={item}>{item}</li>)}</ul></section>
-          <section className="beats-to-hit"><h4>Beats to hit</h4>{narrative.beats.map((beat, index) => <button key={beat.id} type="button" onClick={() => toggleBeat(beat.id)} className={index + 1 === narrative.currentBeat ? 'is-current' : ''}><span aria-hidden="true">{beat.completed ? '✓' : index + 1}</span><p><strong>{beat.title}</strong><small>{beat.detail}</small></p></button>)}</section>
+          <section className="beats-to-hit"><h4>Beats to hit</h4>{narrative.beats.map((beat, index) => <button key={beat.id} type="button" aria-pressed={beat.completed} aria-current={index + 1 === narrative.currentBeat ? 'step' : undefined} onClick={() => toggleBeat(beat.id)} className={index + 1 === narrative.currentBeat ? 'is-current' : ''}><span aria-hidden="true">{beat.completed ? <Check size={14} weight="bold" /> : index + 1}</span><p><strong>{beat.title}</strong><small>{beat.detail}</small></p></button>)}</section>
           <section><h4>Reveals & callbacks</h4><ul>{notebook.sections[2]?.items.map((item) => <li key={item}>{item}</li>)}</ul></section>
         </div>
         <aside className="margin-notes" aria-label="Notebook margin notes">
@@ -252,14 +252,18 @@ function NarrativeView({ workspace, onWorkspaceChange }: Pick<RunWorkspaceProps,
     <div className="focus-layout narrative-layout">
       <aside className="notebook-outline" aria-label="Notebook outline">
         <span className="eyebrow">Notebook outline</span>
-        {['Scene setup', 'Characters', 'Beats', 'Reveals', 'Aftermath'].map((label, index) => (
+        {['Scene setup', 'Characters', 'Beats', 'Reveals', 'Aftermath'].map((label, index) => {
+          const isCurrent = narrative.currentSection === label.toLowerCase().replace(' ', '-') || (index === 0 && narrative.currentSection === 'setup');
+          return (
           <button
             key={label}
             type="button"
-            className={narrative.currentSection === label.toLowerCase().replace(' ', '-') || (index === 0 && narrative.currentSection === 'setup') ? 'is-active' : ''}
+            aria-current={isCurrent ? 'location' : undefined}
+            className={isCurrent ? 'is-active' : ''}
             onClick={() => onWorkspaceChange({ ...workspace, contexts: { ...workspace.contexts, narrative: { ...narrative, currentSection: index === 0 ? 'setup' : label.toLowerCase().replace(' ', '-') } } })}
           >{label}</button>
-        ))}
+          );
+        })}
       </aside>
       <NarrativeNotebook workspace={workspace} onWorkspaceChange={onWorkspaceChange} />
       {narrative.drawerOpen && (
@@ -376,7 +380,7 @@ function SocialView({ workspace, onWorkspaceChange }: Pick<RunWorkspaceProps, 'w
                   <p>{npc.role}{npc.id.startsWith('npc-') && <button type="button" className="npc-reroll" aria-label={`Re-roll ${npc.name}`} title="Re-roll this improvised NPC" onClick={() => rerollNpc(npc.id)}><ArrowsClockwise size={11} /></button>}</p>
                 </div>
                 <div className="npc-actions">
-                  <button type="button" onClick={() => cycleAttitude(npc.id)}>{npc.attitude}</button>
+                  <button type="button" aria-label={`${npc.attitude}, change ${npc.name}'s attitude`} onClick={() => cycleAttitude(npc.id)}>{npc.attitude}</button>
                   <button type="button" className="npc-remove" aria-label={pendingRemove === npc.id ? `Confirm removing ${npc.name}` : `Remove ${npc.name} from the scene`} onClick={() => removeNpc(npc.id)}>{pendingRemove === npc.id ? 'Remove?' : <X size={13} />}</button>
                 </div>
                 <dl><div><dt>Wants</dt><dd>{npc.motive}</dd></div><div><dt>Secret</dt><dd>{npc.secret}</dd></div></dl>
@@ -436,7 +440,7 @@ function ExplorationView({ workspace, onWorkspaceChange }: Pick<RunWorkspaceProp
         <span className="eyebrow">Session flow</span>
         <h2>Moments</h2>
         {exploration.moments.map((moment, index) => (
-          <button key={moment.id} type="button" className={`flow-moment is-${moment.status}`} onClick={() => onWorkspaceChange(selectExplorationMoment(workspace, moment.id))}>
+          <button key={moment.id} type="button" aria-current={moment.status === 'active' ? 'step' : undefined} className={`flow-moment is-${moment.status}`} onClick={() => onWorkspaceChange(selectExplorationMoment(workspace, moment.id))}>
             <span>{index + 1}</span><div><strong>{moment.title}</strong><small>{moment.status}</small></div>
           </button>
         ))}
@@ -650,7 +654,7 @@ function CombatView({
                 <span className="add-note" aria-live="polite">{addedNote}</span>
               </form>
             ) : (
-              <button type="button" className="encounter-add__toggle" onClick={() => setAddOpen(true)}><Plus size={13} /> Add combatant</button>
+              <button type="button" className="encounter-add__toggle" aria-expanded={false} onClick={() => setAddOpen(true)}><Plus size={13} /> Add combatant</button>
             )}
           </div>
         )}

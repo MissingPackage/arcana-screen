@@ -59,6 +59,37 @@ describe('RunWorkspace', () => {
     expect(screen.getByRole('link', { name: /Monster Manual/ })).toHaveAttribute('href', 'https://www.dndbeyond.com/sources/dnd/free-rules');
   });
 
+  it('exposes beat, section, moment and attitude state without relying on colour', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'narrative';
+    const { unmount } = render(<StatefulRun initial={workspace} />);
+
+    const beats = within(screen.getByRole('heading', { name: 'Beats to hit' }).closest('section')!).getAllByRole('button');
+    const first = workspace.contexts.narrative.beats[0];
+    expect(beats[0]).toHaveAttribute('aria-pressed', String(first.completed));
+    expect(beats.filter((beat) => beat.getAttribute('aria-current') === 'step')).toHaveLength(1);
+    await user.click(beats[0]);
+    expect(beats[0]).toHaveAttribute('aria-pressed', String(!first.completed));
+
+    const outline = screen.getByRole('complementary', { name: 'Notebook outline' });
+    expect(within(outline).getAllByRole('button').filter((item) => item.getAttribute('aria-current') === 'location')).toHaveLength(1);
+    unmount();
+
+    const exploration = createDefaultFocusWorkspace();
+    exploration.currentFocus = 'exploration';
+    const { unmount: unmountExploration } = render(<StatefulRun initial={exploration} />);
+    expect(document.querySelectorAll('.flow-moment[aria-current="step"]')).toHaveLength(1);
+    unmountExploration();
+
+    const social = createDefaultFocusWorkspace();
+    social.currentFocus = 'social';
+    render(<StatefulRun initial={social} />);
+    const npc = social.contexts.social.npcs[0];
+    await user.click(screen.getByRole('button', { name: `${npc.attitude}, change ${npc.name}'s attitude` }));
+    expect(screen.queryByRole('button', { name: `${npc.attitude}, change ${npc.name}'s attitude` })).not.toBeInTheDocument();
+  });
+
   it('offers read-aloud prose in the Social Focus too', async () => {
     const user = userEvent.setup();
     const workspace = createDefaultFocusWorkspace();

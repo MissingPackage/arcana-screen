@@ -1,6 +1,6 @@
 # CLAUDE.md — AI Assistant Guide for ArcanaScreen
 
-Guidance for AI assistants working on ArcanaScreen. Last verified: 2026-07-14.
+Guidance for AI assistants working on ArcanaScreen. Last verified: 2026-09-25.
 
 ## Project Overview
 
@@ -56,17 +56,17 @@ arcana-screen/                      # repo root (README, LICENSE, ROADMAP.md, CH
 
 | Category | Tech | Version |
 |----------|------|---------|
-| Framework | React | ^19.0.0 |
-| Language | TypeScript | ~5.7.2 |
-| Build | Vite | ^6.3.1 |
-| State | Zustand | ^5.0.3 |
+| Framework | React | ^19.3.0 |
+| Language | TypeScript | ~5.9.3 (7.x held: typescript-eslint peer) |
+| Build | Vite | ^8.3.0 (rolldown) |
+| State | Zustand | ^5.0.15 |
 | CSS | TailwindCSS (v4) | ^4.1.4 |
 | Icons | @phosphor-icons/react | ^2.1.10 |
 | Fonts | @fontsource (Cinzel, Work Sans) | ^5.x |
 | Drag & drop | react-dnd | ^16.0.1 (legacy Prepare grid only) |
-| Toasts | react-hot-toast | ^2.5.2 |
-| Unit/component tests | Vitest + Testing Library | ^4.1.10 |
-| E2E / a11y | @playwright/test + @axe-core/playwright | ^1.61 / ^4.12 |
+| Toasts | react-hot-toast | ^2.6.0 |
+| Unit/component tests | Vitest + Testing Library | ^5.0.0 |
+| E2E / a11y | @playwright/test + @axe-core/playwright | ^1.63 / ^4.12 (4.13 held until D27 is fixed) |
 
 ## Development commands (run from the app dir)
 
@@ -74,14 +74,14 @@ arcana-screen/                      # repo root (README, LICENSE, ROADMAP.md, CH
 npm run dev               # Vite dev server (HMR)
 npm run build             # tsc -b && vite build
 npm run lint              # eslint
-npm test                  # vitest run (unit/component) — currently 136 tests
+npm test                  # vitest run (unit/component) — currently 147 tests
 npm run test:ci           # build + lint + test + check:budget   ← does NOT run e2e
 npm run test:e2e:critical # Playwright @critical suite (browsers + axe)  ← run this for browser/a11y
 npm run check:budget      # per-file asset budget: 560 KiB per JS chunk / 130 KiB CSS (vendors split via manualChunks)
 npm run preview           # serve the production build (used by Playwright webServer on :4173)
 ```
 
-**Testing reality (verified 2026-07-16):** `test:ci` runs unit only. Browser flows, responsive, and **axe accessibility/contrast** are only covered by `test:e2e:critical`. Always run the Playwright suite after visual/CSS changes - unit tests will not catch contrast/a11y regressions. Real state: 136/136 unit green; e2e **37 pass + 3 skip on the full matrix, WebKit included** (the historical WebKit failures were a real cross-browser bug - `upgrade-insecure-requests` in the CSP meta - fixed 2026-07-16, see docs/verification/2026-07-16-webkit-gate.md). On hosts without WebKit system deps the webkit lane needs `sudo npx playwright install-deps webkit` first.
+**Testing reality (verified 2026-07-16):** `test:ci` runs unit only. Browser flows, responsive, and **axe accessibility/contrast** are only covered by `test:e2e:critical`. Always run the Playwright suite after visual/CSS changes - unit tests will not catch contrast/a11y regressions. Real state (2026-09-25): 147/147 unit green; e2e **37 pass + 3 skip on the full matrix, WebKit included** (the historical WebKit failures were a real cross-browser bug - `upgrade-insecure-requests` in the CSP meta - fixed 2026-07-16, see docs/verification/2026-07-16-webkit-gate.md). On hosts without WebKit system deps the webkit lane needs `sudo npx playwright install-deps webkit` first.
 
 ## State management (Zustand, localStorage-persisted)
 
@@ -100,7 +100,7 @@ npm run preview           # serve the production build (used by Playwright webSe
 
 ## Design system
 
-The intended language (both modes should share it): deep-navy header/dock (`#061f36`), warm parchment plane (`#fbf7ee`), muted gold (`#e5ad32`) reserved for active/primary state, **Cinzel** for headings + **Work Sans** for body (bundled via `@fontsource`, CSP-safe), Phosphor outline icons (no emoji), thin borders, ~8px radii, minimal shadow, state signalled by text/shape/position not only colour. Tokens: **`src/styles/tokens.css`** is the canonical layer (ported 2026-07-16 from the Claude Design project "Arcana Screen Dungeon Master": colors incl. `.dark-theme`, typography, spacing/radii, elevation, motion, all `--as-*`); `session.css` and `index.css` consume it — `index.css` legacy names (`--ink`, `--ink-muted`, `--line`, …) are aliases onto `--as-*`. Alias gotcha: a `var()` inside a custom property substitutes where it is **declared**, so theme-dependent aliases must be re-declared under `body.dark-theme` (see index.css). **Muted text is `#586678`** (do not lighten below WCAG AA 4.5:1 on parchment).
+The intended language (both modes should share it): deep-navy header/dock (`#061f36`), warm parchment plane (`#fbf7ee`), muted gold (`#e5ad32`) reserved for active/primary state, **Cinzel** for headings + **Work Sans** for body (bundled via `@fontsource`, CSP-safe), Phosphor outline icons (no emoji), thin borders, ~8px radii, minimal shadow, state signalled by text/shape/position not only colour (enforced by `src/styles/stateCues.test.ts`; shared cue token `--as-state-mark`). Tokens: **`src/styles/tokens.css`** is the canonical layer (ported 2026-07-16 from the Claude Design project "Arcana Screen Dungeon Master": colors incl. `.dark-theme`, typography, spacing/radii, elevation, motion, all `--as-*`); `session.css` and `index.css` consume it — `index.css` legacy names (`--ink`, `--ink-muted`, `--line`, …) are aliases onto `--as-*`. Alias gotcha: a `var()` inside a custom property substitutes where it is **declared**, so theme-dependent aliases must be re-declared under `body.dark-theme` (see index.css). **Muted text is `#586678`** (do not lighten below WCAG AA 4.5:1 on parchment).
 
 ## Adding a tool/widget
 

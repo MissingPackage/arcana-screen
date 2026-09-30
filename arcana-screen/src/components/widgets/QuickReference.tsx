@@ -1,4 +1,5 @@
 import { memo, useEffect, useState, type FormEvent } from 'react';
+import { PushPin } from '@phosphor-icons/react';
 import { useWidgetStore, type ReferenceLink } from '../../store/useWidgetStore';
 import { useEvolutionStore } from '../../store/useEvolutionStore';
 
@@ -104,16 +105,17 @@ function QuickReference({ id }: QuickReferenceProps) {
                     : item),
                 })}
               >
-                {link.pinned ? '★ ' : ''}{link.label}
+                {link.pinned && <PushPin size={12} weight="fill" aria-hidden="true" />}{link.label}
               </a>
               <button
                 type="button"
-                aria-label={`${link.pinned ? 'Unpin' : 'Pin'} ${link.label}`}
+                aria-label={`Pin ${link.label}`}
+                aria-pressed={Boolean(link.pinned)}
                 onClick={() => updateWidget(id, {
                   referenceLinks: links.map((item) => item.id === link.id ? { ...item, pinned: !item.pinned } : item),
                 })}
               >
-                {link.pinned ? 'Unpin' : 'Pin'}
+                <PushPin size={12} weight={link.pinned ? 'fill' : 'regular'} aria-hidden="true" /> Pin
               </button>
               <button type="button" aria-label={`Remove ${link.label}`} onClick={() => updateWidget(id, { referenceLinks: links.filter((item) => item.id !== link.id) })}>Remove</button>
             </li>

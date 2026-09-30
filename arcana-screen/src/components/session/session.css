@@ -346,7 +346,7 @@
    its own size and resting style above. */
 .arcana-session .oracle-likelihoods button[aria-pressed='true'],
 .arcana-session .dice-options > div button[aria-pressed='true'],
-.combat-live-editor button.condition-toggle[aria-pressed='true'] { color: #fff !important; background: var(--as-navy-soft) !important; border-color: var(--as-navy-soft) !important; }
+.combat-live-editor button.condition-toggle[aria-pressed='true'] { color: #fff !important; background: var(--as-navy-soft) !important; border-color: var(--as-navy-soft) !important; box-shadow: var(--as-state-mark); }
 .oracle-answer { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 14px; }
 .oracle-answer strong { font-family: var(--as-font-display); font-size: 19px; }
 .oracle-answer strong.is-yes { color: var(--as-success-ink); }
@@ -447,7 +447,7 @@
 .pacing-step__label { color: var(--as-ink-muted); font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
 .pacing-step.is-done .pacing-step__num { border-color: var(--as-gold); color: var(--as-ink); }
 .pacing-step.is-current .pacing-step__num { background: var(--as-gold); border-color: var(--as-gold-strong); color: var(--as-navy); }
-.pacing-step.is-current .pacing-step__label { color: var(--as-ink); }
+.pacing-step.is-current .pacing-step__label { color: var(--as-ink); text-decoration: underline 2px; text-underline-offset: 3px; }
 .pacing-caption { margin: 8px 0 0; color: var(--as-ink-muted); font-size: 11px; font-style: italic; text-align: center; }
 body.dark-theme .pacing-step__num { background: #102237; border-color: #6d7e8e; }
 body.dark-theme .pacing-step.is-current .pacing-step__num { background: var(--as-gold); color: var(--as-navy); }
@@ -511,7 +511,7 @@ body.dark-theme .pacing-step.is-current .pacing-step__num { background: var(--as
 .combatant-list article.is-active { border: 1px solid var(--as-gold-strong); border-radius: 6px; background: var(--as-gold-wash); }
 .initiative-score { font-size: 25px; }
 .combatant-identity { display: flex !important; width: 100%; min-width: 0; align-items: center; gap: 10px; text-align: left; }
-.combatant-identity[aria-pressed='true'] { color: var(--as-gold-ink) !important; }
+.combatant-identity[aria-pressed='true'] { color: var(--as-gold-ink) !important; box-shadow: var(--as-state-mark-row); }
 .combatant-identity > span { display: grid; width: 36px; height: 36px; flex: 0 0 auto; place-items: center; border: 1px solid #a6977d; border-radius: 50%; }
 .combatant-identity p { display: flex; min-width: 0; flex-direction: column; margin: 0; }
 .combatant-identity p strong { font-size: 13px; }

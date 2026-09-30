@@ -1,6 +1,6 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-09-25, iterazione 21 (stabilizzazione su richiesta
+Aggiornato: 2026-09-25, iterazione 22 (D29 chiuso, PR in attesa di merge). Iterazione 21 (stabilizzazione su richiesta
 dell'utente: tutte le PR aperte chiuse, gate di sicurezza sbloccato, toolchain
 portata avanti, un falso allarme di salvataggio corretto). Iterazioni: 21
 (D31/D32/D33), 20 (diagnosi D27), 19 (D27/D28/D29/D30, PR #104), 18 (D24/D25,
@@ -72,9 +72,8 @@ Stato al 2026-09-25, dopo l'iterazione 21.
    scorre, o resta viewport-locked e ogni pannello scorre al proprio interno.
    Ora costa anche il gate: axe 4.13 lo rileva, quindi axe resta a 4.12 finché
    non c'è la fix. La matrice di accettazione segna *Responsive* `red`.
-2. **D29 — "lo stato non è mai solo colore"** (11 siti, worklist nel docket).
-   È la slice sostanziale che non dipende da una tua decisione: la prende la
-   prossima iterazione.
+2. **D29 fatto**, PR aperta dal branch `fix/state-not-only-colour` (in attesa
+   del tuo merge). La prossima slice libera è il punto 4, react-hooks 7.
 3. **D33 — header del Run a 390px**, "Search"/"Edit party" sopra lo switcher.
    Da diagnosticare insieme a D27 (stessa shell).
 4. Leva di qualità: **eslint-plugin-react-hooks 7** segnala ~10 difetti veri
