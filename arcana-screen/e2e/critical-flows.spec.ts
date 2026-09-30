@@ -240,7 +240,11 @@ test("@critical supports keyboard skip navigation and reflows at 320px", async (
         outside,
       };
     });
-  const summaries = page.locator(".arcana-header details > summary");
+  // Top-level panels only: WebKit reports the summary of a <details> nested in a
+  // closed panel as visible, so clicking it hits the header instead.
+  const summaries = page.locator(
+    ".arcana-header details:not(details details) > summary",
+  );
   for (const mode of ["Prepare", "Run"]) {
     await page.getByRole("button", { name: mode, exact: true }).click();
     expect(await offScreen(), `${mode}, panels closed`).toEqual({ scroll: 0, outside: [] });
@@ -248,6 +252,12 @@ test("@critical supports keyboard skip navigation and reflows at 320px", async (
       const summary = summaries.nth(index);
       if (!(await summary.isVisible())) continue;
       await summary.click();
+      // Nested disclosures (Appearance & language in Help) hold the settings rows.
+      await page.evaluate(() =>
+        document.querySelectorAll("details[open] details").forEach((details) => {
+          (details as HTMLDetailsElement).open = true;
+        }),
+      );
       expect(
         await offScreen(),
         `${mode}, ${(await summary.getAttribute("aria-label")) ?? (await summary.textContent())} open`,
