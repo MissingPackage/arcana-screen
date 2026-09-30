@@ -73,6 +73,17 @@ dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
 
 ## Chiusi
 
+- D37 [2026-09-30 → 2026-09-30] [bug/ux] **I toast coprivano l'interruttore
+  Prepare/Run.** Trovato dal nuovo e2e del ciclo di vita su Firefox: dopo
+  "Create screen" il clic su Run andava in timeout perché il toast lo
+  intercettava. Misurato in Chromium e Firefox: a 1280px ogni toast (in alto al
+  centro, y 16–61) copriva il toggle (y 11–51), per 2–4s le conferme e **15s**
+  l'Undo dopo un'eliminazione; al telefono copriva la cima dell'header. Chromium
+  passava il test solo per tempi. Ora i toast stanno in basso al centro, sopra
+  il dock in Run (`--as-toast-offset`: 130px sopra gli 820px, 76px sotto). Costo
+  accettato: in Prepare un toast copre per qualche secondo i pulsanti della
+  cornice di un widget in basso, invece del controllo principale.
+
 - D28 [2026-08-13 → 2026-09-30] [design] **RULING preso dal loop, corretto:
   l'editor del combattente si apre subito sotto la riga toccata.** Era il P1 del
   DM (ledger iter. 18: Earlier/Later, HP e condizioni "lontani dalla riga

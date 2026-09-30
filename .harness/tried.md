@@ -22,3 +22,6 @@
 2026-09-30 D28 editor combattente: reso nella lista sotto la riga toccata (disclosure aria-expanded) + scrollIntoView nearest per la lista che scorre.
   Risultato: distanza riga->editor da 68-587px a 12-44px, editor in vista a ogni larghezza (a 390 prima fuori schermo). Scartati: editor fisso in cima, solo auto-scroll.
   Verdetto: keep. e2e nuovo (551px sul vecchio). Mappa ridisegnata: leve da matrice partial e ledger.
+2026-09-30 e2e ciclo di vita Screen: create/switch/Focus per screen/reload, rename/duplicate/delete/Undo/reload, Prepare/Run protetto e senza perdite.
+  Risultato: verdi su 3 progetti; mutazione (Undo inefficace) presa. Trovato D37: ogni toast copriva il toggle Prepare/Run a 1280 (15s per l'Undo); spostati in basso sopra il dock.
+  Verdetto: keep. Matrice 12 manual-pass / 5 partial / 5 green. Ricaduto nella trappola pkill+vite: store mutato ripristinato subito.

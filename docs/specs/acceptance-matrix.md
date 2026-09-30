@@ -4,9 +4,9 @@ Status values: `missing`, `red`, `partial`, `green`, `manual-pass`, `blocked`.
 
 | Capability                   | Unit                     | Component/integration                    | Browser                                                                  | Design QA                             | Current status |
 | ---------------------------- | ------------------------ | ---------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------- | -------------- |
-| Screen create/resume/switch  | green                    | green                                    | manual-pass create/resume/reload                                         | partial                               | partial        |
-| Rename/duplicate/delete/undo | green                    | green rename                             | manual-pass rename/duplicate/delete; Undo click open                     | partial                               | partial        |
-| Prepare/Run                  | green                    | green mode distinction                   | desktop manual-pass                                                      | manual-pass                           | partial        |
+| Screen create/resume/switch  | green                    | green                                    | green automated: create from two templates, switch, per-screen Focus, reload |  partial                              | partial        |
+| Rename/duplicate/delete/undo | green                    | green rename                             | green automated: rename, duplicate, delete, Undo, reload                 | partial                               | partial        |
+| Prepare/Run                  | green                    | green mode distinction                   | green automated: Run hides structure, round trip keeps Focus and capture | manual-pass                           | manual-pass    |
 | First run/templates          | green                    | green General/Combat/Blank               | manual-pass isolated clean origin                                        | manual-pass                           | manual-pass    |
 | Focus continuity             | green                    | green                                    | manual-pass including reload                                             | manual-pass against four sources      | manual-pass    |
 | Notebook persistence         | green widget/store       | green edit/format/autosave               | Focus/reload/promotion manual-pass                                       | manual-pass Narrative/Social          | manual-pass    |
@@ -57,7 +57,11 @@ da D33 (poi corretto). Il 2026-09-30 *Responsive* passa da `red` a
 corrente: **11 `manual-pass`, 7 `partial`, 4 `green`, 0 `red`**. Sempre il
 2026-09-30 *Responsive* passa a `green`: con D35 Dice e Timer stanno in una
 barra fissa di 61px, in vista senza scorrere, e l'e2e lo verifica. Valore
-corrente: **11 `manual-pass`, 6 `partial`, 5 `green`, 0 `red`**.
+corrente: **11 `manual-pass`, 6 `partial`, 5 `green`, 0 `red`**. Il 2026-09-30 le
+tre righe del ciclo di vita dello Screen hanno la cella *Browser* automatizzata
+(tre e2e `@critical`); *Prepare/Run* passa a `manual-pass` (il suo Design QA lo
+era già), le altre due restano `partial` per il Design QA. Valore corrente:
+**12 `manual-pass`, 5 `partial`, 5 `green`, 0 `red`**.
 
 Ciò che tiene ferme le righe `partial` non è quasi mai il codice:
 - *Screen create/resume*, *Rename/duplicate/delete*, *Prepare/Run* → il browser
