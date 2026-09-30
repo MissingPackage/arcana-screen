@@ -52,27 +52,6 @@ dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
   Nota ricorrente: **`test:ci` non è il gate CI**; l'audit gira solo in CI,
   quindi un verde locale non ha mai implicato un verde su GitHub.
 
-- D28 [2026-08-13] [design] **RULING preso dal loop: i toggle condizione stanno
-  nel live editor, non sulla riga.** Il §next-decidable chiedeva "sulla riga
-  combattente, riusando le `.condition-chips`". Motivo dello scostamento: i
-  controlli in-riga sono già stati provati e rimossi — alla iter. 15 erano
-  13×19px, sotto il minimo WCAG 2.5.8 di 24px, e alla iter. 18 il tie-reorder è
-  stato spostato nell'editor esattamente per questo; la riga in compact è ~38px
-  e non regge controlli da 24px. **Ciò che il ruling costa, detto per intero:**
-  l'editor è la stessa posizione contro cui il DM ha un P1 ancora aperto
-  (ledger iter. 18: "lontani dalla riga toccata, editor in fondo, fuori dallo
-  scroll"), quindi la slice sposta il gap in un punto già contestato. Misurato
-  in **entrambi** i contesti, perché danno numeri diversi e citarne uno solo
-  come "a 390px" è esattamente l'imprecisione che il verifier ha contestato: su
-  `chromium-mobile` (Pixel 5, 390×844) i toggle cadono a `top: 1026` in un
-  viewport da 844 e misurano **44×44px**; su un chromium nudo a 390×844,
-  `top: 966` e **41×26px**. In entrambi i casi su telefono non è "un tap", è
-  scorri-e-tap — ma sul device vero i target sono 44px, non 25,5. La chiusura
-  naturale è il P1 già a ledger —
-  **editor ancorato alla riga selezionata / pinnato in alto** — che vale sia
-  per i toggle sia per Earlier/Later. Non promosso a fatto compiuto: il DM
-  potrà bocciare la posizione.
-
 - D25 [2026-08-13] [ci/ops] **Trappola d'ambiente, misurata: la matrice
   `@critical` completa dentro un solo container Playwright dà falsi rossi.**
   Quattro progetti insieme (44 prove, 11 worker, un solo server `preview`) →
@@ -93,6 +72,22 @@ dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
   ignoto e nessun consumatore.
 
 ## Chiusi
+
+- D28 [2026-08-13 → 2026-09-30] [design] **RULING preso dal loop, corretto:
+  l'editor del combattente si apre subito sotto la riga toccata.** Era il P1 del
+  DM (ledger iter. 18: Earlier/Later, HP e condizioni "lontani dalla riga
+  toccata, editor in fondo, fuori dallo scroll"). L'editor ora è reso nella
+  lista, dopo la riga selezionata; il pulsante della riga è una disclosure
+  (`aria-expanded` + `aria-controls` invece di `aria-pressed`); su desktop la
+  lista scorre dentro il pannello, quindi l'editor si porta in vista con
+  `scrollIntoView({block: 'nearest'})`. Misura, distanza riga → editor: **da
+  68–587px a 12–44px** (il resto è la riga stessa), editor in vista a ogni
+  larghezza; a 390px prima era fuori schermo. Scartate: editor fisso in cima
+  al pannello (resta lontano dalle righe basse) e scroll automatico senza
+  spostarlo (sistema la vista, non la distanza). Nuovo e2e `@critical`: prima e
+  ultima riga a 1487 e 390px, editor in vista e a ≤16px; sul codice vecchio
+  551px. Sul percorso: a 390px la barretta di selezione copriva il nome (senza
+  icona) e ora ha spazio.
 
 - D26 [2026-08-13 → 2026-09-30] [a11y] **RULING preso dal loop: la prova di
   reflow va a 320px, e ha trovato due pannelli rotti.** Scelta fra restringere

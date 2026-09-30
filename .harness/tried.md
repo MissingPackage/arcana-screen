@@ -19,3 +19,6 @@
 2026-09-30 D26 reflow: prova portata da 640 a 320px con ogni pannello dell'header aperto, in Prepare e Run.
   Risultato: Search fuori schermo di 144px sotto i 700 (fix: ancorato all'header); impostazioni di Help fuori di 42px a OGNI larghezza (fix: pannello min(18rem,100vw-2rem)); "Explorati/on" a 320 (fix: 13px sotto 380, 10px morto rimosso).
   Verdetto: keep. Test rosso sul CSS vecchio. Lezione: pkill nella stessa riga di vite preview uccide la shell.
+2026-09-30 D28 editor combattente: reso nella lista sotto la riga toccata (disclosure aria-expanded) + scrollIntoView nearest per la lista che scorre.
+  Risultato: distanza riga->editor da 68-587px a 12-44px, editor in vista a ogni larghezza (a 390 prima fuori schermo). Scartati: editor fisso in cima, solo auto-scroll.
+  Verdetto: keep. e2e nuovo (551px sul vecchio). Mappa ridisegnata: leve da matrice partial e ledger.
