@@ -1,6 +1,6 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-09-30, iterazione 26 (D35 barra Dice/Timer fissa al telefono, Responsive green). Iterazione 25 (landing di #115/#116, audit brace-expansion, D27 corretto con ruling dalla spec, tutto mergiato dal loop su direttiva utente). Iterazione 24: D33 header. Iterazione 23: react-hooks 7, D34. Iterazione 22: D29 chiuso, PR in attesa di merge. Iterazione 21 (stabilizzazione su richiesta
+Aggiornato: 2026-09-30, iterazione 27 (D36 colori del tema scuro: 3 difetti veri). Iterazione 26 (D35 barra Dice/Timer fissa al telefono, Responsive green). Iterazione 25 (landing di #115/#116, audit brace-expansion, D27 corretto con ruling dalla spec, tutto mergiato dal loop su direttiva utente). Iterazione 24: D33 header. Iterazione 23: react-hooks 7, D34. Iterazione 22: D29 chiuso, PR in attesa di merge. Iterazione 21 (stabilizzazione su richiesta
 dell'utente: tutte le PR aperte chiuse, gate di sicurezza sbloccato, toolchain
 portata avanti, un falso allarme di salvataggio corretto). Iterazioni: 21
 (D31/D32/D33), 20 (diagnosi D27), 19 (D27/D28/D29/D30, PR #104), 18 (D24/D25,
@@ -69,16 +69,16 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 
 ## §next-decidable (in ordine)
 
-Stato al 2026-09-30, dopo l'iterazione 26.
+Stato al 2026-09-30, dopo l'iterazione 27.
 
 1. **D35 fatto**: al telefono Dice e Timer in una barra fissa di 61px, scroll
    per raggiungerli da 1842–2199px a 0. *Responsive* ora `green`.
 2. Nulla in attesa di merge: il loop mergia da solo (vedi Protocollo).
-   **Budget CSS: 123.2/130 KiB, margine 6.8.** La prossima slice che aggiunge
+   **Budget CSS: 123.3/130 KiB, margine 6.7.** La prossima slice che aggiunge
    CSS deve guardarlo; D36 (token al posto dei colori a mano) può ridurlo.
-3. Prossime slice del loop: **D36** (44 colori a mano in
-   `session.css`, passata di copertura sul tema scuro), **D26** (reflow a
-   320px), **D28** (editor ancorato alla riga).
+3. Prossime slice del loop: **D26** (reflow a 320px: la prova attuale misura
+   640px; a 320 "Exploration" va a capo a metà parola), **D28** (editor del
+   combattente ancorato alla riga). D36 chiuso: tre difetti del tema scuro.
 4. Ancora dell'utente: **D16** (revoca dei secret orfani, incluso il PAT `TOKEN`).
 5. e2e in container: leggere prima **D25**, un progetto per volta. L'immagine
    podman per WebKit va portata a `mcr.microsoft.com/playwright:v1.63.0-noble`

@@ -13,3 +13,6 @@
 2026-09-30 D35 dock al telefono: barra mini-player fissa (Roll+formula, risultato, tempo, Start, Tools), aperta max 45dvh con pannelli nel flusso.
   Risultato: scroll per Roll/Start a 390x844 da 1842-2199px a 0; barra 61px da 320 a 820, overflow 0. Scartati: dock intero fisso 285px, due righe ~115px.
   Verdetto: keep. e2e: Roll/Start in vista a inizio pagina + raggiungibilità a dock aperto. Lint 4 -> 0 warning sul percorso.
+2026-09-30 D36 colori a mano: sonda axe su 9 stati mai scansionati x chiaro/scuro x desktop/mobile invece di tokenizzare 44 hex alla cieca.
+  Risultato: 3 difetti veri (Oracle 1.44:1 dark, errore dadi 2.19:1 dark, notebook che scorre senza tab stop); dopo la fix 0 violazioni. Resto degli hex su navy o con override.
+  Verdetto: keep. I 3 stati entrano nel test axe scuro (rosso sul vecchio). Sonda cancellata.
