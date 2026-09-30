@@ -742,6 +742,26 @@
      flex: 1;
    }
 
+   /* Below 820px the Run stacks into one column (session.css), so the page scrolls,
+      as in the reference prototype and the spec's tablet/phone contract. A shell
+      locked to 100dvh let flex size the workspace instead: the stacked content
+      overflowed a box that could not scroll and the dock painted over it (D27). */
+   @media (max-width: 820px) {
+     .app-shell--run {
+       display: block;
+       height: auto;
+       overflow: visible;
+     }
+
+     .app-shell--run > .app-content {
+       min-height: 100dvh;
+     }
+
+     .app-content > .run-workspace {
+       flex: 1 0 auto;
+     }
+   }
+
    .arcana-header {
      position: relative;
      z-index: 30;

@@ -94,7 +94,7 @@ test("@critical exports and imports a portable backup", async ({ page }) => {
 
 test("@critical has no automatic WCAG 2.2 A/AA violations in the core shell", async ({
   page,
-}, testInfo) => {
+}) => {
   await page.goto("/");
   const scan = () => scanForViolations(page);
   expect((await scan()).violations).toEqual([]);
@@ -106,18 +106,10 @@ test("@critical has no automatic WCAG 2.2 A/AA violations in the core shell", as
   await page.getByRole("button", { name: "Run", exact: true }).click();
   expect((await scan()).violations).toEqual([]);
 
-  // Deliberately desktop-only, and it must not stay that way: at 390px the navy
-  // utility dock is painted over the initiative footer, so "Up next: <name>"
-  // computes muted ink on navy at 2.86:1 — and the Next Turn button underneath it
-  // cannot be reached at all. That is docket D27, a pre-existing layout defect
-  // this scan discovered, not a property of the editor. Be exact about what this
-  // costs: the dark-theme test below opens the same editor on all four projects,
-  // so mobile keeps DARK coverage — but the editor is now unscanned in LIGHT on
-  // mobile, and nothing else covers it. Delete this guard when D27 is fixed.
-  if (!testInfo.project.name.includes("mobile")) {
-    await openCombatEditor(page);
-    expect((await scan()).violations).toEqual([]);
-  }
+  // Also on mobile: until D27 the dock painted over the initiative footer at 390px,
+  // so this scan was desktop-only.
+  await openCombatEditor(page);
+  expect((await scan()).violations).toEqual([]);
 });
 
 test("@critical has no automatic WCAG 2.2 A/AA violations in dark theme", async ({
@@ -257,6 +249,64 @@ test("@critical keeps header controls from painting over each other at narrow wi
     await page.getByRole("button", { name: "Run", exact: true }).click();
     expect(await overlaps(), `Run at ${width}px`).toEqual([]);
   }
+});
+
+test("@critical keeps every Run control reachable below 820px in every Focus", async ({
+  page,
+}) => {
+  // Below 820px the Run stacks into one column, but the shell stayed locked to
+  // 100dvh with overflow hidden: the stacked content overflowed a box that could
+  // not scroll, and the dock painted over it. Up to 11 controls per Focus were
+  // unreachable at 390px (docket D27). A control counts as reachable when
+  // scrolling it into view leaves its centre inside the viewport and on top.
+  await createScreen(page);
+  await page.getByRole("button", { name: "Run", exact: true }).click();
+  const unreachable = () =>
+    page.evaluate(() => {
+      const misses: string[] = [];
+      const controls = document.querySelectorAll<HTMLElement>(
+        ".run-workspace :is(button, input, select, textarea, a[href], summary)",
+      );
+      for (const element of controls) {
+        const before = element.getBoundingClientRect();
+        if (before.width < 2 || before.height < 2) continue;
+        element.scrollIntoView({ block: "center", inline: "nearest" });
+        const box = element.getBoundingClientRect();
+        const x = box.left + box.width / 2;
+        const y = box.top + box.height / 2;
+        const hit = document.elementFromPoint(x, y);
+        const inView =
+          x >= 0 && y >= 0 && x <= window.innerWidth && y <= window.innerHeight;
+        if (!inView || !hit || !(element.contains(hit) || hit.contains(element)))
+          misses.push(
+            element.getAttribute("aria-label") ||
+              element.textContent?.trim().slice(0, 30) ||
+              element.tagName,
+          );
+      }
+      return misses;
+    });
+
+  const focusNav = page.getByRole("navigation", { name: "Session Focus" });
+  const found: Record<string, string[]> = {};
+  const record = async (label: string) => {
+    const misses = await unreachable();
+    if (misses.length) found[label] = misses;
+  };
+  for (const [width, height] of [
+    [390, 844],
+    [768, 1024],
+    [820, 1180],
+  ]) {
+    await page.setViewportSize({ width, height });
+    for (const focus of ["Narrative", "Social", "Exploration", "Combat"]) {
+      await focusNav.getByRole("button", { name: focus }).click();
+      await record(`${focus} at ${width}px`);
+    }
+    await openCombatEditor(page);
+    await record(`Combat editor at ${width}px`);
+  }
+  expect(found).toEqual({});
 });
 
 test("@critical provides keyboard alternatives for structural reordering", async ({
