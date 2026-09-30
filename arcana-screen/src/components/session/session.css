@@ -514,7 +514,7 @@ body.dark-theme .pacing-step.is-current .pacing-step__num { background: var(--as
 .combatant-list article.is-active { border: 1px solid var(--as-gold-strong); border-radius: 6px; background: var(--as-gold-wash); }
 .initiative-score { font-size: 25px; }
 .combatant-identity { display: flex !important; width: 100%; min-width: 0; align-items: center; gap: 10px; text-align: left; }
-.combatant-identity[aria-pressed='true'] { color: var(--as-gold-ink) !important; box-shadow: var(--as-state-mark-row); }
+.combatant-identity[aria-expanded='true'] { color: var(--as-gold-ink) !important; box-shadow: var(--as-state-mark-row); }
 .combatant-identity > span { display: grid; width: 36px; height: 36px; flex: 0 0 auto; place-items: center; border: 1px solid #a6977d; border-radius: 50%; }
 .combatant-identity p { display: flex; min-width: 0; flex-direction: column; margin: 0; }
 .combatant-identity p strong { font-size: 13px; }
@@ -602,6 +602,7 @@ body[data-density='compact'] .arcana-session .condition-chips span { padding: 2p
 .initiative-footer p { margin: 0; color: var(--as-ink-muted); font-size: 12px; }
 .initiative-footer button { display: flex !important; min-height: 48px; align-items: center; justify-content: center; gap: 18px; color: var(--as-gold-contrast) !important; background: var(--as-gold) !important; border: 1px solid var(--as-gold-strong) !important; border-radius: 6px !important; font-family: var(--as-font-display) !important; font-size: 16px !important; }
 .combat-live-editor { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 7px 10px; color: var(--as-ink-soft); background: var(--as-gold-wash); border: 1px solid var(--as-gold-strong); border-radius: 5px; font-size: 10px; }
+.combatant-list > .combat-live-editor { margin: 2px 0 8px; }
 .combat-live-editor strong { color: var(--as-ink); }
 .combat-live-editor span { margin-right: auto; }
 .combat-live-editor button { min-height: 24px; padding: 5px 7px !important; color: #fff !important; background: var(--as-navy-soft) !important; border-radius: 4px !important; font-size: 9px !important; }
@@ -784,6 +785,8 @@ body.dark-theme .segment-clock span.is-filled { background: var(--as-gold); bord
   .combatant-list article { grid-template-columns: 42px minmax(160px, 1fr) 74px; padding-inline: 5px; }
   .initiative-head { display: none; }
   .combatant-identity > span { display: none; }
+  /* No icon here, so the 4px selection mark would sit on the name: leave it room. */
+  .combatant-identity[aria-expanded='true'] { padding-left: 9px !important; }
   .combatant-hp { padding-right: 5px; }
   .initiative-footer { grid-template-columns: 1fr; padding-left: 0; }
   .batch-init__rows { grid-auto-flow: row; grid-template-columns: 1fr; grid-template-rows: auto !important; }

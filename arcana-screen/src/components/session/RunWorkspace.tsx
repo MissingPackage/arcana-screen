@@ -21,7 +21,7 @@ import {
   UserCircle,
   X,
 } from '@phosphor-icons/react';
-import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import {
   advanceNarrativeBeat,
   advanceSocialClock,
@@ -438,6 +438,12 @@ function CombatView({
   const [confirmReset, setConfirmReset] = useState(false);
   const updateEncounter = (combat: EncounterState) => onWorkspaceChange({ ...workspace, contexts: { ...workspace.contexts, combat } });
   const selected = encounter.combatants.find((combatant) => combatant.id === selectedId);
+  const editorRef = useRef<HTMLDivElement>(null);
+  // On desktop the list scrolls inside its panel: an editor opened under a low row
+  // would sit below the fold, so bring it into view (no-op when already visible).
+  useEffect(() => {
+    if (selectedId) editorRef.current?.scrollIntoView({ block: 'nearest' });
+  }, [selectedId]);
   const selectedIndex = selected ? encounter.combatants.findIndex((combatant) => combatant.id === selected.id) : -1;
   const selectedCanTieUp = !!selected && !selected.initiativeUnset && encounter.combatants[selectedIndex - 1]?.initiative === selected.initiative;
   const selectedCanTieDown = !!selected && !selected.initiativeUnset && encounter.combatants[selectedIndex + 1]?.initiative === selected.initiative;
@@ -570,15 +576,19 @@ function CombatView({
                 const canTieDown = encounter.combatants[index + 1]?.initiative === combatant.initiative;
                 const isTied = !combatant.initiativeUnset && (canTieUp || canTieDown);
                 return (
-                  <article key={combatant.id} className={isActive ? 'is-active' : ''}>
+                  <Fragment key={combatant.id}>
+                  <article className={isActive ? 'is-active' : ''}>
                     <div className="init-cell">
                       <InitiativeCell value={combatant.initiative} unset={combatant.initiativeUnset} ariaLabel={combatant.initiativeUnset ? `Set rolled initiative for ${combatant.name}` : `Initiative for ${combatant.name}`} onCommit={(value) => setInitiative(combatant.id, value)} />
                       {isTied && <span className="tie-flag" aria-hidden="true"><LinkSimple size={12} weight="bold" /></span>}
                     </div>
-                    <button type="button" className="combatant-identity" aria-label={`Manage ${combatant.name}${isTied ? ', initiative tied' : ''}`} aria-pressed={selectedId === combatant.id} onClick={() => setSelectedId(selectedId === combatant.id ? null : combatant.id)}><span><CombatantIcon size={23} /></span><p><strong>{combatant.name}</strong><small>{combatant.detail}</small></p><span className={`combatant-ac${combatant.ac === undefined ? ' combatant-ac--unset' : ''}`} aria-label={combatant.ac !== undefined ? `Armor Class ${combatant.ac}` : `Armor Class not set for ${combatant.name}`}>AC {combatant.ac ?? '—'}</span>{isActive && <em>Active</em>}</button>
+                    <button type="button" className="combatant-identity" aria-label={`Manage ${combatant.name}${isTied ? ', initiative tied' : ''}`} aria-expanded={selectedId === combatant.id} aria-controls={selectedId === combatant.id ? 'combat-live-editor' : undefined} onClick={() => setSelectedId(selectedId === combatant.id ? null : combatant.id)}><span><CombatantIcon size={23} /></span><p><strong>{combatant.name}</strong><small>{combatant.detail}</small></p><span className={`combatant-ac${combatant.ac === undefined ? ' combatant-ac--unset' : ''}`} aria-label={combatant.ac !== undefined ? `Armor Class ${combatant.ac}` : `Armor Class not set for ${combatant.name}`}>AC {combatant.ac ?? '—'}</span>{isActive && <em>Active</em>}</button>
                     <div className={`combatant-hp${combatant.hp < combatant.maxHp / 2 ? ' combatant-hp--bloodied' : ''}`}><span>{combatant.hp} / {combatant.maxHp}</span><i><b style={{ width: `${Math.round(combatant.hp / combatant.maxHp * 100)}%` }} /></i></div>
                     <div className="condition-chips">{combatant.conditions.map((condition) => <span key={condition}>{condition}</span>)}</div>
                   </article>
+                  {/* The editor opens right under the row that was tapped, not after the whole list (DM P1, docket D28). */}
+                  {selected?.id === combatant.id && <div ref={editorRef} id="combat-live-editor" className="combat-live-editor" role="region" aria-label={`Live controls for ${selected.name}`}><strong>{selected.name}</strong><span>HP {selected.hp} / {selected.maxHp} · Temp {selected.tempHp}</span><button type="button" onClick={() => changeHp(-5)}>−5 HP</button><button type="button" onClick={() => changeHp(-1)}>−1 HP</button><button type="button" onClick={() => changeHp(1)}>+1 HP</button><button type="button" onClick={() => changeHp(5)}>+5 HP</button><button type="button" onClick={() => changeTempHp(-1)}>−1 Temp</button><button type="button" onClick={() => changeTempHp(1)}>+1 Temp</button>{(selectedCanTieUp || selectedCanTieDown) && <span className="tie-move" role="group" aria-label={`Break the initiative tie for ${selected.name}`}><button type="button" disabled={!selectedCanTieUp} aria-label={`Move ${selected.name} earlier in the initiative tie`} onClick={() => reorderTie(selected.id, 'up')}><CaretUp size={13} /> Earlier</button><button type="button" disabled={!selectedCanTieDown} aria-label={`Move ${selected.name} later in the initiative tie`} onClick={() => reorderTie(selected.id, 'down')}><CaretDown size={13} /> Later</button></span>}<div className="condition-toggles" role="group" aria-label={`Quick conditions for ${selected.name}`}>{QUICK_CONDITIONS.map((condition) => { const on = hasCondition(selected, condition); return <button key={condition} type="button" className="condition-toggle" aria-pressed={on} onClick={() => flipCondition(condition)}>{on && <Check size={11} weight="bold" />}{condition}</button>; })}</div><label>Conditions<input aria-label={`Conditions for ${selected.name}`} value={selected.conditions.join(', ')} onChange={(event) => changeConditions(event.target.value)} placeholder="Prone, poisoned…" /></label><button type="button" className="remove-combatant" aria-label={`Remove ${selected.name} from the encounter`} onClick={removeSelected}><Trash size={14} /> Remove</button></div>}
+                  </Fragment>
                 );
               })}
             </div>
@@ -620,7 +630,6 @@ function CombatView({
           <button type="button" onClick={() => updateEncounter(advanceTurn(encounter))}>Next Turn <ArrowRight size={22} /></button>
         </footer>
         {!selected && encounter.combatants.length > 0 && <p className="tracker-hint">Tap a combatant to adjust HP, temp HP and conditions. Tap its initiative to set the rolled value.{anyTied ? ' A linked badge marks tied initiatives — open one to nudge it earlier or later.' : ''}</p>}
-        {selected && <div className="combat-live-editor" role="region" aria-label={`Live controls for ${selected.name}`}><strong>{selected.name}</strong><span>HP {selected.hp} / {selected.maxHp} · Temp {selected.tempHp}</span><button type="button" onClick={() => changeHp(-5)}>−5 HP</button><button type="button" onClick={() => changeHp(-1)}>−1 HP</button><button type="button" onClick={() => changeHp(1)}>+1 HP</button><button type="button" onClick={() => changeHp(5)}>+5 HP</button><button type="button" onClick={() => changeTempHp(-1)}>−1 Temp</button><button type="button" onClick={() => changeTempHp(1)}>+1 Temp</button>{(selectedCanTieUp || selectedCanTieDown) && <span className="tie-move" role="group" aria-label={`Break the initiative tie for ${selected.name}`}><button type="button" disabled={!selectedCanTieUp} aria-label={`Move ${selected.name} earlier in the initiative tie`} onClick={() => reorderTie(selected.id, 'up')}><CaretUp size={13} /> Earlier</button><button type="button" disabled={!selectedCanTieDown} aria-label={`Move ${selected.name} later in the initiative tie`} onClick={() => reorderTie(selected.id, 'down')}><CaretDown size={13} /> Later</button></span>}<div className="condition-toggles" role="group" aria-label={`Quick conditions for ${selected.name}`}>{QUICK_CONDITIONS.map((condition) => { const on = hasCondition(selected, condition); return <button key={condition} type="button" className="condition-toggle" aria-pressed={on} onClick={() => flipCondition(condition)}>{on && <Check size={11} weight="bold" />}{condition}</button>; })}</div><label>Conditions<input aria-label={`Conditions for ${selected.name}`} value={selected.conditions.join(', ')} onChange={(event) => changeConditions(event.target.value)} placeholder="Prone, poisoned…" /></label><button type="button" className="remove-combatant" aria-label={`Remove ${selected.name} from the encounter`} onClick={removeSelected}><Trash size={14} /> Remove</button></div>}
         <p className="sr-only" aria-live="polite">Round {encounter.round}, {encounter.combatants[activeIndex]?.name} is active.</p>
       </section>
       <aside className="combat-context">
