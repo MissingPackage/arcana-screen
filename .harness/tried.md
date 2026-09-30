@@ -7,3 +7,6 @@
 2026-09-25 D33 header: utility bar absolute (buco 5.5rem per 243px) + select min 11rem fuori dal wrapper min-w-0. Barra in griglia + picker min(11rem,100%).
   Risultato: sweep 390-1487 nome lungo/corto 0 sovrapposizioni (prima 2 a 390/768/800/1487); header invariato >1100, +46px <700. Scartati: flex-wrap globale (+58px a 1487), wrap <=1100 (resta 1487).
   Verdetto: keep. e2e @critical nuovo, rosso sul CSS vecchio. PR impilata su react-hooks 7.
+2026-09-30 D27 Run sotto 820px: shell Run non più bloccato a 100dvh (scorre il documento, come spec e prototipo), stepper dadi flex-shrink 0, dock a capo.
+  Risultato: controlli irraggiungibili 71 (desktop) / 79 (mobile) -> 0 su 4 Focus + editor x 390/768/820; axe 4.13 verde su 3 progetti, guardia mobile tolta. Emersi 2 colori dark sotto AA (D36).
+  Verdetto: keep. Costo misurato: dock a 1842-2199px di scroll a 390 (D35).

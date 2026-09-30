@@ -10,6 +10,30 @@ gli item aperti.
 
 ## Aperti
 
+- D36 [2026-09-30] [a11y/tema] **Colori scritti a mano senza variante scura:
+  schema ricorrente.** La fix di D27 ha scoperto due siti che il dock copriva
+  (axe non li poteva valutare): `#8a7250` sugli orari (3.36:1 in dark, e
+  4.27:1 anche in chiaro, sotto AA) e `--as-danger` usato come testo (2.18:1 in
+  dark). Corretti con i token `--as-ink-warm` e `--as-danger-ink`, sullo schema
+  di `--as-gold-ink`/`--as-success-ink`. È la quinta volta dopo D2/D4/D11 e le
+  condition chips: `session.css` ha ancora 44 esadecimali scritti a mano. Leva:
+  una passata di copertura (quanti hanno override `.dark-theme`, quanti sono
+  su superfici che cambiano tema), poi token per quelli veri.
+
+- D35 [2026-09-30] [design] **Al telefono Dice e Timer sono in fondo allo
+  scroll.** Costo misurato del ruling D27: a 390×844 il dock comincia fra 1842 e
+  2199px (2–2.6 schermate), a 768×1024 fra 1517 e 1773px. La spec (*Run
+  composition*) li vuole "immediately available in the bottom dock in every
+  Focus"; il prototipo di riferimento li mette in fondo al flusso, come ora. Un
+  dock sticky intero è alto 285px (un terzo dello schermo), quindi non è la
+  risposta. Leva: una riga compatta fissa in basso (Roll e timer, con le opzioni
+  espandibili) sotto gli 820px. Tiene *Responsive* a `partial`. Specchio dello
+  stesso problema: il Focus selector sta in cima alla colonna e il dock in
+  fondo, a ~2000px l'uno dall'altro. Visto sul percorso a 390px: il pannello
+  *Review captures* è `position: fixed; bottom: 91px`, pensato per un dock
+  fissato in basso; ora galleggia sopra capture e dock (non modale, Close in
+  vista, quindi non blocca), e il suo pulsante "Star" va a capo in "St / ar".
+
 - D32 [2026-09-25 → 2026-09-25] [bug/trust] **Falso "Save issue" dopo un
   reload senza Screen.** FirstRun persiste `{ screens: [] }`; il validatore di
   `safeStorage` esigeva almeno uno Screen, quindi aprire l'app e ricaricare
@@ -47,68 +71,6 @@ gli item aperti.
   è esattamente ciò che, al merge, ha già revertito una fix una volta.
   Nota ricorrente: **`test:ci` non è il gate CI**; l'audit gira solo in CI,
   quindi un verde locale non ha mai implicato un verde su GitHub.
-
-- D27 [2026-08-13, riscritto dopo diagnosi] [bug/responsive] **P0 — sotto gli
-  820px il Run non ha un contenitore che scorra: ogni Focus lascia controlli
-  fuori dallo schermo, irraggiungibili.** Nato come "il pulsante Next Turn a
-  390px", si è rivelato molto più largo quando l'ho misurato davvero.
-
-  **Meccanismo (corretto: la prima stesura lo attribuiva al dock, sbagliando
-  bersaglio).** `.app-shell` (index.css) è una colonna flex alta `100dvh` con
-  `overflow: hidden`, e `index.css:738` rende `.app-content > .run-workspace`
-  un item `flex: 1`. L'altezza del workspace è quindi decisa dall'algoritmo
-  flex, non dal CSS della sessione: la regola `@media (max-width: 820px)` in
-  `session.css` che dice `height: auto; grid-template-rows: auto auto auto auto`
-  **non vince mai**. Misurato: la riga 2 della griglia riceve lo spazio
-  *avanzato* (`720 − 57 − 223 = 440px`) mentre il suo contenuto è **1695px**;
-  il contenuto trabocca `visible` e il dock, che è la riga 4 e dipinge dopo, ci
-  finisce sopra. Il dock sta dove deve: **l'elemento da correggere è il
-  contenitore di scorrimento che non esiste.**
-
-  **Ampiezza del guasto** (misurata su tutti e 4 i Focus × 3 larghezze, contando
-  i controlli il cui centro cade sotto il viewport o è coperto da un altro
-  elemento):
-
-  | | Narrative | Social | Exploration | Combat |
-  |---|---|---|---|---|
-  | 390×844 (Pixel 5) | 9 fuori schermo | **11** | 4 | 3 + 5 coperti |
-  | 768×1024 | 4 | 9 | 2 | 1 |
-  | 820×1180 | 2 | 6 | 2 | 1 |
-
-  Overflow non scorribile: **578→1561px** a seconda del Focus. Non è un difetto
-  di Combat né di contrasto: **l'intera modalità impilata sotto gli 820px è
-  inservibile**, e il tablet-landscape/laptop 13" è il device dichiarato "al
-  tavolo" dal ledger.
-
-  **Due tentativi di fix, entrambi scartati — perché la prossima iterazione non
-  li rifaccia:**
-  1. `.run-workspace { overflow-y: auto }` a ≤820: rende Next Turn raggiungibile
-     scorrendo, **ma le righe restano schiacciate** (440px) e il dock continua a
-     coprire in permanenza una banda della lista. Mezza fix.
-  2. `.app-content { overflow-y: auto }` + workspace `flex: 0 0 auto`: risolve
-     l'altezza **ma rompe la shell** — l'header intercetta i click sul Focus
-     selector (`screen-manager__primary` sopra il selettore), e tocca anche
-     Prepare. Regressione peggiore del bug.
-  La strada giusta va **disegnata**, non indovinata: o il Run diventa una
-  colonna che scorre con dock in fondo al flusso (e allora la shell deve
-  cedere lo scroll senza che l'header si sovrapponga), o resta viewport-locked
-  e ogni pannello scorre internamente anche sotto gli 820 (cioè si rinuncia
-  all'impilamento). **È un ruling di design con conseguenze su entrambe le
-  modalità: non lo prendo da solo.**
-
-  **Aggiornamento 2026-09-25:** axe 4.13 vede il difetto anche nella scansione
-  del Run su `chromium-mobile`: il dock è dipinto sopra il notebook e i nomi
-  degli strumenti del dock risultano a 1.06–1.29:1 sul pergamena. Per questo
-  `@axe-core/playwright` è trattenuto a 4.12 (D31); va sbloccato con la fix.
-  Dato per il ruling (2026-09-25, D33): l'header sotto i 700px è ora alto 168px
-  nel Run (prima 122, ma con controlli sovrapposti). Con un Run che scorre
-  conta poco; con un Run bloccato sullo schermo sono 46px in meno per i pannelli.
-
-  **Contraddizione da sanare insieme:** la riga *Responsive* della matrice di
-  accettazione dichiara `manual-pass at 1487×1058, 768×1024, 390×844 including
-  overlap regression` — cioè manual-pass **esattamente alle due larghezze qui
-  misurate come rotte**. Il file è di PR #101, ancora aperta: la correzione va
-  fatta lì o subito dopo il merge, non in parallelo.
 
 - D28 [2026-08-13] [design] **RULING preso dal loop: i toggle condizione stanno
   nel live editor, non sulla riga.** Il §next-decidable chiedeva "sulla riga
@@ -161,6 +123,25 @@ gli item aperti.
   ignoto e nessun consumatore.
 
 ## Chiusi
+
+- D27 [2026-08-13 → 2026-09-30] [bug/responsive] **RULING preso dal loop,
+  corretto: sotto gli 820px il Run è una colonna che scorre.** Il ruling non
+  era una preferenza: la spec (*Responsive contract*, tablet: "reflow to a
+  single main column with context following the hero surface"; telefono: "no
+  content is hidden solely because it does not fit") e il prototipo di
+  riferimento (`styles.css`, ≤900px: shell `min-height`, `run-view` a
+  `height: auto`, dock nel flusso) scelgono già la colonna che scorre. Il
+  "cockpit che non scorre" vale al viewport desktop di riferimento. Fix:
+  `.app-shell--run` a ≤820px smette di essere bloccato a `100dvh` e scorre il
+  documento; in più `.dock-stepper` non si stringe più (a 390px era largo 0 e
+  il risultato del tiro ci stava sopra) e il dock va a capo come chiede la spec
+  del telefono, invece di scorrere di lato. Misura: un nuovo `@critical` conta
+  i controlli del Run non raggiungibili (portati in vista, il centro deve stare
+  nel viewport e in cima): **71 su chromium-desktop (14 combinazioni su 15) e 79 su chromium-mobile (15 su 15) prima, 0 dopo su entrambi**. Tolta la
+  guardia desktop-only del test axe; `@axe-core/playwright` sbloccato a 4.13 e
+  tolto l'`ignore` in `dependabot.yml`. Emersi e corretti sul percorso: D36.
+  Costo: D35. Storia della diagnosi (tentativi scartati, tabella per Focus):
+  nel git log di questo file prima del 2026-09-30.
 
 - D33 [2026-09-25 → 2026-09-25] [bug/layout] **Controlli dell'header sovrapposti
   sotto i 1100px: corretto**, branch `fix/run-header-390` (impilato su D34).

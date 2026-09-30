@@ -1,6 +1,6 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-09-30, iterazione 25 (landing di #115/#116 finite nei branch impilati, audit brace-expansion). Iterazione 24: D33 header. Iterazione 23: react-hooks 7, D34. Iterazione 22: D29 chiuso, PR in attesa di merge. Iterazione 21 (stabilizzazione su richiesta
+Aggiornato: 2026-09-30, iterazione 25 (landing di #115/#116, audit brace-expansion, D27 corretto con ruling dalla spec). Iterazione 24: D33 header. Iterazione 23: react-hooks 7, D34. Iterazione 22: D29 chiuso, PR in attesa di merge. Iterazione 21 (stabilizzazione su richiesta
 dell'utente: tutte le PR aperte chiuse, gate di sicurezza sbloccato, toolchain
 portata avanti, un falso allarme di salvataggio corretto). Iterazioni: 21
 (D31/D32/D33), 20 (diagnosi D27), 19 (D27/D28/D29/D30, PR #104), 18 (D24/D25,
@@ -74,14 +74,18 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 
 Stato al 2026-09-30, dopo l'iterazione 25.
 
-1. **D27 — serve ancora il tuo ruling di prodotto.** Sotto gli 820px il Run non
-   ha un contenitore che scorre. La scelta: o il Run diventa una colonna che
-   scorre, o resta viewport-locked e ogni pannello scorre al proprio interno.
-   Ora costa anche il gate: axe 4.13 lo rileva, quindi axe resta a 4.12 finché
-   non c'è la fix. La matrice di accettazione segna *Responsive* `red`.
+1. **D27 corretto**, branch `fix/run-scroll-below-820`, PR su `dev`. Il ruling
+   l'ha preso il loop, ma dalla spec e dal prototipo, che scelgono già la
+   colonna che scorre sotto gli 820px. Controlli irraggiungibili: 71 (chromium-desktop) e 79 (chromium-mobile) → 0 (e2e
+   `@critical` nuovo). Axe sbloccato a 4.13. *Responsive* da `red` a `partial`.
+   La PR contiene anche i commit del landing finché #119 non entra: punta a
+   `dev`, non al branch del landing, quindi non c'è trappola d'impilamento.
 2. **Landing** di react-hooks 7 + D33 e **#118** (audit): merge tuo. Sono
    indipendenti e non impilate, in qualsiasi ordine.
-3. Dopo D27: **D26** (reflow a 320px) e **D28** (editor ancorato alla riga).
+3. Prossime slice del loop: **D35** (Dice e Timer a 2 schermate di scroll sul
+   telefono: riga compatta fissa in basso), **D36** (44 colori a mano in
+   `session.css`, passata di copertura sul tema scuro), **D26** (reflow a
+   320px), **D28** (editor ancorato alla riga).
 4. Dependabot aperte: #113 (react-hot-toast 2.6.1), #117 (vitest 5.0.2).
 5. Ancora tuo: **D16** (revoca dei secret orfani, incluso il PAT `TOKEN`).
 6. e2e in container: leggere prima **D25**, un progetto per volta. L'immagine
