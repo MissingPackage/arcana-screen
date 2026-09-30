@@ -4,11 +4,19 @@ import { useTrustStore } from '../store/trustStore';
 export const SCREEN_STORAGE_KEY = 'arcana_screens';
 export const RECOVERY_STORAGE_KEY = 'arcana_recovery_snapshots';
 export const INVALID_STORAGE_PREFIX = 'arcana_invalid_payload_';
+export const PARTY_STORAGE_KEY = 'arcana_party';
+export const EVOLUTION_STORAGE_KEY = 'arcana_evolution';
+export const THEME_STORAGE_KEY = 'arcana_theme';
+// Saved beside every screens snapshot: a replace import swaps party, preferences and theme
+// right after the screens, so without these a restore brought back screens only.
+const SNAPSHOT_COMPANION_KEYS = [PARTY_STORAGE_KEY, EVOLUTION_STORAGE_KEY, THEME_STORAGE_KEY];
 
 export interface RecoverySnapshot {
   id: string;
   createdAt: string;
   payload: string;
+  /** Raw party, preferences and theme payloads at the time of the snapshot, by storage key. */
+  companions?: Record<string, string>;
 }
 
 const MAX_RECOVERY_SNAPSHOTS = 5;
@@ -77,6 +85,12 @@ const captureRecoverySnapshot = (previousPayload: string, nextPayload: string) =
     id: globalThis.crypto?.randomUUID?.() ?? `recovery-${Date.now()}`,
     createdAt: new Date().toISOString(),
     payload: previousPayload,
+    companions: Object.fromEntries(
+      SNAPSHOT_COMPANION_KEYS.flatMap((key) => {
+        const raw = localStorage.getItem(key);
+        return raw ? [[key, raw]] : [];
+      }),
+    ),
   };
   localStorage.setItem(
     RECOVERY_STORAGE_KEY,

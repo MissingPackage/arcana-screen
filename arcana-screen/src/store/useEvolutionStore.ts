@@ -3,7 +3,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import type { FocusWorkspace } from '../domain/focusModel';
 import type { ReferenceLink, Widget } from './useWidgetStore';
 import type { Screen } from './useScreenStore';
-import { safeLocalStorage } from '../utils/safeStorage';
+import { EVOLUTION_STORAGE_KEY, safeLocalStorage } from '../utils/safeStorage';
 
 export type AppDensity = 'comfortable' | 'compact';
 export type AppLocale = 'en' | 'it';
@@ -112,7 +112,7 @@ export const useEvolutionStore = create<EvolutionState>()(
       setCustomAccent: (customAccent) => set({ customAccent, accentTheme: 'custom' }),
     }),
     {
-      name: 'arcana_evolution',
+      name: EVOLUTION_STORAGE_KEY,
       storage: createJSONStorage(() => safeLocalStorage),
       version: 2,
       migrate: (persistedState) => {
