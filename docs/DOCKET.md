@@ -73,6 +73,24 @@ dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
 
 ## Chiusi
 
+- D39 [2026-09-30 → 2026-09-30] [bug/design] **La densità compact ora mostra 8
+  combattenti su un dispositivo da tavolo.** Era il P0 del DM (ledger iter.
+  17: "non arriva a 8 combattenti visibili, il senso stesso del toggle");
+  l'iter. 18 lo dava per chiuso con "~8", ma misurato su 8 combattenti: a
+  1487×1058 8/8, a **1280×720 5/8** in compact (3/8 comfortable), a 1024×768
+  5/8. Causa principale, trovata misurando: la regola del widget legacy
+  `.combatant-list { display: grid; gap: 0.6rem }` in `index.css` valeva anche
+  per la lista del Run, ~10px vuoti fra ogni riga (67px su 8); ora è limitata a
+  `.initiative-tracker`. Poi "Add combatant" è salito nella riga del titolo
+  accanto a "Set initiative" (+48px, entrambe le densità; solo "+" sotto i
+  520px) e in compact sparisce la riga "Tap a combatant…" (+29px). Risultato:
+  **1280×720 compact 8/8** (comfortable 4/8), tablet touch 1180×820 compact
+  8/8 (target da 44px). Nuovo e2e `@critical` sul percorso vero (Density dal
+  menu, ottavo combattente aggiunto): rosso sul codice di `dev` (5/8 e 7/8).
+  Resta: a 1024×768 compact 7/8, perché sotto i 1100px le condizioni vanno su
+  una seconda riga (58px invece di 38) per il P0 "condizioni visibili"; vedi
+  la leva nella mappa.
+
 - D38 [2026-09-30 → 2026-09-30] [design] **RULING preso dal loop: la Quick
   Reference di Combat spiega le condizioni dei toggle, da un'unica lista.** Il
   ledger (iter. 20): i cinque toggle rapidi (Prone, Poisoned, Concentration,

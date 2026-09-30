@@ -548,7 +548,7 @@ function CombatView({
   return (
     <div className="focus-layout combat-layout">
       <section className="initiative-panel">
-        <header className="panel-title"><h2>Initiative Tracker</h2><div className="tracker-tools">{encounter.combatants.length > 1 && <button type="button" className={`batch-init-toggle${anyUnset ? ' batch-init-toggle--urgent' : ''}`} aria-expanded={batchOpen} onClick={() => (batchOpen ? closeBatch() : openBatch())}><ListNumbers size={15} /> Set initiative</button>}<strong>Round {encounter.round}</strong></div></header>
+        <header className="panel-title"><h2>Initiative Tracker</h2><div className="tracker-tools">{!batchOpen && !addOpen && <button type="button" className="batch-init-toggle encounter-add__toggle" aria-expanded={false} onClick={() => setAddOpen(true)}><Plus size={15} /> <span>Add combatant</span></button>}{encounter.combatants.length > 1 && <button type="button" className={`batch-init-toggle${anyUnset ? ' batch-init-toggle--urgent' : ''}`} aria-expanded={batchOpen} onClick={() => (batchOpen ? closeBatch() : openBatch())}><ListNumbers size={15} /> Set initiative</button>}<strong>Round {encounter.round}</strong></div></header>
         {batchOpen && encounter.combatants.length > 0 ? (
           <form className="batch-init" role="region" aria-label="Set initiative order" onSubmit={(event) => { event.preventDefault(); applyBatch(); }}>
             <p className="batch-init__hint">Type each roll, then apply once — the list won’t reorder while you enter them.</p>
@@ -607,7 +607,7 @@ function CombatView({
             })}
           </div>
         )}
-        {!batchOpen && (
+        {!batchOpen && addOpen && (
           <div className="encounter-add">
             {addOpen ? (
               <form className="encounter-add__form" role="group" aria-label="Add a combatant" onSubmit={(event) => { event.preventDefault(); submitAdd(); }}>
@@ -620,9 +620,7 @@ function CombatView({
                 <button type="button" onClick={resetAdd}>Done</button>
                 <span className="add-note" aria-live="polite">{addedNote}</span>
               </form>
-            ) : (
-              <button type="button" className="encounter-add__toggle" aria-expanded={false} onClick={() => setAddOpen(true)}><Plus size={13} /> Add combatant</button>
-            )}
+            ) : null}
           </div>
         )}
         <footer className="initiative-footer">

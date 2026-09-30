@@ -2066,7 +2066,10 @@
 
 .capture-list,
 .reference-links,
-.combatant-list {
+/* Scoped to the legacy widget: the Run cockpit has its own .combatant-list, and this
+   rule's 0.6rem gap put ~10px between every Combat row (67px over eight combatants,
+   so a laptop showed five of eight in compact density). */
+.initiative-tracker .combatant-list {
   display: grid;
   gap: 0.6rem;
   margin: 0;
