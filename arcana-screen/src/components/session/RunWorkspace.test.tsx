@@ -53,10 +53,10 @@ describe('RunWorkspace', () => {
     expect(screen.getByRole('button', { name: 'Add combatant' })).toBeVisible();
     expect(screen.queryByLabelText('New combatant name')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Remove' })).not.toBeInTheDocument();
-    expect(screen.getByText('Charmed')).toBeVisible();
-    expect(screen.getByText('Frightened')).toBeVisible();
+    expect(screen.getByText('Concentration', { selector: '.quick-reference strong' })).toBeVisible();
+    expect(screen.getByText('Restrained', { selector: '.quick-reference strong' })).toBeVisible();
     expect(screen.getByText('Total Cover')).toBeVisible();
-    expect(screen.getByRole('link', { name: /Monster Manual/ })).toHaveAttribute('href', 'https://www.dndbeyond.com/sources/dnd/free-rules');
+    expect(screen.getByRole('link', { name: /D&D Free Rules \(2024\)/ })).toHaveAttribute('href', 'https://www.dndbeyond.com/sources/dnd/free-rules');
   });
 
   it('exposes beat, section, moment and attitude state without relying on colour', async () => {
@@ -286,6 +286,22 @@ describe('RunWorkspace', () => {
     await user.click(screen.getByRole('button', { name: 'Next Turn' }));
     expect(screen.getByText('Round 4')).toBeVisible();
     expect(screen.getByText('Ser Kael', { selector: '.combatant-identity strong' })).toBeVisible();
+  });
+
+  it('lists in the Quick Reference exactly the conditions the editor toggles', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'combat';
+    render(<StatefulRun initial={workspace} />);
+
+    await user.click(screen.getAllByRole('button', { name: /^Manage / })[0]);
+    const toggles = within(screen.getByRole('group', { name: /^Quick conditions for / }))
+      .getAllByRole('button')
+      .map((button) => button.textContent);
+    const reference = [...document.querySelectorAll('.quick-reference h3 + p strong, .quick-reference h3 ~ p strong')]
+      .slice(0, toggles.length)
+      .map((entry) => entry.textContent);
+    expect(reference).toEqual(toggles);
   });
 
   it('keeps compact Combat HP controls on demand and supports reset undo', async () => {

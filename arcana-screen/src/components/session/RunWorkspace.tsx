@@ -30,7 +30,7 @@ import {
   type FocusId,
   type FocusWorkspace,
 } from '../../domain/focusModel';
-import { QUICK_CONDITIONS, addCombatant, adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, hasCondition, healCombatant, removeCombatant, reorderTiedCombatant, sortCombatants, toggleCondition, type EncounterState } from '../../domain/encounterModel';
+import { QUICK_CONDITIONS, QUICK_CONDITION_RULES, addCombatant, adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, hasCondition, healCombatant, removeCombatant, reorderTiedCombatant, sortCombatants, toggleCondition, type EncounterState } from '../../domain/encounterModel';
 import { mintNpc } from '../../domain/npcModel';
 import { usePartyStore } from '../../store/usePartyStore';
 import type { PartyMember } from '../../domain/partyModel';
@@ -636,10 +636,10 @@ function CombatView({
         <QuickCaptureBar onCapture={onCapture} recentCapture={recentCapture} captureCount={workspace.universal.captures.length} onReview={onReviewCaptures} />
         <section className="quick-reference">
           <header className="panel-title"><h2>Quick Reference</h2><Eye size={20} /></header>
-          <div><h3>Conditions</h3><p><strong>Blinded</strong><span>A creature can't see.</span></p><p><strong>Charmed</strong><span>Can't attack the charmer.</span></p><p><strong>Frightened</strong><span>Disadvantage while the source is in sight.</span></p><p><strong>Grappled</strong><span>Speed becomes 0.</span></p><p><strong>Incapacitated</strong><span>Can't take actions.</span></p></div>
+          <div><h3>Conditions</h3>{QUICK_CONDITIONS.map((condition) => <p key={condition}><strong>{condition}</strong><span>{QUICK_CONDITION_RULES[condition]}</span></p>)}</div>
           <div><h3>Cover</h3><p><strong>Half Cover</strong><span>+2 AC and Dex saves</span></p><p><strong>Three-Quarters</strong><span>+5 AC and Dex saves</span></p><p><strong>Total Cover</strong><span>Can't be targeted directly</span></p></div>
           <div><h3>Encounter notes</h3><ul><li>The worg is protecting the goblin shaman.</li><li>Webbing on the north wall can be burned away.</li><li>Cracked pillar (AC 15, 30 HP) can provide cover.</li></ul></div>
-          <a className="combat-source" href="https://www.dndbeyond.com/sources/dnd/free-rules" target="_blank" rel="noreferrer"><BookOpenText size={15} /> Monster Manual (Basic Rules 2024) <ArrowRight size={14} /></a>
+          <a className="combat-source" href="https://www.dndbeyond.com/sources/dnd/free-rules" target="_blank" rel="noreferrer"><BookOpenText size={15} /> D&amp;D Free Rules (2024) <ArrowRight size={14} /></a>
         </section>
         <div className="encounter-recovery-actions">
           {undo && <button type="button" onClick={() => { updateEncounter(undo); setUndo(null); }}>Undo encounter change</button>}
