@@ -10,15 +10,6 @@ gli item aperti.
 
 ## Aperti
 
-- D33 [2026-09-25] [bug/layout] **Header del Run a 390px: "Search" ed
-  "Edit party" fluttuano sopra lo switcher dello Screen.** Visto sullo
-  screenshot a 390x844 (Pixel 5) di `dev` @ `0504ca6`, identico prima e dopo il
-  bump della toolchain, quindi preesistente. Le due etichette sono testo senza
-  contenitore visibile, sovrapposto al combobox "Current screen". Diverso dal
-  caso chiuso in `docs/verification/2026-07-13-recovery.md` (quello era sul
-  bottone Combat). Non corretto: sta nella stessa shell che la seconda fix
-  scartata di D27 ha rotto, quindi va guardato insieme al ruling su D27.
-
 - D32 [2026-09-25 → 2026-09-25] [bug/trust] **Falso "Save issue" dopo un
   reload senza Screen.** FirstRun persiste `{ screens: [] }`; il validatore di
   `safeStorage` esigeva almeno uno Screen, quindi aprire l'app e ricaricare
@@ -109,6 +100,9 @@ gli item aperti.
   del Run su `chromium-mobile`: il dock è dipinto sopra il notebook e i nomi
   degli strumenti del dock risultano a 1.06–1.29:1 sul pergamena. Per questo
   `@axe-core/playwright` è trattenuto a 4.12 (D31); va sbloccato con la fix.
+  Dato per il ruling (2026-09-25, D33): l'header sotto i 700px è ora alto 168px
+  nel Run (prima 122, ma con controlli sovrapposti). Con un Run che scorre
+  conta poco; con un Run bloccato sullo schermo sono 46px in meno per i pannelli.
 
   **Contraddizione da sanare insieme:** la riga *Responsive* della matrice di
   accettazione dichiara `manual-pass at 1487×1058, 768×1024, 390×844 including
@@ -167,6 +161,38 @@ gli item aperti.
   ignoto e nessun consumatore.
 
 ## Chiusi
+
+- D33 [2026-09-25 → 2026-09-25] [bug/layout] **Controlli dell'header sovrapposti
+  sotto i 1100px: corretto**, branch `fix/run-header-390` (impilato su D34).
+  Diagnosi: non dipendeva da D27. La barra delle utility era `position:
+  absolute` in un buco da 5.5rem pensato per due icone; con Search ed Edit party
+  è larga 243px e copriva lo switcher (≤700px) e il toggle Prepare/Run
+  (700–1100px), **in entrambe le modalità**. Ora è una cella della griglia.
+  Trovato misurando: il select (min-width 11rem) usciva dal suo wrapper
+  `min-w-0` e finiva sotto il toggle anche a **1487px** nel Prepare con un nome
+  lungo; ora il wrapper non scende sotto il select e va a capo la riga delle
+  azioni. Sweep 390–1487px, nome lungo e corto: **0 sovrapposizioni** (prima
+  2 a 390, 768, 800 e 1487). Costo: header +46px sotto i 700px (Run 122→168),
+  +7px fra 768 e 1024; invariato sopra i 1100. Due soluzioni scartate:
+  `flex-wrap` globale (header del Prepare a 1487px da 109 a 167px) e wrap
+  limitato a ≤1100 (lasciava la sovrapposizione a 1487). Guardia: e2e
+  `@critical` a 390/768/1100/1487, rosso sul CSS vecchio. Nota per chi scrive
+  test simili: il contenuto di un `<details>` chiuso riporta un box anche se non
+  è disegnato, quindi va filtrato risalendo tutti i `<details>` antenati.
+
+- D34 [2026-09-25 → 2026-09-25] [deps/refactor] **eslint-plugin-react-hooks 7
+  adottato**, branch `refactor/react-hooks-7` (impilato su D29), ignore tolto da
+  `dependabot.yml`. Sette siti: idratazione dello Screen spostata da un effect di
+  App a `main.tsx` (sparisce `screenIsHydrated`); tour senza stato per le
+  dissolvenze (`@starting-style` + `key` per passo); `Date.now()` in un
+  inizializzatore pigro nel timer; try/catch intorno al JSX di SimpleTable
+  sostituito da un `WidgetErrorBoundary` per tool in ToolFrame (prima un tool in
+  crash mandava tutta l'app alla recovery). **Trovato sul percorso:** la regola
+  globale `* { transition: … }` di `index.css`, fuori layer, batteva ogni utility
+  `transition-*` di Tailwind: la dissolvenza del tour non è mai partita. Messa in
+  `@layer base`; misurato opacità 0.44 a 40ms e 1 a 540ms per passo, 1 subito con
+  reduced-motion. Smoke persistenza: rimozione di un tool sopravvive al reload
+  (5 → 4 → 4).
 
 - D29 [2026-08-13 → 2026-09-25] [design/coverage] **"Lo stato non è mai solo
   colore": completato**, branch `fix/state-not-only-colour`. Worklist rimisurata

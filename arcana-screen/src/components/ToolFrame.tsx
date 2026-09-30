@@ -5,6 +5,7 @@ import { useTrustStore } from '../store/trustStore';
 import type { DeviceProfile, WidgetDisplaySize, WidgetGeometry } from '../store/useWidgetStore';
 import type { ToolDefinition } from './widgets/toolRegistry';
 import WidgetHelpButton from './WidgetHelpButton/WidgetHelpButton';
+import WidgetErrorBoundary from './WidgetErrorBoundary';
 
 interface ToolFrameProps {
   definition: ToolDefinition;
@@ -165,7 +166,7 @@ export default function ToolFrame({
         </div>
       )}
 
-      <div className="tool-body">{children}</div>
+      <div className="tool-body"><WidgetErrorBoundary toolName={definition.name}>{children}</WidgetErrorBoundary></div>
     </>
   );
 }

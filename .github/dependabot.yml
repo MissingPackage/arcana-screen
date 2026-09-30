@@ -30,10 +30,6 @@ updates:
       # typescript-eslint 8.x accetta typescript <6.1.0; la 7 non si installa.
       - dependency-name: typescript
         update-types: ["version-update:semver-major"]
-      # La 7 accende le regole del React Compiler: ~10 errori veri
-      # (setState dentro effect, JSX dentro try/catch in SimpleTable). Serve un refactor, non un bump.
-      - dependency-name: eslint-plugin-react-hooks
-        update-types: ["version-update:semver-major"]
       # 4.13 vede il dock del Run dipinto sopra il notebook a 390px: e' D27, in attesa di ruling.
       - dependency-name: "@axe-core/playwright"
         versions: [">=4.13.0"]
