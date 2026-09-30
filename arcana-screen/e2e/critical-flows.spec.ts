@@ -533,6 +533,50 @@ test("@critical opens the combat editor right under the tapped row", async ({
   }
 });
 
+test("@critical shows eight combatants at once in compact density on a table device", async ({
+  page,
+}, testInfo) => {
+  // The point of compact, per the DM: eight combatants at a glance. On a 13-inch
+  // laptop (1280x720) it showed five: a legacy widget rule put ~10px between every row, and the Add
+  // toggle and the how-to line took the rest (docket D39).
+  // A touch device keeps every control at 44px (index.css, pointer: coarse), so its
+  // table device is a landscape tablet, not a 13-inch laptop.
+  const touch = testInfo.project.name.includes("mobile");
+  await page.setViewportSize(touch ? { width: 1180, height: 820 } : { width: 1280, height: 720 });
+  await createScreen(page);
+  await page.getByRole("button", { name: "Run", exact: true }).click();
+  await page.locator('summary[aria-label="Help and resources"]').click();
+  await page.evaluate(() =>
+    document.querySelectorAll(".header-resources details").forEach((details) => {
+      (details as HTMLDetailsElement).open = true;
+    }),
+  );
+  await page.getByRole("combobox", { name: "Density" }).selectOption("compact");
+  await page.locator('summary[aria-label="Help and resources"]').click();
+  await page
+    .getByRole("navigation", { name: "Session Focus" })
+    .getByRole("button", { name: "Combat" })
+    .click();
+  await page.getByRole("button", { name: "Add combatant" }).click();
+  await page.getByLabel("New combatant name").fill("Bandit Captain");
+  await page.getByLabel("New combatant initiative").fill("9");
+  await page.getByRole("button", { name: "Add", exact: true }).click();
+  await page.getByRole("button", { name: "Done" }).click();
+
+  const visible = await page.evaluate(() => {
+    const list = document.querySelector(".combatant-list")!.getBoundingClientRect();
+    const rows = [...document.querySelectorAll(".combatant-list > article")];
+    return {
+      rows: rows.length,
+      whole: rows.filter((row) => {
+        const box = row.getBoundingClientRect();
+        return box.top >= list.top - 1 && box.bottom <= Math.min(list.bottom, window.innerHeight) + 1;
+      }).length,
+    };
+  });
+  expect(visible).toEqual({ rows: 8, whole: 8 });
+});
+
 test("@critical provides keyboard alternatives for structural reordering", async ({
   page,
 }) => {
