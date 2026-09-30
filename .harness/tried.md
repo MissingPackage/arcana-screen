@@ -25,3 +25,6 @@
 2026-09-30 e2e ciclo di vita Screen: create/switch/Focus per screen/reload, rename/duplicate/delete/Undo/reload, Prepare/Run protetto e senza perdite.
   Risultato: verdi su 3 progetti; mutazione (Undo inefficace) presa. Trovato D37: ogni toast copriva il toggle Prepare/Run a 1280 (15s per l'Undo); spostati in basso sopra il dock.
   Verdetto: keep. Matrice 12 manual-pass / 5 partial / 5 green. Ricaduto nella trappola pkill+vite: store mutato ripristinato subito.
+2026-09-30 D38 condizioni: Quick Reference di Combat generata da QUICK_CONDITIONS + QUICK_CONDITION_RULES (regole 2024) invece di una seconda lista.
+  Risultato: riferimento == toggle (test di dominio e componente), 150/150, e2e verde su 3 progetti. Scartati: allineare i toggle al pannello, due liste.
+  Verdetto: keep. Sul percorso: etichetta della fonte corretta (Free Rules, non Monster Manual).

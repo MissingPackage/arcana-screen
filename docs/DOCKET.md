@@ -73,6 +73,22 @@ dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
 
 ## Chiusi
 
+- D38 [2026-09-30 → 2026-09-30] [design] **RULING preso dal loop: la Quick
+  Reference di Combat spiega le condizioni dei toggle, da un'unica lista.** Il
+  ledger (iter. 20): i cinque toggle rapidi (Prone, Poisoned, Concentration,
+  Stunned, Restrained) non coincidevano con i cinque del pannello accanto
+  (Blinded, Charmed, Frightened, Grappled, Incapacitated), "un DM lo nota
+  subito". Scelta: il pannello legge `QUICK_CONDITIONS` e
+  `QUICK_CONDITION_RULES` in `encounterModel.ts` (parafrasi delle regole 2024,
+  SRD 5.2), quindi spiega sempre ciò che si tocca accanto. Scartati: allineare i
+  toggle al pannello (il set dei toggle è quello più usato al tavolo, e
+  Concentration sparirebbe) e tenere due liste (la causa del difetto). Costo:
+  le cinque definizioni vecchie escono dal pannello rapido; quelle condizioni
+  restano scrivibili nel campo libero dell'editor. Test di dominio e di
+  componente (riferimento == toggle). Sul percorso: il link della fonte diceva
+  "Monster Manual (Basic Rules 2024)" ma porta alle Free Rules; ora "D&D Free
+  Rules (2024)".
+
 - D37 [2026-09-30 → 2026-09-30] [bug/ux] **I toast coprivano l'interruttore
   Prepare/Run.** Trovato dal nuovo e2e del ciclo di vita su Firefox: dopo
   "Create screen" il clic su Run andava in timeout perché il toast lo

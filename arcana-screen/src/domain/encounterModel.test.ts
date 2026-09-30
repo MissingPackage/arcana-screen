@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, hasCondition, removeCombatant, reorderTiedCombatant, sortCombatants, toggleCondition, type EncounterState } from './encounterModel';
+import { QUICK_CONDITIONS, QUICK_CONDITION_RULES, adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, hasCondition, removeCombatant, reorderTiedCombatant, sortCombatants, toggleCondition, type EncounterState } from './encounterModel';
 
 const encounter = (): EncounterState => ({
   round: 3,
@@ -20,6 +20,11 @@ describe('Encounter model', () => {
 
     expect(sortCombatants(input).map((item) => item.id)).toEqual(['c', 'a', 'b']);
     expect(input.map((item) => item.id)).toEqual(['b', 'a', 'c']);
+  });
+
+  it('explains every one-tap condition and nothing else', () => {
+    expect(Object.keys(QUICK_CONDITION_RULES)).toEqual([...QUICK_CONDITIONS]);
+    for (const condition of QUICK_CONDITIONS) expect(QUICK_CONDITION_RULES[condition].length).toBeGreaterThan(10);
   });
 
   it('toggles a condition on and off without disturbing the others', () => {

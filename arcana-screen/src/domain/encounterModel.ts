@@ -96,6 +96,19 @@ export const reorderTiedCombatant = (
 // is the one-tap set, not a catalogue — anything rarer still goes in the free-text
 // field, which is why toggling must not disturb conditions outside this list.
 export const QUICK_CONDITIONS = ['Prone', 'Poisoned', 'Concentration', 'Stunned', 'Restrained'] as const;
+export type QuickCondition = (typeof QUICK_CONDITIONS)[number];
+
+// What each one-tap condition does, paraphrased from the 2024 Free Rules glossary
+// (checked against the text on 2026-09-30).
+// The Combat Quick Reference reads this list, so it always explains exactly the
+// conditions the DM can toggle beside it (it used to list five different ones).
+export const QUICK_CONDITION_RULES: Record<QuickCondition, string> = {
+  Prone: 'Its attacks have disadvantage; attacks against it have advantage within 5 ft, disadvantage beyond.',
+  Poisoned: 'Disadvantage on attack rolls and ability checks.',
+  Concentration: 'Damage forces a Con save: DC 10 or half the damage, whichever is higher.',
+  Stunned: 'Incapacitated; fails Str and Dex saves; attacks against it have advantage.',
+  Restrained: 'Speed 0; disadvantage on attacks and Dex saves; attacks against it have advantage.',
+};
 
 // Both sides are trimmed: an imported or seeded " Prone" would otherwise show the
 // toggle off next to a visible "Prone" chip, and tapping it would add a second one.
