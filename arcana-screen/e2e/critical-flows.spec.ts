@@ -167,6 +167,32 @@ test("@critical has no automatic WCAG 2.2 A/AA violations in dark theme", async 
     await violationsOn(`Run / ${focus}`);
   }
 
+  // States a Focus-level scan never opens, each of which hid a dark-theme bug
+  // (docket D36): white oracle buttons under light ink (1.44:1), the dice error
+  // in a fixed red (2.19:1), and a scrolling notebook with no tab stop once a
+  // capture lengthens it.
+  await openDockTools(page);
+  await page.getByRole("button", { name: "Dice options" }).click();
+  await page.getByLabel("Dice formula").fill("2d6+3");
+  await page.getByRole("button", { name: "Advantage", exact: true }).click();
+  await page.getByRole("button", { name: "Roll" }).click();
+  await expect(page.getByRole("alert")).toBeVisible();
+  await violationsOn("Run / dice options with an error");
+  await page.getByRole("button", { name: "Dice options" }).click();
+  await page.getByRole("button", { name: /Oracle/ }).click();
+  await page
+    .getByRole("group", { name: "Oracle" })
+    .getByRole("button", { name: "Likely", exact: true })
+    .click();
+  await violationsOn("Run / oracle answered");
+  await page.getByRole("button", { name: /Oracle/ }).click();
+  await focusNav.getByRole("button", { name: "Narrative" }).click();
+  for (const text of ["The east ward cracked", "Vessa lied about the key", "Bells at midnight"]) {
+    await page.getByLabel("Quick capture").fill(text);
+    await page.getByRole("button", { name: "Save capture" }).click();
+  }
+  await violationsOn("Run / Narrative after captures");
+
   // Dark is where this surface has actually failed before: the condition chips
   // carried a hardcoded ink colour with no dark override and read 2.02:1, which a
   // light-only scan called clean (iter. 19).
