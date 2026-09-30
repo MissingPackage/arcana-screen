@@ -1,6 +1,6 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-09-30, iterazione 30 (e2e ciclo di vita Screen; D37 toast sopra Prepare/Run). Iterazione 29 (D28 editor del combattente sotto la riga; mappa ridisegnata dalle fonti). Iterazione 28 (D26 reflow a 320px: pannelli Search e impostazioni fuori schermo). Iterazione 27 (D36 colori del tema scuro: 3 difetti veri). Iterazione 26 (D35 barra Dice/Timer fissa al telefono, Responsive green). Iterazione 25 (landing di #115/#116, audit brace-expansion, D27 corretto con ruling dalla spec, tutto mergiato dal loop su direttiva utente). Iterazione 24: D33 header. Iterazione 23: react-hooks 7, D34. Iterazione 22: D29 chiuso, PR in attesa di merge. Iterazione 21 (stabilizzazione su richiesta
+Aggiornato: 2026-09-30, iterazione 31 (D38 Quick Reference = condizioni dei toggle). Iterazione 30 (e2e ciclo di vita Screen; D37 toast sopra Prepare/Run). Iterazione 29 (D28 editor del combattente sotto la riga; mappa ridisegnata dalle fonti). Iterazione 28 (D26 reflow a 320px: pannelli Search e impostazioni fuori schermo). Iterazione 27 (D36 colori del tema scuro: 3 difetti veri). Iterazione 26 (D35 barra Dice/Timer fissa al telefono, Responsive green). Iterazione 25 (landing di #115/#116, audit brace-expansion, D27 corretto con ruling dalla spec, tutto mergiato dal loop su direttiva utente). Iterazione 24: D33 header. Iterazione 23: react-hooks 7, D34. Iterazione 22: D29 chiuso, PR in attesa di merge. Iterazione 21 (stabilizzazione su richiesta
 dell'utente: tutte le PR aperte chiuse, gate di sicurezza sbloccato, toolchain
 portata avanti, un falso allarme di salvataggio corretto). Iterazioni: 21
 (D31/D32/D33), 20 (diagnosi D27), 19 (D27/D28/D29/D30, PR #104), 18 (D24/D25,
@@ -76,7 +76,7 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 
 ## §next-decidable (in ordine)
 
-Stato al 2026-09-30, dopo l'iterazione 30.
+Stato al 2026-09-30, dopo l'iterazione 31.
 
 1. **D35 fatto**: al telefono Dice e Timer in una barra fissa di 61px, scroll
    per raggiungerli da 1842–2199px a 0. *Responsive* ora `green`.
@@ -87,10 +87,8 @@ Stato al 2026-09-30, dopo l'iterazione 30.
    a. ~~e2e del ciclo di vita dello Screen~~ fatto (iter. 30): tre `@critical`,
       e hanno trovato D37 (toast sopra Prepare/Run). *Screen create* e
       *Rename/delete* restano `partial` solo per il Design QA.
-   b. Ledger: i cinque toggle rapidi delle condizioni (Prone, Poisoned,
-      Concentration, Stunned, Restrained) non coincidono con i cinque del
-      pannello Quick Reference accanto; "un DM lo nota subito". Ruling `[design]`
-      del loop.
+   b. ~~Condizioni rapide vs Quick Reference~~ fatto (iter. 31, D38): una
+      sola lista, il pannello spiega ciò che si tocca.
    c. Ledger: la densità compact non arriva a 8 combattenti visibili (P0 DM
       iter. 17). Verificare prima se è ancora vero.
    d. Matrice: UI di validazione dell'import ancora `partial`.
