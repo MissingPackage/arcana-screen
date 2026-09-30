@@ -73,6 +73,90 @@ test("@critical creates, runs, captures and resumes a screen", async ({
   await expect(page.getByText("The east ward cracked")).toBeVisible();
 });
 
+// The screen lifecycle rows of the acceptance matrix had only dated manual
+// passes in the browser; these three make them repeatable.
+const currentScreen = (page: Page) =>
+  page.getByRole("combobox", { name: "Current screen" });
+const focusButton = (page: Page, name: string) =>
+  page
+    .getByRole("navigation", { name: "Session Focus" })
+    .getByRole("button", { name });
+
+test("@critical creates, switches and resumes screens, each with its own Focus", async ({
+  page,
+}) => {
+  await createScreen(page, "Vhal Streets");
+  await page.getByRole("button", { name: "New screen" }).click();
+  await page.getByLabel("Name", { exact: true }).fill("Crypt Fight");
+  await page.getByRole("radio", { name: /Combat/ }).check();
+  await page.getByRole("button", { name: "Create screen" }).click();
+  await expect(currentScreen(page)).toHaveValue(/.+/);
+  await expect(currentScreen(page).locator("option:checked")).toHaveText("Crypt Fight");
+
+  await page.getByRole("button", { name: "Run", exact: true }).click();
+  await focusButton(page, "Combat").click();
+  await currentScreen(page).selectOption({ label: "Vhal Streets" });
+  await page.getByRole("button", { name: "Run", exact: true }).click();
+  await focusButton(page, "Social").click();
+
+  await currentScreen(page).selectOption({ label: "Crypt Fight" });
+  await expect(focusButton(page, "Combat")).toHaveAttribute("aria-pressed", "true");
+
+  await page.reload();
+  await expect(currentScreen(page).locator("option:checked")).toHaveText("Crypt Fight");
+  await expect(focusButton(page, "Combat")).toHaveAttribute("aria-pressed", "true");
+  await currentScreen(page).selectOption({ label: "Vhal Streets" });
+  await expect(focusButton(page, "Social")).toHaveAttribute("aria-pressed", "true");
+});
+
+test("@critical renames, duplicates, deletes and undoes a delete", async ({
+  page,
+}) => {
+  await createScreen(page, "Vhal Streets");
+  await page.getByRole("button", { name: "Manage screens" }).click();
+  const item = (name: string) =>
+    page.locator(".screen-list__item").filter({ hasText: name });
+
+  await item("Vhal Streets").getByRole("button", { name: "Rename" }).click();
+  await page.getByLabel("Screen name", { exact: true }).fill("Vhal Old Town");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(currentScreen(page).locator("option:checked")).toHaveText("Vhal Old Town");
+
+  await item("Vhal Old Town").getByRole("button", { name: "Duplicate" }).click();
+  await expect(item("Vhal Old Town copy")).toHaveCount(1);
+
+  await item("Vhal Old Town copy").getByRole("button", { name: "Delete" }).click();
+  await expect(item("Vhal Old Town copy")).toHaveCount(0);
+  await page.getByRole("button", { name: "Undo", exact: true }).click();
+  await expect(item("Vhal Old Town copy")).toHaveCount(1);
+
+  await page.reload();
+  await page.getByRole("button", { name: "Manage screens" }).click();
+  await expect(item("Vhal Old Town")).toHaveCount(2);
+  await expect(item("Vhal Old Town copy")).toHaveCount(1);
+});
+
+test("@critical keeps Run protected and loses nothing across Prepare and Run", async ({
+  page,
+}) => {
+  await createScreen(page);
+  await expect(page.getByRole("button", { name: "Manage screens" })).toBeVisible();
+  await page.getByRole("button", { name: "Run", exact: true }).click();
+  // Run is protected live play: no structural controls.
+  await expect(page.getByRole("button", { name: "Manage screens" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "New screen" })).toHaveCount(0);
+
+  await focusButton(page, "Exploration").click();
+  await page.getByLabel("Quick capture").fill("A cold draft from the well");
+  await page.getByRole("button", { name: "Save capture" }).click();
+
+  await page.getByRole("button", { name: "Prepare", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Manage screens" })).toBeVisible();
+  await page.getByRole("button", { name: "Run", exact: true }).click();
+  await expect(focusButton(page, "Exploration")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByText("A cold draft from the well").first()).toBeVisible();
+});
+
 test("@critical exports and imports a portable backup", async ({ page }) => {
   await createScreen(page, "Portable Screen");
   await page.locator('summary[aria-label="Help and resources"]').click();

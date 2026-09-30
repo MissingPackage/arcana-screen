@@ -134,7 +134,10 @@ function App() {
 
         {/* Main content area */}
         <div className="app-content">
-          <Toaster />
+          {/* Bottom-centre: top-centre sat on the Prepare/Run toggle, the app's main
+              control, for the toast's whole life (15s for the Undo after a delete).
+              The offset clears the Run dock (index.css, --as-toast-offset). */}
+          <Toaster position="bottom-center" containerStyle={{ bottom: 'var(--as-toast-offset, 16px)' }} />
           <header className="app-header arcana-header">
             <div className="app-header__brand">
               <CompassRose size={29} weight="light" aria-hidden="true" />
