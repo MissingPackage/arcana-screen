@@ -143,6 +143,24 @@ export const exportBackup = () => {
   triggerJsonDownload(backup, `arcana-screen-backup-${new Date().toISOString().slice(0, 10)}.json`);
 };
 
+const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`;
+
+// What "Confirm import" will do, in words, before it does it: the preview used to
+// list only screen names while the import also touched party and preferences.
+export const describeImport = (preview: ImportPreview, strategy: ScreenImportStrategy, currentPartySize: number) => {
+  const { screens, party, evolution } = preview.backup.data;
+  const incoming = Array.isArray(party) ? party.length : 0;
+  if (strategy === 'merge') {
+    const known = new Set(usePartyStore.getState().members.map((member) => member.id));
+    const added = Array.isArray(party) ? party.filter((member) => !member.id || !known.has(member.id)).length : 0;
+    return `Adds ${plural(screens.length, 'screen')}${added ? ` and ${plural(added, 'character')} to your party` : ''}. Your party, preferences and theme stay as they are.`;
+  }
+  const partyEffect = Array.isArray(party)
+    ? `your party (${plural(currentPartySize, 'character')}, replaced by ${incoming})`
+    : 'no party change';
+  return `Replaces all your screens with ${plural(screens.length, 'screen')}, ${partyEffect}${evolution ? ', your preferences' : ''} and your theme. Only screens can be restored from recovery snapshots.`;
+};
+
 export const importBackup = (preview: ImportPreview, strategy: ScreenImportStrategy) => {
   const activeId = preview.backup.data.activeScreenId;
   const screens = [...preview.backup.data.screens];
@@ -150,15 +168,40 @@ export const importBackup = (preview: ImportPreview, strategy: ScreenImportStrat
     screens.sort((a, b) => Number(b.id === activeId) - Number(a.id === activeId));
   }
   const imported = useScreenStore.getState().importScreens(screens, strategy);
-  const currentTheme = useThemeStore.getState().theme;
-  if (preview.backup.data.theme && preview.backup.data.theme !== currentTheme) {
+  const { evolution, party, theme } = preview.backup.data;
+
+  if (strategy === 'merge') {
+    // Merge adds what is missing and never takes anything away: the party roster,
+    // templates and reference packs gain the backup's new entries (by id), while
+    // appearance preferences and theme stay the user's own. Recovery snapshots
+    // cover only screens, so an overwrite here could not be undone (docket D41).
+    if (Array.isArray(party)) {
+      const members = usePartyStore.getState().members;
+      const known = new Set(members.map((member) => member.id));
+      usePartyStore.getState().setMembers([...members, ...party.filter((member) => !member.id || !known.has(member.id))]);
+    }
+    if (evolution) {
+      const current = useEvolutionStore.getState();
+      const addMissing = <T extends { id: string }>(mine: T[], theirs: T[] | undefined) => {
+        const known = new Set(mine.map((item) => item.id));
+        return [...mine, ...(theirs ?? []).filter((item) => !known.has(item.id))];
+      };
+      useEvolutionStore.setState({
+        personalTemplates: addMissing(current.personalTemplates, evolution.personalTemplates),
+        referencePacks: addMissing(current.referencePacks, evolution.referencePacks),
+      });
+    }
+    return imported;
+  }
+
+  if (theme && theme !== useThemeStore.getState().theme) {
     useThemeStore.getState().toggleTheme();
   }
-  if (preview.backup.data.evolution) {
-    useEvolutionStore.setState(preview.backup.data.evolution);
+  if (evolution) {
+    useEvolutionStore.setState(evolution);
   }
-  if (Array.isArray(preview.backup.data.party)) {
-    usePartyStore.getState().setMembers(preview.backup.data.party);
+  if (Array.isArray(party)) {
+    usePartyStore.getState().setMembers(party);
   }
   return imported;
 };
