@@ -742,6 +742,11 @@
      flex: 1;
    }
 
+   /* Toasts sit bottom-centre; in Run they clear the utility dock (118px). */
+   .app-shell--run {
+     --as-toast-offset: 130px;
+   }
+
    /* Below 820px the Run stacks into one column (session.css), so the page scrolls,
       as in the reference prototype and the spec's tablet/phone contract. A shell
       locked to 100dvh let flex size the workspace instead: the stacked content
@@ -759,6 +764,11 @@
 
      .app-content > .run-workspace {
        flex: 1 0 auto;
+     }
+
+     /* Below 820px the dock is a 61px bar pinned to the bottom. */
+     .app-shell--run {
+       --as-toast-offset: 76px;
      }
    }
 
