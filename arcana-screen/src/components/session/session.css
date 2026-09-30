@@ -707,7 +707,7 @@ body.dark-theme .segment-clock span.is-filled { background: var(--as-gold); bord
   .focus-selector { grid-template-columns: 1fr; }
   .focus-selector__label { display: none; }
   .focus-selector__options { grid-template-columns: repeat(4, minmax(72px, 1fr)); min-height: 56px; overflow-x: auto; }
-  .focus-selector__option { flex-direction: column; gap: 3px; font-size: 10px; }
+  .focus-selector__option { flex-direction: column; gap: 3px; }
   .run-workspace__body { overflow: visible; }
   .focus-layout,
   .social-layout,
@@ -751,6 +751,13 @@ body.dark-theme .segment-clock span.is-filled { background: var(--as-gold); bord
   .utility-dock--open { max-height: 45dvh; overflow-y: auto; overscroll-behavior: contain; }
   .utility-dock--open :is(.dice-options, .oracle-options, .timer-options) { position: static; width: 100%; flex-basis: 100%; }
   .utility-dock--open .dock-more svg { transform: rotate(180deg); }
+}
+
+/* At 16px "Exploration" needs ~90px; below 380px a Focus cell is narrower and the word
+   broke mid-way ("Explorati / on"). The .arcana-session prefix is needed to beat the
+   session button reset (font-size: inherit), which silently voided a 10px rule here. */
+@media (max-width: 380px) {
+  .arcana-session .focus-selector__option { font-size: 13px; letter-spacing: 0; }
 }
 
 @media (max-width: 360px) {

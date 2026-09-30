@@ -914,7 +914,8 @@
      top: calc(100% + 0.5rem);
      right: 0;
      display: grid;
-     width: 12rem;
+     /* Wide enough for the settings rows (label + select), never wider than the screen. */
+     width: min(18rem, calc(100vw - 2rem));
      gap: 0.35rem;
      padding: 0.5rem;
      color: #102b49;
@@ -2747,6 +2748,22 @@ body.reduce-motion *::after {
      color: var(--text-main-light);
    }
 
+   /* Below 700px the Search trigger sits in the left half of the header, so a panel
+      anchored to its right edge ran off the left of the screen (144px at 390px). It
+      anchors to the whole header instead. */
+   @media (max-width: 700px) {
+     .arcana-header .workspace-search,
+     .arcana-header .app-header__utilities {
+       position: static;
+     }
+
+     .arcana-header .workspace-search__panel {
+       right: 1rem;
+       left: 1rem;
+       width: auto;
+     }
+   }
+
    body.dark-theme .workspace-search__panel {
      border-color: var(--border-dark);
      background: #101c31;
@@ -2941,7 +2958,7 @@ body.reduce-motion *::after {
 
    .evolution-settings label {
      display: grid;
-     grid-template-columns: minmax(7rem, 1fr) minmax(7rem, 1fr);
+     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
      align-items: center;
      gap: 0.5rem;
    }
