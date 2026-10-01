@@ -74,6 +74,23 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
   l'adozione di Work Sans e il build cadeva sulla risoluzione di
   `@fontsource/work-sans`.
 
+## Loop fermo il 2026-10-01 — decisioni che aspettano l'utente
+
+Le iterazioni 25–38 hanno chiuso tutte le leve di prodotto che il loop poteva
+prendere da solo (D26–D28, D33, D35–D44). Matrice: 12 `manual-pass`,
+5 `partial`, 5 `green`, 0 `red`. Le righe `partial` rimaste non si chiudono
+senza una decisione dell'utente:
+
+1. **Design QA senza riferimento** (*Screen create*, *Rename/delete*, *Theme*):
+   esistono solo quattro mockup del Run in chiaro. O si disegnano i riferimenti
+   (gestione Screen, tema scuro) o la Design QA di quelle righe si dichiara
+   fuori dall'orizzonte. Cambia il criterio di accettazione.
+2. **Audit moderato** (*Accessibility/input*): serve gente vera.
+3. **Deploy di produzione** (*Release/rollback*): pubblico.
+4. **D16**: revoca dei secret orfani, incluso il PAT `TOKEN`.
+
+Una risposta a una qualsiasi di queste riapre il loop (`/loop /product-loop`).
+
 ## §next-decidable (in ordine)
 
 Stato al 2026-10-01, dopo l'iterazione 38.
