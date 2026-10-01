@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { QUICK_CONDITIONS, QUICK_CONDITION_RULES, adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, hasCondition, removeCombatant, reorderTiedCombatant, sortCombatants, toggleCondition, type EncounterState } from './encounterModel';
+import { QUICK_CONDITIONS, QUICK_CONDITION_RULES, addCombatant, adjustTemporaryHp, duplicateCombatant, advanceTurn, applyDamage, createCombatant, hasCondition, removeCombatant, reorderTiedCombatant, sortCombatants, toggleCondition, type EncounterState } from './encounterModel';
 
 const encounter = (): EncounterState => ({
   round: 3,
@@ -11,6 +11,26 @@ const encounter = (): EncounterState => ({
 });
 
 describe('Encounter model', () => {
+  it('keeps the same combatant active when a new one sorts ahead of it', () => {
+    // currentIndex is a position: inserting above the active combatant used to hand
+    // the turn to whoever slid into that slot.
+    const next = addCombatant(encounter(), createCombatant('dragon', { name: 'Young Dragon', initiative: 20 }));
+    expect(next.combatants[next.currentIndex!].id).toBe('scout');
+  });
+
+  it('duplicates a combatant mid-fight with a numbered name, full HP and no conditions', () => {
+    const start = encounter();
+    start.combatants[1] = { ...start.combatants[1], hp: 3, tempHp: 2, conditions: ['Prone'], ac: 13, detail: 'Stealthy' };
+    const once = duplicateCombatant(start, 'scout', 'scout-copy');
+    const copy = once.combatants.find((combatant) => combatant.id === 'scout-copy');
+    expect(copy).toMatchObject({ name: 'Goblin Scout 2', initiative: 15, hp: 7, maxHp: 7, tempHp: 0, conditions: [], ac: 13, detail: 'Stealthy' });
+    expect(once.combatants[once.currentIndex!].id).toBe('scout');
+
+    const twice = duplicateCombatant(once, 'scout-copy', 'scout-copy-2');
+    expect(twice.combatants.find((combatant) => combatant.id === 'scout-copy-2')?.name).toBe('Goblin Scout 3');
+    expect(duplicateCombatant(start, 'missing', 'x')).toBe(start);
+  });
+
   it('sorts by initiative, tie-break and name without mutating input', () => {
     const input = [
       { id: 'b', name: 'Beta', initiative: 12, tieBreaker: 1, hp: 5, maxHp: 5, tempHp: 0, conditions: [] },

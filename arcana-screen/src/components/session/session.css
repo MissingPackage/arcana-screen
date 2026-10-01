@@ -588,7 +588,8 @@ body[data-density='compact'] .arcana-session .tracker-hint { display: none; }
 .arcana-session .encounter-add__form button[type="submit"] { padding: 6px 15px; color: var(--as-gold-contrast); background: var(--as-gold); border: 1px solid var(--as-gold-strong); border-radius: 6px; font-weight: 700; cursor: pointer; }
 .arcana-session .encounter-add__form button[type="button"] { padding: 6px 12px; color: var(--as-ink); background: transparent; border: 1px solid var(--as-line-strong); border-radius: 6px; cursor: pointer; }
 .add-note { color: var(--as-success); font-size: 11px; font-weight: 700; }
-.combat-live-editor button.remove-combatant { display: inline-flex !important; align-items: center; gap: 5px; margin-left: auto; color: #fff !important; background: var(--as-danger) !important; }
+.combat-live-editor button.duplicate-combatant { display: inline-flex !important; align-items: center; gap: 5px; margin-left: auto; }
+.combat-live-editor button.remove-combatant { display: inline-flex !important; align-items: center; gap: 5px; color: #fff !important; background: var(--as-danger) !important; }
 .combatant-hp { padding-right: 25px; }
 .combatant-hp > span { font-size: 10px; font-weight: 600; }
 .combatant-hp i { display: block; height: 6px; margin-top: 5px; overflow: hidden; background: #e2e4dc; border-radius: 999px; }

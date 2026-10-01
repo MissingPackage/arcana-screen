@@ -6,6 +6,7 @@ import {
   CaretLeft,
   CaretRight,
   CaretUp,
+  Copy,
   Check,
   Compass,
   Eye,
@@ -30,7 +31,7 @@ import {
   type FocusId,
   type FocusWorkspace,
 } from '../../domain/focusModel';
-import { QUICK_CONDITIONS, QUICK_CONDITION_RULES, addCombatant, adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, hasCondition, healCombatant, removeCombatant, reorderTiedCombatant, sortCombatants, toggleCondition, type EncounterState } from '../../domain/encounterModel';
+import { QUICK_CONDITIONS, QUICK_CONDITION_RULES, addCombatant, adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, hasCondition, healCombatant, removeCombatant, reorderTiedCombatant, resortEncounter, duplicateCombatant, toggleCondition, type EncounterState } from '../../domain/encounterModel';
 import { mintNpc } from '../../domain/npcModel';
 import { usePartyStore } from '../../store/usePartyStore';
 import type { PartyMember } from '../../domain/partyModel';
@@ -51,6 +52,13 @@ interface RunWorkspaceProps {
 
 const PACING_PHASES = ['Setup', 'Develop', 'Peak', 'Resolve'] as const;
 const pacingPhase = (pacing: number) => PACING_PHASES[Math.min(3, Math.max(0, pacing - 1))];
+
+// Combatant ids must be unique within the encounter; the minter remembers the ids it
+// hands out, so a batch add of N gets N distinct ids.
+const idMinter = (encounter: EncounterState) => {
+  const taken = new Set(encounter.combatants.map((combatant) => combatant.id));
+  return (base: string) => { let id = base; let n = 1; while (taken.has(id)) id = `${base}-${n++}`; taken.add(id); return id; };
+};
 
 // Click the initiative number to type the rolled value; commits on blur / Enter (caller re-sorts).
 // Unset (roster PC not yet rolled) renders as a dashed "—" so it never reads as a real 0.
@@ -454,7 +462,7 @@ function CombatView({
   const addFromRoster = (member: PartyMember) => { setUndo(encounter); updateEncounter(addCombatant(encounter, combatantFromMember(member))); };
   const setInitiative = (id: string, value: number) => {
     setUndo(encounter);
-    updateEncounter({ ...encounter, combatants: sortCombatants(encounter.combatants.map((combatant) => (combatant.id === id ? { ...combatant, initiative: value, initiativeUnset: undefined } : combatant))) });
+    updateEncounter(resortEncounter(encounter, encounter.combatants.map((combatant) => (combatant.id === id ? { ...combatant, initiative: value, initiativeUnset: undefined } : combatant))));
   };
   const reorderTie = (id: string, direction: 'up' | 'down') => { setUndo(encounter); updateEncounter(reorderTiedCombatant(encounter, id, direction)); };
   // Batch entry: type every roll first, sort once — so the list never reflows the row you're about to edit.
@@ -485,8 +493,7 @@ function CombatView({
     const hp = optNum(addDraft.hp);
     const initiative = optNum(addDraft.init);
     setUndo(encounter);
-    const taken = new Set(encounter.combatants.map((combatant) => combatant.id));
-    const makeId = (base: string) => { let id = base; let n = 1; while (taken.has(id)) id = `${base}-${n++}`; taken.add(id); return id; };
+    const makeId = idMinter(encounter);
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'npc';
     let updated = encounter;
     for (let index = 0; index < qty; index += 1) {
@@ -505,7 +512,7 @@ function CombatView({
       const raw = (batchDraft[combatant.id] ?? '').trim();
       return raw === '' ? combatant : { ...combatant, initiative: Number(raw), initiativeUnset: undefined };
     });
-    updateEncounter({ ...encounter, combatants: sortCombatants(combatants) });
+    updateEncounter(resortEncounter(encounter, combatants));
     closeBatch();
   };
   const changeHp = (amount: number) => {
@@ -538,6 +545,11 @@ function CombatView({
     updateEncounter({ round: 1, currentIndex: null, combatants: [] });
     setConfirmReset(false);
     setSelectedId(null);
+  };
+  const duplicateSelected = () => {
+    if (!selected) return;
+    setUndo(encounter);
+    updateEncounter(duplicateCombatant(encounter, selected.id, idMinter(encounter)(selected.id)));
   };
   const removeSelected = () => {
     if (!selected) return;
@@ -587,7 +599,7 @@ function CombatView({
                     <div className="condition-chips">{combatant.conditions.map((condition) => <span key={condition}>{condition}</span>)}</div>
                   </article>
                   {/* The editor opens right under the row that was tapped, not after the whole list (DM P1, docket D28). */}
-                  {selected?.id === combatant.id && <div ref={editorRef} id="combat-live-editor" className="combat-live-editor" role="region" aria-label={`Live controls for ${selected.name}`}><strong>{selected.name}</strong><span>HP {selected.hp} / {selected.maxHp} · Temp {selected.tempHp}</span><button type="button" onClick={() => changeHp(-5)}>−5 HP</button><button type="button" onClick={() => changeHp(-1)}>−1 HP</button><button type="button" onClick={() => changeHp(1)}>+1 HP</button><button type="button" onClick={() => changeHp(5)}>+5 HP</button><button type="button" onClick={() => changeTempHp(-1)}>−1 Temp</button><button type="button" onClick={() => changeTempHp(1)}>+1 Temp</button>{(selectedCanTieUp || selectedCanTieDown) && <span className="tie-move" role="group" aria-label={`Break the initiative tie for ${selected.name}`}><button type="button" disabled={!selectedCanTieUp} aria-label={`Move ${selected.name} earlier in the initiative tie`} onClick={() => reorderTie(selected.id, 'up')}><CaretUp size={13} /> Earlier</button><button type="button" disabled={!selectedCanTieDown} aria-label={`Move ${selected.name} later in the initiative tie`} onClick={() => reorderTie(selected.id, 'down')}><CaretDown size={13} /> Later</button></span>}<div className="condition-toggles" role="group" aria-label={`Quick conditions for ${selected.name}`}>{QUICK_CONDITIONS.map((condition) => { const on = hasCondition(selected, condition); return <button key={condition} type="button" className="condition-toggle" aria-pressed={on} onClick={() => flipCondition(condition)}>{on && <Check size={11} weight="bold" />}{condition}</button>; })}</div><label>Conditions<input aria-label={`Conditions for ${selected.name}`} value={selected.conditions.join(', ')} onChange={(event) => changeConditions(event.target.value)} placeholder="Prone, poisoned…" /></label><button type="button" className="remove-combatant" aria-label={`Remove ${selected.name} from the encounter`} onClick={removeSelected}><Trash size={14} /> Remove</button></div>}
+                  {selected?.id === combatant.id && <div ref={editorRef} id="combat-live-editor" className="combat-live-editor" role="region" aria-label={`Live controls for ${selected.name}`}><strong>{selected.name}</strong><span>HP {selected.hp} / {selected.maxHp} · Temp {selected.tempHp}</span><button type="button" onClick={() => changeHp(-5)}>−5 HP</button><button type="button" onClick={() => changeHp(-1)}>−1 HP</button><button type="button" onClick={() => changeHp(1)}>+1 HP</button><button type="button" onClick={() => changeHp(5)}>+5 HP</button><button type="button" onClick={() => changeTempHp(-1)}>−1 Temp</button><button type="button" onClick={() => changeTempHp(1)}>+1 Temp</button>{(selectedCanTieUp || selectedCanTieDown) && <span className="tie-move" role="group" aria-label={`Break the initiative tie for ${selected.name}`}><button type="button" disabled={!selectedCanTieUp} aria-label={`Move ${selected.name} earlier in the initiative tie`} onClick={() => reorderTie(selected.id, 'up')}><CaretUp size={13} /> Earlier</button><button type="button" disabled={!selectedCanTieDown} aria-label={`Move ${selected.name} later in the initiative tie`} onClick={() => reorderTie(selected.id, 'down')}><CaretDown size={13} /> Later</button></span>}<div className="condition-toggles" role="group" aria-label={`Quick conditions for ${selected.name}`}>{QUICK_CONDITIONS.map((condition) => { const on = hasCondition(selected, condition); return <button key={condition} type="button" className="condition-toggle" aria-pressed={on} onClick={() => flipCondition(condition)}>{on && <Check size={11} weight="bold" />}{condition}</button>; })}</div><label>Conditions<input aria-label={`Conditions for ${selected.name}`} value={selected.conditions.join(', ')} onChange={(event) => changeConditions(event.target.value)} placeholder="Prone, poisoned…" /></label><button type="button" className="duplicate-combatant" aria-label={`Add another ${selected.name.replace(/ \d+$/, '')}`} onClick={duplicateSelected}><Copy size={14} /> Duplicate</button><button type="button" className="remove-combatant" aria-label={`Remove ${selected.name} from the encounter`} onClick={removeSelected}><Trash size={14} /> Remove</button></div>}
                   </Fragment>
                 );
               })}
