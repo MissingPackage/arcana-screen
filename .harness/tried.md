@@ -43,3 +43,6 @@
 2026-10-01 D43 duplica: Qty non copriva "un altro uguale a metà scontro"; Duplicate nell'editor con numero libero, HP pieni, nessuna condizione.
   Risultato: trovato sul percorso che ogni riordino (add, tie, init, batch) faceva saltare il turno; resortEncounter lo fa seguire a chi lo tiene. 156/156, e2e verde.
   Verdetto: keep. Mutazione presa (vecchio add: turno a "Worg 2").
+2026-10-01 D44 marker di pareggio: flag esplicito tieOrdered (Earlier/Later su entrambi, azzerato da una nuova iniziativa) invece di dedurlo dai tieBreaker.
+  Risultato: marker solo sui pareggi aperti; duplicato nasce aperto. 157/157, e2e verde su 3 progetti.
+  Verdetto: keep. Scartato il confronto dei tieBreaker (semantica diversa fra mostri e PG).

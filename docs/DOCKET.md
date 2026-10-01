@@ -73,6 +73,17 @@ dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
 
 ## Chiusi
 
+- D44 [2026-10-01 → 2026-10-01] [design] **Il marker di pareggio sparisce
+  quando il DM ha deciso l'ordine.** P2 del DM (ledger iter. 18): il marker
+  restava per sempre, anche dopo Earlier/Later. Ora il pareggio è "aperto" solo
+  finché uno dei due non è stato ordinato a mano (`tieOrdered`, impostato da
+  `reorderTiedCombatant` su entrambi); una nuova iniziativa per uno dei due lo
+  riapre, e un duplicato nasce in pareggio aperto con la sua fonte
+  (`hasOpenTie`). Scartato: dedurre la risoluzione dai `tieBreaker`, che per i
+  mostri valgono l'iniziativa e per i PG il modificatore, quindi darebbero un
+  ordine arbitrario. Earlier/Later restano disponibili anche dopo. Test di
+  dominio.
+
 - D43 [2026-10-01 → 2026-10-01] [feat/bug] **Duplicare un combattente, e il
   turno che non salta più.** Il P1 del DM "clone/duplica" (ledger, iter. 4) non
   era coperto da Qty, che serve all'inizio dello scontro: a metà combattimento
