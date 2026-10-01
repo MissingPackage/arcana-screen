@@ -18,7 +18,7 @@ Status values: `missing`, `red`, `partial`, `green`, `manual-pass`, `blocked`.
 | Combat                       | green                    | green turn/HP/temp/conditions/reset/undo | manual-pass full round/reset/undo/reload                                 | manual-pass                           | manual-pass    |
 | Dice                         | green                    | green formula/error/modes                | manual-pass formula/error/advantage/disadvantage                         | manual-pass utility dock              | manual-pass    |
 | Timer                        | green                    | green controls/duration/completion       | green automated: reload plus 12-minute suspension, full matrix           | manual-pass utility dock              | manual-pass    |
-| Theme/reduced motion         | green                    | partial                                  | green automated persistence/computed durations                           | partial                               | green          |
+| Theme/reduced motion         | green                    | green header controls (`App.test.tsx`)   | green automated persistence/computed durations                           | partial: no dark-theme reference mockup | partial        |
 | Export/import/recovery       | green                    | green validation; preview states each strategy's effect (D41) | green on the full matrix, WebKit included                                | n/a                                   | green          |
 | Responsive                   | n/a                      | green reflow                             | green automated: every Run control reachable in every Focus + combat editor at 390/768/820, dock open and closed; Roll and Start in view without scrolling (D27, D35); header overlap fixed (D33, e2e at 390/768/1100/1487); desktop 1487×1058 pass | manual-pass desktop only              | green          |
 | Accessibility/input          | n/a                      | green jsx-a11y and alternatives          | green automated: keyboard and 320px reflow with header panels open (D26) and axe in **both themes** on all four projects, WebKit included; 44px touch targets on the mobile project only | partial moderated audit               | partial        |
@@ -64,7 +64,13 @@ era già), le altre due restano `partial` per il Design QA. Valore corrente:
 **12 `manual-pass`, 5 `partial`, 5 `green`, 0 `red`**. Il 2026-10-01
 *Export/import/recovery* passa a `green`: il merge non sovrascrive più party e
 preferenze e l'anteprima dice cosa farà ogni strategia (D41). Valore corrente:
-**12 `manual-pass`, 4 `partial`, 6 `green`, 0 `red`**.
+**12 `manual-pass`, 4 `partial`, 6 `green`, 0 `red`**. Sempre il
+2026-10-01, una correzione al ribasso: *Theme/reduced motion* era `green` con le
+celle component e Design QA `partial`, contro la regola di questa pagina. La
+cella component è ora coperta (`App.test.tsx`: tema e movimento ridotto
+dall'header, con etichette e `aria-pressed`); la Design QA resta `partial`
+perché i mockup di riferimento esistono solo in chiaro. Stato a `partial`.
+Valore corrente: **12 `manual-pass`, 5 `partial`, 5 `green`, 0 `red`**.
 
 Ciò che tiene ferme le righe `partial` non è quasi mai il codice:
 - *Screen create/resume*, *Rename/duplicate/delete*, *Prepare/Run* → il browser
