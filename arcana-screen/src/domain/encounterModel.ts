@@ -11,6 +11,9 @@ export interface EncounterCombatant {
   ac?: number;
   // true when a roster PC was added but the DM has not yet entered a rolled initiative (renders as "—", not "0").
   initiativeUnset?: boolean;
+  // true once the DM has settled a tie on this combatant with Earlier/Later; a new
+  // initiative for it clears the flag, because the tie question is open again.
+  tieOrdered?: boolean;
 }
 
 export interface EncounterState {
@@ -67,6 +70,7 @@ export const duplicateCombatant = (
     hp: source.maxHp,
     tempHp: 0,
     conditions: [],
+    tieOrdered: undefined,
   });
 };
 
@@ -111,6 +115,16 @@ export const removeCombatant = (
   return { ...encounter, combatants, currentIndex };
 };
 
+// A tie needs the DM only while it is open: same initiative as a neighbour and not yet
+// ordered by hand on both sides. Settled ties keep their order without the marker.
+export const hasOpenTie = (combatants: EncounterCombatant[], index: number) => {
+  const combatant = combatants[index];
+  if (!combatant || combatant.initiativeUnset) return false;
+  return [combatants[index - 1], combatants[index + 1]].some(
+    (neighbor) => neighbor && !neighbor.initiativeUnset && neighbor.initiative === combatant.initiative && !(combatant.tieOrdered && neighbor.tieOrdered),
+  );
+};
+
 // Let the DM break an initiative tie by nudging a combatant above/below a same-initiative neighbour.
 export const reorderTiedCombatant = (
   encounter: EncounterState,
@@ -124,7 +138,11 @@ export const reorderTiedCombatant = (
   if (!target || !neighbor || neighbor.initiative !== target.initiative) return encounter; // only reorder within a tie
   // Push the target just past the neighbour's tie-breaker so the order flips deterministically.
   const tieBreaker = direction === 'up' ? neighbor.tieBreaker + 1 : neighbor.tieBreaker - 1;
-  const combatants = encounter.combatants.map((combatant) => (combatant.id === target.id ? { ...combatant, tieBreaker } : combatant));
+  const combatants = encounter.combatants.map((combatant) => {
+    if (combatant.id === target.id) return { ...combatant, tieBreaker, tieOrdered: true };
+    if (combatant.id === neighbor.id) return { ...combatant, tieOrdered: true };
+    return combatant;
+  });
   return resortEncounter(encounter, combatants);
 };
 

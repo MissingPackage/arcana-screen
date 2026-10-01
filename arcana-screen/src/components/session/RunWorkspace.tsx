@@ -31,7 +31,7 @@ import {
   type FocusId,
   type FocusWorkspace,
 } from '../../domain/focusModel';
-import { QUICK_CONDITIONS, QUICK_CONDITION_RULES, addCombatant, adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, hasCondition, healCombatant, removeCombatant, reorderTiedCombatant, resortEncounter, duplicateCombatant, toggleCondition, type EncounterState } from '../../domain/encounterModel';
+import { QUICK_CONDITIONS, QUICK_CONDITION_RULES, addCombatant, adjustTemporaryHp, advanceTurn, applyDamage, createCombatant, hasCondition, healCombatant, removeCombatant, hasOpenTie, reorderTiedCombatant, resortEncounter, duplicateCombatant, toggleCondition, type EncounterState } from '../../domain/encounterModel';
 import { mintNpc } from '../../domain/npcModel';
 import { usePartyStore } from '../../store/usePartyStore';
 import type { PartyMember } from '../../domain/partyModel';
@@ -458,11 +458,11 @@ function CombatView({
   const party = usePartyStore((state) => state.members);
   const encounterIds = new Set(encounter.combatants.map((combatant) => combatant.id));
   const anyUnset = encounter.combatants.some((combatant) => combatant.initiativeUnset);
-  const anyTied = encounter.combatants.some((combatant, index) => !combatant.initiativeUnset && (encounter.combatants[index - 1]?.initiative === combatant.initiative || encounter.combatants[index + 1]?.initiative === combatant.initiative));
+  const anyTied = encounter.combatants.some((_, index) => hasOpenTie(encounter.combatants, index));
   const addFromRoster = (member: PartyMember) => { setUndo(encounter); updateEncounter(addCombatant(encounter, combatantFromMember(member))); };
   const setInitiative = (id: string, value: number) => {
     setUndo(encounter);
-    updateEncounter(resortEncounter(encounter, encounter.combatants.map((combatant) => (combatant.id === id ? { ...combatant, initiative: value, initiativeUnset: undefined } : combatant))));
+    updateEncounter(resortEncounter(encounter, encounter.combatants.map((combatant) => (combatant.id === id ? { ...combatant, initiative: value, initiativeUnset: undefined, tieOrdered: undefined } : combatant))));
   };
   const reorderTie = (id: string, direction: 'up' | 'down') => { setUndo(encounter); updateEncounter(reorderTiedCombatant(encounter, id, direction)); };
   // Batch entry: type every roll first, sort once — so the list never reflows the row you're about to edit.
@@ -510,7 +510,7 @@ function CombatView({
     setUndo(encounter);
     const combatants = encounter.combatants.map((combatant) => {
       const raw = (batchDraft[combatant.id] ?? '').trim();
-      return raw === '' ? combatant : { ...combatant, initiative: Number(raw), initiativeUnset: undefined };
+      return raw === '' ? combatant : { ...combatant, initiative: Number(raw), initiativeUnset: undefined, tieOrdered: undefined };
     });
     updateEncounter(resortEncounter(encounter, combatants));
     closeBatch();
@@ -584,9 +584,7 @@ function CombatView({
               {encounter.combatants.map((combatant, index) => {
                 const isActive = index === activeIndex;
                 const CombatantIcon = combatantIcon(combatant.name, combatant.detail);
-                const canTieUp = encounter.combatants[index - 1]?.initiative === combatant.initiative;
-                const canTieDown = encounter.combatants[index + 1]?.initiative === combatant.initiative;
-                const isTied = !combatant.initiativeUnset && (canTieUp || canTieDown);
+                const isTied = hasOpenTie(encounter.combatants, index);
                 return (
                   <Fragment key={combatant.id}>
                   <article className={isActive ? 'is-active' : ''}>
