@@ -26,13 +26,49 @@ export const sortCombatants = (combatants: EncounterCombatant[]) =>
     left.name.localeCompare(right.name),
   );
 
+// Re-sort after any change to the order. currentIndex is a position, so the turn has to
+// follow the combatant who holds it: inserting or moving someone above them used to hand
+// the turn to whoever slid into that slot. Before the first Next Turn (round 1, first
+// slot) initiatives are still being set, so the top of the new order acts.
+export const resortEncounter = (
+  encounter: EncounterState,
+  combatants: EncounterCombatant[],
+): EncounterState => {
+  const sorted = sortCombatants(combatants);
+  const { currentIndex, round } = encounter;
+  if (currentIndex === null || (round === 1 && currentIndex === 0)) return { ...encounter, combatants: sorted };
+  const activeId = encounter.combatants[currentIndex]?.id;
+  const kept = sorted.findIndex((combatant) => combatant.id === activeId);
+  return { ...encounter, combatants: sorted, currentIndex: kept === -1 ? Math.min(currentIndex, sorted.length - 1) : kept };
+};
+
 export const addCombatant = (
   encounter: EncounterState,
   combatant: EncounterCombatant,
-): EncounterState => ({
-  ...encounter,
-  combatants: sortCombatants([...encounter.combatants, combatant]),
-});
+): EncounterState => resortEncounter(encounter, [...encounter.combatants, combatant]);
+
+// One more of the same mid-fight (a second wolf, a summoned twin): same stats and
+// initiative, full HP, no conditions, and the next free number on the name.
+export const duplicateCombatant = (
+  encounter: EncounterState,
+  combatantId: string,
+  newId: string,
+): EncounterState => {
+  const source = encounter.combatants.find((combatant) => combatant.id === combatantId);
+  if (!source) return encounter;
+  const base = source.name.replace(/ \d+$/, '');
+  const taken = new Set(encounter.combatants.map((combatant) => combatant.name));
+  let number = 2;
+  while (taken.has(`${base} ${number}`)) number += 1;
+  return addCombatant(encounter, {
+    ...source,
+    id: newId,
+    name: `${base} ${number}`,
+    hp: source.maxHp,
+    tempHp: 0,
+    conditions: [],
+  });
+};
 
 export interface NewCombatantInput {
   name: string;
@@ -89,7 +125,7 @@ export const reorderTiedCombatant = (
   // Push the target just past the neighbour's tie-breaker so the order flips deterministically.
   const tieBreaker = direction === 'up' ? neighbor.tieBreaker + 1 : neighbor.tieBreaker - 1;
   const combatants = encounter.combatants.map((combatant) => (combatant.id === target.id ? { ...combatant, tieBreaker } : combatant));
-  return { ...encounter, combatants: sortCombatants(combatants) };
+  return resortEncounter(encounter, combatants);
 };
 
 // The conditions a DM reaches for most in live play. Kept short on purpose: this

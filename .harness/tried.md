@@ -40,3 +40,6 @@
 2026-10-01 D42 snapshot: party, preferenze e tema salvati accanto agli Screen in ogni snapshot e rimessi al ripristino via store.
   Risultato: replace + ripristino riporta Screen, party, densità/lingua e tema (test rosso sul vecchio). 153/153, e2e verde su 3 progetti.
   Verdetto: keep. Mappa ridisegnata con leve f-i da matrice e ledger.
+2026-10-01 D43 duplica: Qty non copriva "un altro uguale a metà scontro"; Duplicate nell'editor con numero libero, HP pieni, nessuna condizione.
+  Risultato: trovato sul percorso che ogni riordino (add, tie, init, batch) faceva saltare il turno; resortEncounter lo fa seguire a chi lo tiene. 156/156, e2e verde.
+  Verdetto: keep. Mutazione presa (vecchio add: turno a "Worg 2").

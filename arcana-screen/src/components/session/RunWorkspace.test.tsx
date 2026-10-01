@@ -288,6 +288,21 @@ describe('RunWorkspace', () => {
     expect(screen.getByText('Ser Kael', { selector: '.combatant-identity strong' })).toBeVisible();
   });
 
+  it('adds another of the selected combatant from the live editor, keeping the turn', async () => {
+    const user = userEvent.setup();
+    const workspace = createDefaultFocusWorkspace();
+    workspace.currentFocus = 'combat';
+    // The turn sits after the Worg, so the copy lands above it in the order.
+    workspace.contexts.combat.currentIndex = 3;
+    const active = workspace.contexts.combat.combatants[3].name;
+    render(<StatefulRun initial={workspace} />);
+
+    await user.click(screen.getByRole('button', { name: 'Manage Worg' }));
+    await user.click(screen.getByRole('button', { name: 'Add another Worg' }));
+    expect(screen.getByText('Worg 2', { selector: '.combatant-identity strong' })).toBeVisible();
+    expect(document.querySelector('.combatant-list article.is-active strong')?.textContent).toBe(active);
+  });
+
   it('lists in the Quick Reference exactly the conditions the editor toggles', async () => {
     const user = userEvent.setup();
     const workspace = createDefaultFocusWorkspace();

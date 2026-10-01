@@ -73,6 +73,22 @@ dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
 
 ## Chiusi
 
+- D43 [2026-10-01 → 2026-10-01] [feat/bug] **Duplicare un combattente, e il
+  turno che non salta più.** Il P1 del DM "clone/duplica" (ledger, iter. 4) non
+  era coperto da Qty, che serve all'inizio dello scontro: a metà combattimento
+  "ne arriva un altro uguale" chiedeva di riscrivere nome, CA e HP. Ora
+  "Duplicate" nell'editor live aggiunge una copia con il primo numero libero
+  ("Worg" → "Worg 2"), stessa CA e iniziativa, HP pieni, nessuna condizione
+  (`duplicateCombatant`). Sul percorso un difetto vero: `currentIndex` è una
+  posizione, e i quattro punti che riordinano (aggiunta, pareggio, modifica
+  dell'iniziativa, impostazione in blocco) non lo aggiornavano, quindi inserire
+  qualcuno sopra il combattente attivo passava il turno a chi scivolava in quel
+  posto. Ora `resortEncounter` fa seguire il turno a chi lo tiene; prima del
+  primo Next Turn (round 1, primo posto) agisce la cima del nuovo ordine, perché
+  si stanno ancora impostando le iniziative. Test di dominio e di componente;
+  mutazione verificata (col vecchio `addCombatant` il turno passa a "Worg 2").
+  Factorizzato anche il generatore di id dei combattenti, ora condiviso.
+
 - D42 [2026-10-01 → 2026-10-01] [bug/trust] **Gli snapshot di recupero ora
   riportano anche party, preferenze e tema.** Coprivano solo `arcana_screens`:
   un replace dell'import (che sostituisce party, preferenze e tema subito dopo

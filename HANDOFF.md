@@ -1,6 +1,6 @@
 # HANDOFF — ArcanaScreen
 
-Aggiornato: 2026-10-01, iterazione 35 (D42 snapshot con party, preferenze e tema; mappa ridisegnata). Iterazione 34 (D41 merge dell'import non distruttivo). Iterazione 33 (D40 condizioni in riga in compact). Iterazione 32 (D39 compact: 8 combattenti al laptop 13"). Iterazione 31 (D38 Quick Reference = condizioni dei toggle). Iterazione 30 (e2e ciclo di vita Screen; D37 toast sopra Prepare/Run). Iterazione 29 (D28 editor del combattente sotto la riga; mappa ridisegnata dalle fonti). Iterazione 28 (D26 reflow a 320px: pannelli Search e impostazioni fuori schermo). Iterazione 27 (D36 colori del tema scuro: 3 difetti veri). Iterazione 26 (D35 barra Dice/Timer fissa al telefono, Responsive green). Iterazione 25 (landing di #115/#116, audit brace-expansion, D27 corretto con ruling dalla spec, tutto mergiato dal loop su direttiva utente). Iterazione 24: D33 header. Iterazione 23: react-hooks 7, D34. Iterazione 22: D29 chiuso, PR in attesa di merge. Iterazione 21 (stabilizzazione su richiesta
+Aggiornato: 2026-10-01, iterazione 36 (D43 duplica combattente, turno che non salta). Iterazione 35 (D42 snapshot con party, preferenze e tema; mappa ridisegnata). Iterazione 34 (D41 merge dell'import non distruttivo). Iterazione 33 (D40 condizioni in riga in compact). Iterazione 32 (D39 compact: 8 combattenti al laptop 13"). Iterazione 31 (D38 Quick Reference = condizioni dei toggle). Iterazione 30 (e2e ciclo di vita Screen; D37 toast sopra Prepare/Run). Iterazione 29 (D28 editor del combattente sotto la riga; mappa ridisegnata dalle fonti). Iterazione 28 (D26 reflow a 320px: pannelli Search e impostazioni fuori schermo). Iterazione 27 (D36 colori del tema scuro: 3 difetti veri). Iterazione 26 (D35 barra Dice/Timer fissa al telefono, Responsive green). Iterazione 25 (landing di #115/#116, audit brace-expansion, D27 corretto con ruling dalla spec, tutto mergiato dal loop su direttiva utente). Iterazione 24: D33 header. Iterazione 23: react-hooks 7, D34. Iterazione 22: D29 chiuso, PR in attesa di merge. Iterazione 21 (stabilizzazione su richiesta
 dell'utente: tutte le PR aperte chiuse, gate di sicurezza sbloccato, toolchain
 portata avanti, un falso allarme di salvataggio corretto). Iterazioni: 21
 (D31/D32/D33), 20 (diagnosi D27), 19 (D27/D28/D29/D30, PR #104), 18 (D24/D25,
@@ -76,7 +76,7 @@ i file da lì dà una foto stantia. Ri-ancorarsi da un worktree allineato a
 
 ## §next-decidable (in ordine)
 
-Stato al 2026-10-01, dopo l'iterazione 35.
+Stato al 2026-10-01, dopo l'iterazione 36.
 
 1. **D35 fatto**: al telefono Dice e Timer in una barra fissa di 61px, scroll
    per raggiungerli da 1842–2199px a 0. *Responsive* ora `green`.
@@ -99,8 +99,8 @@ Stato al 2026-10-01, dopo l'iterazione 35.
    f. Matrice: *Theme/reduced motion* ha stato `green` ma le celle component e
       Design QA sono `partial`: incoerenza. Capire cosa manca e allineare
       stato o celle.
-   g. Ledger, P1 DM: clone/duplica un combattente. Verificare prima se il campo
-      Qty dell'aggiunta lo copre già.
+   g. ~~Duplica combattente~~ fatto (iter. 36, D43), più il turno che saltava
+      quando si inseriva qualcuno sopra il combattente attivo.
    h. Ledger, P2: il marker di pareggio resta dopo aver ordinato e non dice la
       posizione.
    i. Matrice: *Screen create* e *Rename/delete* sono `partial` solo per il
