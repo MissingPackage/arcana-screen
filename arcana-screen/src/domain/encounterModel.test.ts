@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { QUICK_CONDITIONS, QUICK_CONDITION_RULES, addCombatant, adjustTemporaryHp, duplicateCombatant, advanceTurn, applyDamage, createCombatant, hasCondition, removeCombatant, reorderTiedCombatant, sortCombatants, toggleCondition, type EncounterState } from './encounterModel';
+import { QUICK_CONDITIONS, QUICK_CONDITION_RULES, addCombatant, adjustTemporaryHp, duplicateCombatant, advanceTurn, applyDamage, createCombatant, hasCondition, removeCombatant, hasOpenTie, reorderTiedCombatant, sortCombatants, toggleCondition, type EncounterState } from './encounterModel';
 
 const encounter = (): EncounterState => ({
   round: 3,
@@ -29,6 +29,10 @@ describe('Encounter model', () => {
     const twice = duplicateCombatant(once, 'scout-copy', 'scout-copy-2');
     expect(twice.combatants.find((combatant) => combatant.id === 'scout-copy-2')?.name).toBe('Goblin Scout 3');
     expect(duplicateCombatant(start, 'missing', 'x')).toBe(start);
+    // The copy ties with its source, and that tie is open even if the source's was settled.
+    const settled = { ...start, combatants: start.combatants.map((combatant) => ({ ...combatant, tieOrdered: true })) };
+    const fresh = duplicateCombatant(settled, 'scout', 'scout-copy');
+    expect(fresh.combatants.find((combatant) => combatant.id === 'scout-copy')?.tieOrdered).toBeUndefined();
   });
 
   it('sorts by initiative, tie-break and name without mutating input', () => {
@@ -112,6 +116,23 @@ describe('Encounter model', () => {
     const removed = removeCombatant(base, 'kael'); // index 0, before the active one
     expect(removed.combatants.map((combatant) => combatant.id)).toEqual(['scout']);
     expect(removed.combatants[removed.currentIndex ?? -1]?.id).toBe('scout'); // still Goblin Scout
+  });
+
+  it('marks a tie only until the DM has ordered it', () => {
+    // The tie marker used to stay after Earlier/Later had settled the order (DM P2).
+    const tie: EncounterState = { round: 1, currentIndex: null, combatants: sortCombatants([
+      { id: 'a', name: 'Alda', initiative: 15, tieBreaker: 0, hp: 5, maxHp: 5, tempHp: 0, conditions: [] },
+      { id: 'b', name: 'Bram', initiative: 15, tieBreaker: 0, hp: 5, maxHp: 5, tempHp: 0, conditions: [] },
+      { id: 'c', name: 'Cyra', initiative: 20, tieBreaker: 0, hp: 5, maxHp: 5, tempHp: 0, conditions: [] },
+    ]) };
+    expect(tie.combatants.map((_, index) => hasOpenTie(tie.combatants, index))).toEqual([false, true, true]);
+
+    const ordered = reorderTiedCombatant(tie, 'b', 'up');
+    expect(ordered.combatants.map((_, index) => hasOpenTie(ordered.combatants, index))).toEqual([false, false, false]);
+
+    // A new roll for one of them reopens the question.
+    const rerolled = ordered.combatants.map((combatant) => (combatant.id === 'a' ? { ...combatant, initiative: 15, tieOrdered: undefined } : combatant));
+    expect(rerolled.map((_, index) => hasOpenTie(rerolled, index))).toEqual([false, true, true]);
   });
 
   it('reorders a tied combatant while leaving other initiatives untouched', () => {
