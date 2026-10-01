@@ -46,3 +46,6 @@
 2026-10-01 D44 marker di pareggio: flag esplicito tieOrdered (Earlier/Later su entrambi, azzerato da una nuova iniziativa) invece di dedurlo dai tieBreaker.
   Risultato: marker solo sui pareggi aperti; duplicato nasce aperto. 157/157, e2e verde su 3 progetti.
   Verdetto: keep. Scartato il confronto dei tieBreaker (semantica diversa fra mostri e PG).
+2026-10-01 riga Theme: era green con celle partial; scritto App.test.tsx (tema e movimento ridotto dall'header, etichette, aria-pressed).
+  Risultato: 159/159, mutazione presa (etichetta fissa). Cella component green, Design QA partial (nessun mockup dark), stato corretto a partial.
+  Verdetto: keep. Matrice 12/5/5/0, al ribasso ma vera.
