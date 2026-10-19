@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 const dist = fileURLToPath(new URL('../dist/', import.meta.url));
 const budgets = {
   '.js': 560 * 1024,
-  '.css': 130 * 1024,
+  '.css': 140 * 1024, // D46: v2 token names add ~5 KiB raw; gzip collapses them (23 KiB)
 };
 
 const files = [];
