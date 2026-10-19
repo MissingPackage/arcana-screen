@@ -14,6 +14,7 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 
 ### Changed
 
+- Design system v2: Spectral, Instrument Sans and JetBrains Mono replace Cinzel and Work Sans; a flat bone plane replaces the parchment textures; a neutral navy chrome; a 4px spacing grid; nothing smaller than 11px; every semantic colour has a dark value. Literal font sizes, radii and colours in the stylesheets now go through the `--as-*` tokens.
 - Adopted the canonical design-token layer from the Claude Design project (`src/styles/tokens.css`): colors, typography, spacing, elevation and motion now flow from one `--as-*` source consumed by both the Run cockpit and the Prepare shell.
 - Body typeface switched from Inter to Work Sans per the design system (Cinzel unchanged); fonts remain self-hosted via `@fontsource` (CSP `font-src 'self'`).
 - Release candidates must pass the automated quality, accessibility, security and browser gates.

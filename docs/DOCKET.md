@@ -14,6 +14,21 @@ dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
 
 ## Aperti
 
+- D47 [2026-10-19] [ci/ops] **Trappola d'ambiente, misurata: su questo host
+  sandbox Firefox 155 (Playwright 1.63) blocca la scansione axe "Run after
+  reload" del test dark.** `frame.evaluate` non ritorna: va in timeout a 30 s e
+  anche a 60 s, identico su `dev` e sul branch v2, mentre in CI firefox è verde
+  (#141, stesso giorno). Dopo il reload la build di produzione è controllata
+  dal service worker. Non è un difetto dell'app e il test non va toccato: chi
+  verifica qui legga firefox-desktop dark come noto-rosso d'ambiente e si
+  affidi alla CI. Da riesaminare se succede anche in CI.
+
+- D46 [2026-10-19] [decisione] **RULING preso dal loop: budget CSS da 130 a
+  140 KiB.** Il design system v2 porta dimensioni e raggi sui token
+  (`var(--as-text-sm)` al posto di `12px`, ~330 occorrenze): +5 KiB grezzi,
+  quasi nulla compresso (gzip 23 KiB). Il budget misura il grezzo, quindi
+  puniva proprio l'uso dei token. Leva vera per ridurlo: il CSS legacy di
+  Prepare (griglia widget), da togliere quando Prepare verrà rifatto.
 - D45 [2026-10-19 → 2026-10-19] [deps] **RULING preso dal loop: audit fix
   lockfile-only per `source-map-js`.** Terza recidiva di D21/D30: advisory high
   nuova (GHSA-68fv-2mgg-jv7q) contro `source-map-js` 1.2.1, transitiva di
