@@ -14,6 +14,15 @@ dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
 
 ## Aperti
 
+- D45 [2026-10-19 → 2026-10-19] [deps] **RULING preso dal loop: audit fix
+  lockfile-only per `source-map-js`.** Terza recidiva di D21/D30: advisory high
+  nuova (GHSA-68fv-2mgg-jv7q) contro `source-map-js` 1.2.1, transitiva di
+  Tailwind e jsdom, quindi `npm audit` in CI rosso su `dev` senza che nessuno
+  toccasse le dipendenze; per questo la #139 (react) cadeva sul job quality.
+  `npx npm@11 audit fix --package-lock-only`: 3 righe di lockfile, 1.2.1 →
+  1.2.2, `package.json` invariato, `npm audit` 0 vulnerabilità, `npm ci` di
+  npm 10 installa pulito. PR propria, non dentro una feature.
+
 - D32 [2026-09-25 → 2026-09-25] [bug/trust] **Falso "Save issue" dopo un
   reload senza Screen.** FirstRun persiste `{ screens: [] }`; il validatore di
   `safeStorage` esigeva almeno uno Screen, quindi aprire l'app e ricaricare
