@@ -501,6 +501,26 @@ Il DM sa che lo stato è salvato, può recuperarlo dopo un problema e può porta
 
 **Evidenza M3:** versione `1.0.0-rc.1`, changelog, artefatto immutabile con SHA-256, lane Preview/Staging/Production, GitHub Pages, release GitHub, runbook di rollback/hotfix, guida utente, security policy e feedback path. Tag, push e deploy non sono stati eseguiti automaticamente.
 
+## M3.5 — Launch polish (prima del lancio pubblico)
+
+**Outcome:** al primo sguardo ArcanaScreen sembra un prodotto finito, non una demo: ogni schermata che un nuovo utente vede usa il design system v2 con la stessa cura del Run.
+
+**Perché:** direttiva dell'utente del 2026-10-19 ("non possiamo fare il lancio pubblico con qualcosa che sembra una demo"). Il Run è già sul design system; Prepare, gestione Screen e first run no.
+
+**Base:** design system v2 (https://claude.ai/artifact/6DwWExjooRCY2Dk82cNsTX), adottato nell'app con la PR #142. Riferimento strutturale: il prototipo nel progetto Claude Design "Arcana Screen Dungeon Master" (`journeys.jsx`, `prepare.jsx`, `shell.jsx`).
+
+**Scope, in ordine:**
+
+1. **LP1 — Gestione Screen in una modale.** Griglia di card (`ScreenCard` v2) con Open, Rename in place, Duplicate, Archive, Delete; creazione in una modale con le card dei template. Si conserva ciò che l'app ha e il prototipo no: Undo dopo l'eliminazione, cartelle, tag, template personali.
+2. **LP2 — Header senza a capo.** A 1280–1440px l'header di Prepare sta su una riga: azioni secondarie (Search, Edit party, Manage) in un menu o nella modale di LP1.
+3. **LP3 — First run sul v2.** Card dei template come in `Field`, anteprima, nome; passo opzionale del party.
+4. **LP4 — Prepare sul v2.** Barra widget come lista v2 senza etichette spezzate; pannelli dei tool con raggi, titoli e azioni v2. Poi, con una spec propria, la libreria strumenti e la configurazione dei contenuti per Focus del prototipo al posto della griglia legacy.
+5. **LP5 — Testi e stati vuoti.** Ogni stato vuoto dice cosa apparirà e come aggiungere il primo elemento, in inglese e italiano.
+6. **LP6 — Identità.** Favicon, icone PWA e anteprima social coerenti col v2.
+7. **LP7 — Design QA.** Tavole di riferimento rifatte sul v2 per *Screen create*, *Rename/delete* e *Theme*; confronto affiancato secondo la spec 01 e correzione dei P0–P2.
+
+**Done quando:** first run, gestione Screen, Prepare e Run superano il confronto affiancato con i riferimenti v2 in entrambi i temi, senza a capo né etichette spezzate da 320px a 1440px, con l'intera matrice `@critical` verde.
+
 ## Exit criteria MVP
 
 ### Prodotto
@@ -662,6 +682,7 @@ Queste opzioni non hanno una data e non devono influenzare l'architettura MVP ol
 
 # Sequenza immediata
 
+0. **Launch polish (M3.5)**, LP1 → LP7, prima di qualsiasi lancio pubblico. Il deploy di produzione resta una decisione dell'utente.
 1. Eseguire sessioni simulate con DM reali su Orizzonti 0–4 e registrare task success, ritrovamento, cattura e uso dei layout avanzati.
 2. ~~Eseguire il gate WebKit nella CI Ubuntu predisposta e la prova Timer dopo sospensione lunga/background.~~ **Chiuso 2026-07-16:** gate WebKit verde in locale e nella CI GitHub (PR #83, fix CSP `upgrade-insecure-requests`); prova Timer post-sospensione automatizzata nella suite `@critical` su tutta la matrice browser.
 3. Validare installazione e recovery offline della PWA su Android e iOS reali.

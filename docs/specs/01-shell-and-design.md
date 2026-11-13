@@ -13,12 +13,12 @@ All Run states use the same ArcanaScreen design system and are compared at the 1
 
 ## Shared visual language
 
-- Deep-navy command header and utility dock.
-- Warm parchment content plane with subtle paper texture.
+- Navy command chrome: header, Focus rail and utility dock, dark in both themes.
+- A flat bone work plane (no texture); panels rest on it with a hairline, no shadow.
 - Muted gold reserved for current position, active Focus and primary live action.
-- Cinzel for brand and section headings; Inter for controls and content.
+- Spectral for brand, panel and scene titles and read-aloud; Instrument Sans for controls and content; JetBrains Mono for glanced numbers (design system v2, 2026-10-19).
 - Phosphor outline icons or the closest matching supplied icon; no emoji or improvised glyphs.
-- Thin separators, 8px radii, minimal shadow and no nested card grid.
+- Thin separators; 8px controls, 12px panels, 16px overlays; shadow only for floating layers; no nested card grid.
 - State is communicated by text/shape/position as well as color.
 
 ## Header contract
