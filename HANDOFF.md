@@ -1,76 +1,117 @@
-# HANDOFF — ArcanaScreen   (aggiornato 2026-10-19, iterazione 39)
+# HANDOFF — ArcanaScreen   (aggiornato 2026-11-13)
 
-## 1. Next decidable
+## 1. Obiettivo e distanza
 
-Loop attivo (`/loop /product-loop`, 5 minuti tra un'iterazione e l'altra) sulla
-milestone **M3.5 Launch polish** di `ROADMAP.md`, in ordine LP1 → LP7. Direttiva
-utente del 2026-10-19: niente lancio pubblico finché l'app sembra una demo;
-aggiungere task e feature dove servono.
+Obiettivo: un DM prepara una sessione e la conduce al tavolo dallo stesso
+Screen, senza perdere nulla.
 
-1. **PR #142** (design system v2): mergiarla quando i cinque job CI sono verdi
-   e il loop-verifier ha dato PASS. Se un job axe è rosso, leggere la
-   violazione: il v2 ha cambiato quasi tutti i colori.
-2. **LP1 — gestione Screen in una modale**, con struttura dal prototipo
-   Claude Design (`journeys.jsx`, `ScreenManagerModal` + `CreateScreenModal`) e
-   card `ScreenCard` del v2. Conservare Undo, cartelle, tag e template
-   personali, che il prototipo non ha. Gli e2e del ciclo di vita
-   (iter. 30) devono restare verdi; aggiornarli se cambia solo il percorso.
-3. Dependabot: #139 (react) dovrebbe tornare verde dopo D45, quindi aggiornarla
-   su `dev`; #140 (tooling) porta violazioni axe nuove in entrambi i temi:
-   probabile bump di axe-core (trattenuto in `dependabot.yml`, vedi D27).
+Adesso: il percorso si spezza a metà. In Run funzionano combattimento, cattura
+con `/`, dadi, timer, persistenza tra Focus e reload, export e import. Ma
+quello che si scrive in Prepare non arriva in Run, e Run si apre su una
+campagna finta ("The Festival of Ash") che non si può sostituire. Nessun DM
+vero ha mai usato l'app. Nessun deploy è mai avvenuto.
 
-## 2. State delta (questa sessione)
+Distanza: invariata dal 2026-07-13, quando è nata la doppia interfaccia. Da
+allora il lavoro è andato in rifinitura, dipendenze e documenti.
 
-- Design system v2 creato in Claude Design:
-  https://claude.ai/artifact/6DwWExjooRCY2Dk82cNsTX (Spectral, Instrument Sans,
-  JetBrains Mono; carta osso piatta; griglia 4px; raggi 8/12/16).
-- PR #142: v2 applicato a tutta l'app. `tokens.css` con valori v2 sui nomi
-  `--as-*`; ~330 font-size e raggi letterali e ~120 colori portati sui token;
-  texture rimosse. Budget CSS 130 → 140 KiB (D46).
-- PR #141 mergiata: audit fix lockfile-only per `source-map-js` (D45).
-- `ROADMAP.md`: nuova milestone M3.5 Launch polish (LP1–LP7).
-- Canvas di riferimento sui token v1 (https://claude.ai/artifact/DP9gHn7xVG53ojYXTHKYjh):
-  superato dal v2; LP7 lo rifà.
+Next: decidere la milestone (vedi Decisioni, punto 1). La review avversariale
+del 2026-11-13 dice che la prossima leva è unire i due modelli di contenuto,
+non rifinire. Testo completo: `docs/review/2026-11-13-adversarial-review.md`.
 
-## 3. Open threads
+Stato del repo: `origin/dev` a `2fa39e2`, zero PR aperte. Gate su quella
+testa: `test:ci` exit 0, 159/159 unit, CSS 132.0/140 KiB, audit high e
+produzione puliti; i cinque job CI verdi sull'ultima PR mergiata.
 
-- #142 in CI; #139 e #140 dependabot rosse (vedi sopra).
-- Matrice di accettazione: *Screen create*, *Rename/delete*, *Theme* restano
-  `partial` per la Design QA (LP7); *Accessibility/input* per l'audit moderato;
-  *Release/rollback* per il deploy di produzione.
+## 2. Leve
 
-## 4. Landmines
+### Aperte (il loop le può prendere da solo)
 
-- **Il checkout principale e il suo `dev` locale sono stantii**: leggere da un
+- **Tempesta di scritture tra finestre.** Con il presenter aperto: 728 eventi
+  di storage in 3 secondi, e i cinque snapshot di recovery distano 28 ms.
+  Guadagno: recovery che recupera, niente CPU bruciata col secondo schermo.
+  Prova: lo stesso conteggio torna a 0 con due finestre ferme.
+- **Import che blocca il workspace.** Un backup con `focusWorkspace`
+  malformato passa la validazione e manda ogni ricarica sull'error boundary.
+  Guadagno: un file condiviso non può più costare tutti gli Screen. Prova: quel
+  backup viene rifiutato o riparato campo per campo, e l'error boundary offre
+  il ripristino di uno snapshot.
+- **Bottoni invisibili nella gestione Screen** (tema chiaro, 1,05:1).
+  Prova: una scansione axe con il pannello aperto, verde.
+- **Nome accessibile dei bottoni del Combat** (docket, "Tre bottoni del
+  Combat"). Prova: axe 4.14 verde, poi togliere la riga da `dependabot.yml`.
+- **Snapshot di recovery ai confini**, non a ogni tasto. Prova: dopo dieci
+  tasti gli snapshot non sono i dieci tasti.
+- **CI anche su `push` a `dev`, più un audit schedulato.** Oggi le advisory
+  nuove si scoprono solo aprendo una PR. Prova: un run notturno rosso quando
+  esce un'advisory high.
+- **Permessi di `release.yml`**: `contents: write` solo al job che crea la
+  release. Prova: il job che fa `npm ci` ha il token in sola lettura.
+- **Piccoli difetti di Run**: note d'incontro scritte nel JSX, primo "Next
+  Turn" che non fa nulla, danno solo a passi di 1 e 5.
+
+### In corso
+
+Nessuna. Il loop è fermo in attesa della decisione 1.
+
+### Morte
+
+- **Design QA contro i mockup a pergamena** (2026-11-13): la spec 01 ora
+  descrive il design system v2 e i mockup no. Il riferimento non vale più.
+- **Aggiornare axe alla 4.14 senza toccare l'app** (2026-11-13): 12 nodi in
+  violazione per scansione su tutti e quattro i progetti.
+
+## 3. Nebbia
+
+- Dependabot ha chiuso la PR del gruppo tooling dopo le due hold. Se la
+  ricrea con gli altri nove aggiornamenti si vede al prossimo giro settimanale.
+- Il crash di Firefox con Playwright 1.65 in CI: causa non isolata.
+- Service worker: aggiornamento e offline mai provati in un browser né su un
+  dispositivo vero.
+- Due schede aperte: i tasti persi sono plausibili, non misurati.
+- Ogni giudizio di usabilità finora è di un agente.
+- I numeri su italiano e costo del processo nella review sono dei revisori,
+  non ricontati.
+
+## 4. Decisioni per Cristiano
+
+1. **Obiettivo: cambiare milestone.** Congelare Launch polish e mettere prima
+   "Prepare scrive ciò che Run mostra": un solo modello di contenuto, Screen
+   che nasce vuoto, campagna finta come template "Sample" a scelta. Con un
+   "ok": il loop riparte da lì, primo passo il workspace vuoto; le parti di
+   Launch polish che ridisegnano la griglia legacy e la sua Design QA vengono
+   tolte, gestione Screen e header restano per dopo.
+2. **Pubblico: una build privata per cinque DM veri**, prima di ogni
+   rifinitura. Con un "ok": dopo il primo passo del punto 1 accendo GitHub
+   Pages da `dev` senza annunciarlo e ti mando l'indirizzo; chi invitare e il
+   canale di feedback restano tuoi.
+3. **Irreversibile: i sette secret orfani.** Il PAT `TOKEN` lo puoi revocare
+   solo tu, alla fonte. Con un "ok": cancello i sette secret dal repo e
+   accendo private vulnerability reporting e alert Dependabot, che
+   `SECURITY.md` promette e oggi sono spenti.
+
+## 5. Mine
+
+- **`dev` è verde su una regola che non viene controllata**: axe è trattenuto
+  sotto la 4.14 finché i nomi dei bottoni del Combat non sono corretti.
+- **Svuotare il workspace di default rompe i test**: una ventina di asserzioni
+  in `RunWorkspace.test.tsx` e parte degli e2e si appoggiano alla campagna
+  finta.
+- **Cancellare codice vecchio più di 30 giorni** (griglia legacy,
+  `ProfileManager`, cache npm sotto `.codex/`) va chiesto prima.
+- Il checkout principale e il suo `dev` locale sono stantii: leggere da un
   worktree allineato a `origin/dev`.
-- **Firefox su questo host blocca axe dopo il reload** nel test dark (D47):
-  identico su `dev`, verde in CI. Non toccare il test; la CI decide.
-- **Host condiviso**: altre sessioni girano Playwright sulla stessa macchina,
-  e unit ed e2e possono andare in timeout per contesa. Rilanciare una volta
-  prima di giudicare.
-- **Mai `pkill -f` con un pattern che compare nella riga di comando stessa**:
-  uccide la shell (exit 144). Successo di nuovo il 2026-10-19.
-- I browser Playwright 1.63 vanno installati su un host nuovo
-  (`npx playwright install chromium firefox webkit`); la cache 1228 non basta.
 - `test:ci` non è il gate CI: in CI girano anche `npm audit` e la matrice
-  browser. Advisory nuove fanno diventare rosso `dev` senza modifiche (D21,
-  D30, D31, D45).
-- Lockfile: rigenerarlo con `npx npm@11 install`, poi verificare `npm ci`.
-- Il webServer di Playwright serve `dist`: rifare `npm run build` dopo ogni
-  modifica a CSS o TS.
-- Le PR impilate si mergiano nel loro branch base, non in `dev`: non impilare.
+  browser. Advisory nuove fanno diventare rosso `dev` senza modifiche.
+- Firefox su questo host blocca axe dopo il reload nel test dark: verde in
+  CI, non toccare il test.
+- Playwright non è installato globale qui: caricarlo dal `node_modules` del
+  repo. Il suo webServer serve `dist`: rifare `npm run build` dopo ogni
+  modifica.
+- Mai `pkill -f` con un pattern che compare nella riga di comando stessa:
+  uccide la shell. Fermare i preview per PID.
+- Lockfile: rigenerarlo con npm 11, poi verificare `npm ci` con npm 10.
+- Le PR impilate si mergiano nel loro branch base, non in `dev`.
 
-## 5. Docket (decisioni dell'utente)
-
-- **D16**: revoca dei secret orfani, incluso il PAT `TOKEN`.
-- Deploy di produzione e lancio pubblico.
-- Audit moderato di accessibilità con persone vere.
-
-## Protocollo
-
-Ogni iterazione: re-anchor da questo file + `docs/DOCKET.md` → una slice →
-gate completi (`test:ci` + `test:e2e:critical`) → loop-verifier → merge su
-`dev` → aggiornare questo file. Il loop mergia da solo alle condizioni di
-`docs/DOCKET.md` ("Chi decide"): PR non impilata, aggiornata su `dev`, cinque
-job CI verdi. Restano dell'utente: scope e obiettivo, secret, deploy di
-produzione. I ruling tecnici li prende il loop e li mette a verbale nel docket.
+Protocollo del loop: re-anchor da questo file e da `docs/DOCKET.md`, una
+slice, gate completi, merge su `dev` alle condizioni scritte nel docket sotto
+"Chi decide".
