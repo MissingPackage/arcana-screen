@@ -14,6 +14,36 @@ dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
 
 ## Aperti
 
+- D49 [2026-11-13] [ci/deps] **Con Playwright 1.65 la pagina Firefox crasha in
+  CI.** PR #148 (gruppo tooling), run 43338725835, lane firefox-desktop, test
+  "no automatic WCAG 2.2 A/AA violations in the core shell":
+  `locator.fill: Page crashed` sul campo *Screen name* subito dopo la prima
+  scansione axe, identico al retry. Con Playwright 1.63 e axe 4.14 in locale il
+  crash non c'è, quindi viene dalla 1.65 (il suo Firefox, o lui con axe); la
+  causa non è isolata. Parente di D47 (Firefox e axe su questo host).
+  **Trattenuta la sola 1.65** in `dependabot.yml`: la 1.66 arriva da sola e
+  dice se è passato. Per isolarla prima: installare i browser della 1.65 e
+  girare quel test su firefox-desktop con axe 4.13.
+
+- D48 [2026-11-13] [a11y] **Tre bottoni del Combat violano WCAG 2.5.3 Label in
+  Name (livello A): l'`aria-label` non contiene il testo che si vede.**
+  `RunWorkspace.tsx`: `.initiative-score` mostra il numero ma si chiama
+  "Initiative for <nome>"; `.combatant-identity` mostra nome, dettaglio, AC e
+  "Active" ma si chiama "Manage <nome>" (e così AC e "Active" non arrivano
+  nemmeno allo screen reader); `.duplicate-combatant` mostra "Duplicate" ma si
+  chiama "Add another <nome>". Chi usa il controllo vocale dice ciò che legge e
+  il bottone non risponde. axe 4.13 non lo vede, axe 4.14 sì (regola
+  `label-content-name-mismatch`): 12 nodi per scansione, in chiaro e in scuro,
+  su tutti e quattro i progetti. Riprodotto in locale con axe 4.14 su
+  Chromium e Firefox. **Non corretto qui:** cambia i nomi accessibili della
+  riga di combattimento e una ventina di asserzioni in
+  `RunWorkspace.test.tsx` che li usano come stringa esatta; è una slice a sé.
+  Regola per la fix: il nome accessibile deve contenere, contiguo, tutto il
+  testo visibile del bottone. **axe trattenuto sotto la 4.14** in
+  `dependabot.yml` finché questo è aperto: `dev` è verde su una regola che
+  non viene controllata. La riga *Accessibility/input* della matrice ne tenga
+  conto.
+
 - D47 [2026-10-19] [ci/ops] **Trappola d'ambiente, misurata: su questo host
   sandbox Firefox 155 (Playwright 1.63) blocca la scansione axe "Run after
   reload" del test dark.** `frame.evaluate` non ritorna: va in timeout a 30 s e
