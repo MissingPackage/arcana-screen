@@ -30,6 +30,14 @@ updates:
       # typescript-eslint 8.x accetta typescript <6.1.0; la 7 non si installa.
       - dependency-name: typescript
         update-types: ["version-update:semver-major"]
+      # axe 4.14 accende label-content-name-mismatch (WCAG 2.5.3) su tre bottoni
+      # del Combat: difetto vero dell'app, D48. Togliere quando D48 è chiuso.
+      - dependency-name: "@axe-core/playwright"
+        versions: [">=4.14.0"]
+      # Con Playwright 1.65 la pagina Firefox crasha in CI dopo la prima
+      # scansione axe (D49). Solo la 1.65: la 1.66 va riprovata da sola.
+      - dependency-name: "@playwright/test"
+        versions: ["1.65.x"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
