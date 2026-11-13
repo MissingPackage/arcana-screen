@@ -1,6 +1,6 @@
 # CLAUDE.md — AI Assistant Guide for ArcanaScreen
 
-Guidance for AI assistants working on ArcanaScreen. Last verified: 2026-09-25.
+Guidance for AI assistants working on ArcanaScreen. Last verified: 2026-11-13 (test counts and store table only; see docs/review/2026-11-13-adversarial-review.md for known drift).
 
 ## Project Overview
 
@@ -74,14 +74,14 @@ arcana-screen/                      # repo root (README, LICENSE, ROADMAP.md, CH
 npm run dev               # Vite dev server (HMR)
 npm run build             # tsc -b && vite build
 npm run lint              # eslint
-npm test                  # vitest run (unit/component) — currently 148 tests
+npm test                  # vitest run (unit/component) — 159 tests on 2026-11-13
 npm run test:ci           # build + lint + test + check:budget   ← does NOT run e2e
 npm run test:e2e:critical # Playwright @critical suite (browsers + axe)  ← run this for browser/a11y
 npm run check:budget      # per-file asset budget: 560 KiB per JS chunk / 140 KiB CSS (vendors split via manualChunks; CSS lifted in D46)
 npm run preview           # serve the production build (used by Playwright webServer on :4173)
 ```
 
-**Testing reality (verified 2026-07-16):** `test:ci` runs unit only. Browser flows, responsive, and **axe accessibility/contrast** are only covered by `test:e2e:critical`. Always run the Playwright suite after visual/CSS changes - unit tests will not catch contrast/a11y regressions. Real state (2026-09-25): 148/148 unit green; e2e **37 pass + 3 skip on the full matrix, WebKit included** (the historical WebKit failures were a real cross-browser bug - `upgrade-insecure-requests` in the CSP meta - fixed 2026-07-16, see docs/verification/2026-07-16-webkit-gate.md). On hosts without WebKit system deps the webkit lane needs `sudo npx playwright install-deps webkit` first.
+**Testing reality (verified 2026-07-16):** `test:ci` runs unit only. Browser flows, responsive, and **axe accessibility/contrast** are only covered by `test:e2e:critical`. Always run the Playwright suite after visual/CSS changes - unit tests will not catch contrast/a11y regressions. Real state (2026-11-13): 159/159 unit green; e2e `@critical` is 18 tests per browser project, all five CI jobs green on `dev`, WebKit included (the historical WebKit failures were a real cross-browser bug - `upgrade-insecure-requests` in the CSP meta - fixed 2026-07-16, see docs/verification/2026-07-16-webkit-gate.md). On hosts without WebKit system deps the webkit lane needs `sudo npx playwright install-deps webkit` first.
 
 ## State management (Zustand, localStorage-persisted)
 
@@ -90,6 +90,7 @@ npm run preview           # serve the production build (used by Playwright webSe
 | Screens | `store/useScreenStore.ts` | `arcana_screens` | Screen lifecycle, mode, Focus, workspace |
 | Widgets (legacy) | `store/useWidgetStore.ts` | `arcanaScreenLayout` | Prepare grid widgets + layout |
 | Evolution | `store/useEvolutionStore.ts` | `arcana_evolution` | density, locale (EN/IT), accent theme, templates, reference packs |
+| Party | `store/usePartyStore.ts` | `arcana_party` | party roster used by the Combat Focus |
 | Theme | `store/themeStore.ts` | `arcana_theme` | light/dark, reduced motion |
 | Trust | `store/trustStore.ts` | (autosave status) | save/health status surfaced in UI |
 | Tour | `store/tourStore.ts` | `arcana_tour` | onboarding tour |

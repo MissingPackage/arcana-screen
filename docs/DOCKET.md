@@ -22,7 +22,8 @@ dal repo. Quando Linear è raggiungibile, migrare gli item aperti.
   crash non c'è, quindi viene dalla 1.65 (il suo Firefox, o lui con axe); la
   causa non è isolata. Parente di D47 (Firefox e axe su questo host).
   **Trattenuta la sola 1.65** in `dependabot.yml`: la 1.66 arriva da sola e
-  dice se è passato. Per isolarla prima: installare i browser della 1.65 e
+  dice se è passato. Conferma dello stesso giorno: dependabot ha ricreato il
+  gruppo con la 1.64.1 (#150) e Firefox è verde. Per isolarla prima: installare i browser della 1.65 e
   girare quel test su firefox-desktop con axe 4.13.
 
 - D48 [2026-11-13] [a11y] **Tre bottoni del Combat violano WCAG 2.5.3 Label in
