@@ -18,9 +18,10 @@ Next: decidere la milestone (vedi Decisioni, punto 1). La review avversariale
 del 2026-11-13 dice che la prossima leva è unire i due modelli di contenuto,
 non rifinire. Testo completo: `docs/review/2026-11-13-adversarial-review.md`.
 
-Stato del repo: `origin/dev` a `2fa39e2`, zero PR aperte. Gate su quella
-testa: `test:ci` exit 0, 159/159 unit, CSS 132.0/140 KiB, audit high e
-produzione puliti; i cinque job CI verdi sull'ultima PR mergiata.
+Stato del repo: zero PR aperte, tutto su `origin/dev`, compreso il gruppo
+tooling di dependabot (dieci aggiornamenti, Playwright 1.64.1, jsdom 31). Gate
+su quella testa: `test:ci` exit 0, 159/159 unit, CSS 132.0/140 KiB, audit high
+e produzione puliti; i cinque job CI verdi sull'ultima PR mergiata.
 
 ## 2. Leve
 
@@ -62,9 +63,8 @@ Nessuna. Il loop è fermo in attesa della decisione 1.
 
 ## 3. Nebbia
 
-- Dependabot ha chiuso la PR del gruppo tooling dopo le due hold. Se la
-  ricrea con gli altri nove aggiornamenti si vede al prossimo giro settimanale.
-- Il crash di Firefox con Playwright 1.65 in CI: causa non isolata.
+- Il crash di Firefox con Playwright 1.65 in CI: causa non isolata. Con la
+  1.64.1 Firefox è verde, quindi è della 1.65.
 - Service worker: aggiornamento e offline mai provati in un browser né su un
   dispositivo vero.
 - Due schede aperte: i tasti persi sono plausibili, non misurati.
@@ -104,8 +104,9 @@ Nessuna. Il loop è fermo in attesa della decisione 1.
   browser. Advisory nuove fanno diventare rosso `dev` senza modifiche.
 - Firefox su questo host blocca axe dopo il reload nel test dark: verde in
   CI, non toccare il test.
-- Playwright non è installato globale qui: caricarlo dal `node_modules` del
-  repo. Il suo webServer serve `dist`: rifare `npm run build` dopo ogni
+- Playwright ora è 1.64.1: su un host con i browser della 1.63 gli e2e
+  locali non partono finché non si installano quelli nuovi. Non è installato
+  globale qui: caricarlo dal `node_modules` del repo. Il suo webServer serve `dist`: rifare `npm run build` dopo ogni
   modifica.
 - Mai `pkill -f` con un pattern che compare nella riga di comando stessa:
   uccide la shell. Fermare i preview per PID.

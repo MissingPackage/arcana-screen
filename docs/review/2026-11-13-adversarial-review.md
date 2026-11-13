@@ -1,6 +1,8 @@
 # Review avversariale del 2026-11-13
 
-Stato rivisto: `origin/dev` a `2fa39e2`, dopo il merge di tutte le PR aperte.
+Stato rivisto: `origin/dev` a `2fa39e2`, dopo il merge delle PR aperte (il
+gruppo tooling di dependabot è entrato subito dopo e tocca solo dipendenze
+di sviluppo).
 Tre revisori indipendenti (security, architettura, prodotto e roadmap), poi
 verifica a mano dei finding in testa. Ogni riga dice come è stata verificata:
 **rieseguito** (riprodotto di nuovo dopo il revisore), **letto** (confermato nel
